@@ -1,0 +1,10 @@
+{
+    "editor.minimap.enabled": false,
+    "editor.tabSize": 2,
+    "vim.handleKeys": {
+        "<C-c>": false,
+        "<C-v>": false,
+        "<C-f>": false,
+        "<C-a>": false
+    }
+}

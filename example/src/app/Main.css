@@ -1,0 +1,45 @@
+/*
+ * Core
+ */
+ html,body {
+  width: 100%;
+  height: 100%;
+  padding:0; 
+  margin:0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif
+}
+
+canvas {
+  position: absolute; 
+  top: 0px;
+  left: 0px;
+  z-index: -1;
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden;
+  touch-action:none;
+}
+
+#pointer {
+  position: absolute; 
+  top: 0px;
+  left: 0px;
+  z-index: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden;
+}
+
+.sourceCode {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  text-decoration: none; 
+  cursor: pointer;
+  color: cornflowerblue;
+}
+
+.sourceCode:hover {
+  text-decoration: underline;
+}

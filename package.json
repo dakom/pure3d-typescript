@@ -1,0 +1,80 @@
+{
+  "name": "pure3d",
+  "version": "0.0.1",
+  "description": "pure3d",
+  "main": "dist/lib.cjs.js",
+  "module": "dist/lib.esm.js",
+  "typings": "./dist/typings/Lib.d.ts",
+  "scripts": {
+    "install:example": "cd example && npm install",
+    "clean:all": "npm-run-all clean clean:example",
+    "build:all": "npm-run-all build build:example",
+    "strip:all": "npm-run-all clean:all strip strip:example",
+    "strip": "rimraf ./node_modules",
+    "strip:example": "cd example && npm run strip",
+    "clean": "rimraf ./dist",
+    "build": "npm-run-all clean rollup:build typings:emit",
+    "typings:emit": "tsc --emitDeclarationOnly true",
+    "build:example": "npm-run-all clean:example _build:example",
+    "_build:example": "cd example && npm run build",
+    "clean:example": "cd example && npm run clean",
+    "dev": "npm-run-all -s clean -p rollup:watch",
+    "rollup:build": "cross-env NODE_ENV=production rollup -c",
+    "rollup:watch": "cross-env NODE_ENV=production rollup -c -w",
+    "test": "jest",
+    "test:clear": "jest --clearCache",
+    "example": "cd example && npm run dev:auto-reload"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
+  "author": "David Komer",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "22.2.3",
+    "@types/node": "9.6.4",
+    "chokidar": "2.0.3",
+    "cross-env": "5.1.4",
+    "fluture": "8.0.2",
+    "glob": "7.1.2",
+    "jest": "22.4.3",
+    "minify": "3.0.5",
+    "npm-run-all": "4.1.2",
+    "rimraf": "2.6.2",
+    "rollup": "0.57.1",
+    "rollup-plugin-commonjs": "9.1.0",
+    "rollup-plugin-node-resolve": "3.3.0",
+    "rollup-plugin-postcss": "^1.5.1",
+    "rollup-plugin-replace": "2.0.0",
+    "rollup-plugin-string": "^2.0.2",
+    "rollup-plugin-typescript2": "0.12.0",
+    "rollup-plugin-uglify": "3.0.0",
+    "sanctuary": "0.14.1",
+    "shelljs": "0.8.1",
+    "ts-jest": "22.4.2",
+    "ts-node": "5.0.1",
+    "typescript": "2.8.1",
+    "uglify-es": "3.3.10",
+    "webgl-simple": "^8.0.1"
+  },
+  "peerDependencies": {
+    "fluture": ">=6.0.0",
+    "webgl-simple": ">=8.x.x"
+  },
+  "dependencies": {
+    "binary-search-curryed": "1.0.1",
+    "fluture-loaders": "^2.1.2",
+    "gl-matrix": "^2.4.0",
+    "text-encoding": "^0.6.4"
+  }
+}
