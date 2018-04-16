@@ -8,7 +8,8 @@ import "./Main.css";
 
 const buildMode = process.env['NODE_ENV'];
 const buildVersion = process.env['BUILD_VERSION'];
-export const isProductionBuild = buildMode === "production" ? true : false
+export const isProductionBuild = buildMode === "production" ? true : false;
+
 console.log(`%cGltf-Simple v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
 
 export const AppContext = (React as any).createContext();

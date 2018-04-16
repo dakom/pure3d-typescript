@@ -79,10 +79,10 @@ class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:an
 export const GltfWidget = () => (
   <div>
     <AppContext.Consumer>
-    {({isProductionMode, buildMode, buildVersion}) => (
+    {({isProductionBuild, buildMode, buildVersion}) => (
       <ModelContext.Consumer>
         {({model, changeModel}) => {
-          const assetPath = isProductionMode ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
+          const assetPath = isProductionBuild ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
 
           const path = MODEL[model];
 
