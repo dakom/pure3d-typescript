@@ -10,7 +10,7 @@ const buildMode = process.env['NODE_ENV'];
 const buildVersion = process.env['BUILD_VERSION'];
 export const isProductionBuild = buildMode === "production" ? true : false;
 
-console.log(`%cGltf-Simple v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
+console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
 
 export const AppContext = (React as any).createContext();
 
@@ -39,7 +39,7 @@ class App extends React.Component<{}, {model:MODEL}> {
         <ModelContext.Provider value={{model: this.state.model, changeModel: this.changeModel}}>
           <MenuWidget />
           <GltfWidget/>
-          <a className="sourceCode" href="https://github.com/dakom/gltf-simple">View Source</a>
+          <a className="sourceCode" href="https://github.com/dakom/pure3d">View Source</a>
         </ModelContext.Provider>
       </AppContext.Provider>
     </div>
