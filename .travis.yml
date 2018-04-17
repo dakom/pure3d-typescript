@@ -1,3 +1,6 @@
+git:
+  submodules: false # the submodules are just for demo and are loaded via url
+
 language: node_js
 
 node_js:
