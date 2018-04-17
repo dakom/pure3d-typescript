@@ -7,8 +7,8 @@ const cors = require('cors');
 
 let localPath = 
     os.platform() === "darwin"
-    ?   `/Users/davidk/Documents/github/dakom/pure3d/example/gltf-sample-models/2.0`
-    :   `Y:\\dakom\\pure3d\\example\\gltf-sample-models\\2.0`
+    ?   `../example/gltf-sample-models/2.0`
+    :   `..\\example\\gltf-sample-models\\2.0`
 
 localPath = path.resolve(localPath);
 

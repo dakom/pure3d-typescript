@@ -10,8 +10,6 @@ import {S, Maybe} from "../utils/Sanctuary";
 import { getDefaultPerspectiveProjection } from '../utils/Camera';
 
 const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/";
-//TODO: link to local assets on production build too
-//const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/dakom/pure3d/example/gltf-sample-models/2.0/";
 const DEV_ASSET_PATH = "http://localhost:4101/";
 
 class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:any, isLoaded: boolean}> {
