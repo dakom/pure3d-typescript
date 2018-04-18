@@ -37,9 +37,8 @@ class App extends React.Component<{}, {model:MODEL}> {
     return <div>
       <AppContext.Provider value={{isProductionBuild, buildMode, buildVersion}} >
         <ModelContext.Provider value={{model: this.state.model, changeModel: this.changeModel}}>
-          <MenuWidget />
+          <MenuWidget handleSelected={this.changeModel}/>
           <GltfWidget/>
-          <a className="sourceCode" href="https://github.com/dakom/pure3d">View Source</a>
         </ModelContext.Provider>
       </AppContext.Provider>
     </div>

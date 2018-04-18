@@ -67,7 +67,9 @@
     "webpack-merge": "4.1.2"
   },
   "dependencies": {
+    "@material-ui/icons": "^1.0.0-beta.42",
     "input-sender": "0.0.5-alpha",
+    "material-ui": "^1.0.0-beta.42",
     "react": "16.3.1",
     "react-dom": "16.3.1",
     "sodiumjs": "1.1.3"
