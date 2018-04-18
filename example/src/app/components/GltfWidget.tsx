@@ -5,14 +5,14 @@ import { AppContext } from '../App-Main';
 import { sBridge } from '../frp/Bridge-FRP';
 import { renderer } from '../renderer/DemoRenderer';
 import { LoadingGraphic } from './LoadingGraphic';
-import { MODEL, ModelContext, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from './Models';
+import { ModelContext,MODEL_URLS, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from '../models/Models';
 import {S, Maybe} from "../utils/Sanctuary";
 import { getDefaultPerspectiveProjection } from '../utils/Camera';
 
 const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/";
 const DEV_ASSET_PATH = "http://localhost:4101/";
 
-class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:any, isLoaded: boolean}> {
+class GltfDisplay extends React.Component<{path:string, model:string}, {error?:any, isLoaded: boolean}> {
   constructor(props) {
     super(props);
     this.state = {isLoaded: false}
@@ -22,11 +22,11 @@ class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:an
   }
 
   startLoad() {
-    const modelEnumLookup = MODEL[this.props.model];
+      const model = this.props.model;
     this.setState({isLoaded: false}, () => {
       loadGltfBridge({
         renderer, 
-        environmentPath: MODEL_ENVIRONMENT_EMPTY.has(modelEnumLookup) ? undefined : "static/world/world.json", 
+        environmentPath: MODEL_ENVIRONMENT_EMPTY.has(model) ? undefined : "static/world/world.json", 
         gltfPath: this.props.path, 
         config: {
           projection: getDefaultPerspectiveProjection()
@@ -41,7 +41,7 @@ class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:an
           this.setState({isLoaded: true});
           sBridge.send(S.Just({
             bridge,
-            cameraPosition: MODEL_CAMERA_POSITIONS.has(modelEnumLookup) ? MODEL_CAMERA_POSITIONS.get(modelEnumLookup) : [0,0,4]
+            cameraPosition: MODEL_CAMERA_POSITIONS.has(model) ? MODEL_CAMERA_POSITIONS.get(model) : [0,0,4]
           }));
         }
       );
@@ -60,16 +60,14 @@ class GltfDisplay extends React.Component<{path:string, model:MODEL}, {error?:an
   
   render() {
     const {path, model} = this.props;
-    const domDisplay = 
-      this.state.error !== undefined
-      ? <div><h1>Error!</h1></div>
-        : !this.state.isLoaded
-          ? <LoadingGraphic />
-          : null;
-
     return (
       <div>
-        {domDisplay}
+        {this.state.error &&
+            <div><h1>Error!</h1></div>
+        }
+        {(!this.state.error && !this.state.isLoaded) &&
+            <LoadingGraphic />
+        }
       </div>
     )
 
@@ -84,13 +82,10 @@ export const GltfWidget = () => (
         {({model, changeModel}) => {
           const assetPath = isProductionBuild ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
 
-          const path = MODEL[model];
+          const path = MODEL_URLS.has(model) ? MODEL_URLS.get(model) : null;
 
-          const isNone = path === undefined || path === null || path === MODEL.NONE || path === "";
+          const isNone = path === undefined || path === null || path === "";
 
-          if(isNone) {
-
-          }
           return isNone
             ? null
             : <GltfDisplay model={model} path={assetPath + path} />

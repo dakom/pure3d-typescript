@@ -4,7 +4,7 @@
 
 ### WORK-IN-PROGRESS: There _will_ be breaking changes and what's there isn't reliably working either ;)
 
-## [DEMO](https://dakom.github.io/pure3d/)
+## [DEMO](https://dakom.github.io/pure3d/#DAMAGED_HELMET)
 
 ## What it will be:
 

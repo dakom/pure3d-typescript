@@ -1,5 +1,7 @@
 import * as React from "react";
 
 export const LoadingGraphic = () => (
-  <div><h1>LOADING</h1></div>
+  <div className="loadingContainer">
+   <div className="loadingText">LOADING...</div>
+    </div>
 )

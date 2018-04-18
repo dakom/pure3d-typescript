@@ -3,7 +3,6 @@ import { GltfCamera, GltfBridge, GltfScene, createGltfAnimator, updateTransforms
 import {getCameraOrbit} from "../utils/Camera";
 
 import {input} from "../frp/Input-FRP";
-import {MODEL_CAMERA_POSITIONS} from "../components/Models";
 import { TickEventData, PointerEventData} from "input-sender";
 import {S, Maybe} from "../utils/Sanctuary";
 import {vec3, mat4} from "gl-matrix";

@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {MenuWidget} from "./components/MenuWidget";
 import {GltfWidget} from "./components/GltfWidget";
 
-import {MODEL, ModelContext} from "./components/Models";
+import {ModelContext, MODEL_LIST_ALL} from "./models/Models";
 import "./Main.css";
 
 const buildMode = process.env['NODE_ENV'];
@@ -14,22 +14,30 @@ console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; fo
 
 export const AppContext = (React as any).createContext();
 
-class App extends React.Component<{}, {model:MODEL}> {
+class App extends React.Component<{}, {model:string}> {
 
   constructor(props:{}) {
     super(props);
 
     const loc = location.hash.replace('#', '');
-    if(Object.keys(MODEL).indexOf(loc) !== -1) {
-      this.state = {model: loc as MODEL};
+    if(MODEL_LIST_ALL.indexOf(loc) !== -1) {
+      this.state = {model: loc };
     } else {
-      this.state = {model: MODEL.NONE};
+      this.state = {model: null};
     }
 
     this.changeModel = this.changeModel.bind(this);
   }
 
-  changeModel(model:MODEL) {
+  changeModel(model:string) {
+    if(model) {
+        if(history.replaceState) {
+            history.replaceState(null, null, '#' + model);
+        }
+        else {
+            location.hash = '#' + model;
+        }
+    }
     this.setState({model});
   }
 
