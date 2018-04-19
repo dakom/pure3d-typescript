@@ -54,8 +54,10 @@ export const getTransformMatrices = ({values, parent, hasNormals, camera}:{value
 
 
   //TODO - figure out this const _modelView = mat4.multiply(_tmp, camera.view, model);
-  const _modelView = mat4.multiply(_tmp, new Array<number>(16).fill(0), model); //TEMP FIX
-  const modelViewProjection = mat4.multiply(mat4.create(), camera.view, _modelView);
+//console.log(camera);
+
+  const _modelView = mat4.multiply(_tmp, camera.view, model); //TEMP FIX
+  const modelViewProjection = mat4.multiply(mat4.create(), camera.projection,_modelView);
   
   const matrices = {model, modelViewProjection} as GltfTransformMatrices;
 

@@ -1,7 +1,8 @@
 import * as React from "react";
 
 export const MODEL_LIST_PRIMITIVES = [
-    "CAMERAS",
+    "CAMERA_PERSPECTIVE",
+    "CAMERA_ORTHOGRAPHIC",
   "SIMPLE_SPARSE_ACCESSOR", 
   "SIMPLE_MORPH", 
   "SIMPLE_MESHES", 
@@ -35,7 +36,8 @@ export const MODEL_LIST_ALL =
 
 export const MODEL_URLS = new Map<string, string>();
 
-MODEL_URLS.set("CAMERAS", "Cameras/glTF/Cameras.gltf");
+MODEL_URLS.set("CAMERA_ORTHOGRAPHIC", "Cameras/glTF/Cameras.gltf");
+MODEL_URLS.set("CAMERA_PERSPECTIVE", "Cameras/glTF/Cameras.gltf");
 MODEL_URLS.set("CAMERAS_EMBEDDED", "Cameras/glTF-Embedded/Cameras.gltf");
   MODEL_URLS.set("SIMPLE_SPARSE_ACCESSOR_EMBEDDED",  "SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf");
   MODEL_URLS.set("SIMPLE_SPARSE_ACCESSOR",  "SimpleSparseAccessor/glTF/SimpleSparseAccessor.gltf");
@@ -67,6 +69,9 @@ MODEL_CAMERA_POSITIONS.set("ANIMATED_MORPH_SPHERE_BINARY", [4,4,4]);
 MODEL_CAMERA_POSITIONS.set("SIMPLE_SPARSE_ACCESSOR", [-4,0,4]);
 MODEL_CAMERA_POSITIONS.set("SIMPLE_SPARSE_ACCESSOR_EMBEDDED", [-4,0,4]);
 
+export const MODEL_CAMERA_INDEX = new Map<string, number>();
+MODEL_CAMERA_INDEX.set("CAMERA_PERSPECTIVE", 0);
+MODEL_CAMERA_INDEX.set("CAMERA_ORTHOGRAPHIC", 1);
 export const MODEL_ENVIRONMENT_EMPTY = new Set<string>();
 
 export const ModelContext = (React as any).createContext({

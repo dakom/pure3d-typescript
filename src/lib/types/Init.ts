@@ -6,6 +6,5 @@ export interface GltfInitConfig {
   transformKind?: GltfTransformKind; //Affects how initial node transforms are loaded (they may still be changed after the fact)
   manualSRGB?: boolean;
   fastSRGB?: boolean;
-cameraIndex?:number; // chooses initial camera if exists in gltf  
- camera?:GltfCamera; //manual override or if no camera in gltf
+    camera: number | GltfCamera; // chooses initial camera, number is index in gltf 
 }

@@ -5,7 +5,8 @@ import { createState, onTick, pointerEnd, pointerMove, pointerStart, State } fro
 import { input } from './Input-FRP';
 import {GltfBridge} from "lib/Lib";
 
-export const sBridge = new StreamSink<Maybe<{bridge: GltfBridge, cameraPosition: Array<number>}>>();
+export const sBridge = new StreamSink<Maybe<GltfBridge>>();
+
 //FRP logic/state is all internal, just get new worlds when loaded and output the changes at the end of the pipeline
 
 const cState = 

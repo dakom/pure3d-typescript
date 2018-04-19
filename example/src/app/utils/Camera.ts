@@ -21,5 +21,5 @@ export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch
   
   view[14] = -translate;
 
-  return {position: Float32Array.from(position), view}
+  return {position: Float32Array.from(position), view, projection: getDefaultPerspectiveProjection()}
 }

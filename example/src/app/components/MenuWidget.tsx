@@ -80,6 +80,14 @@ const PopupMenuButton = (props) => {
         </div>
     )
 }
+const alertMessage =
+`Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\n`
++ `For example, the following are all different formats of the same GLTF:\n\n`
++ `#DAMAGED_HELMET\n#DAMAGED_HELMET_EMBEDDED\n#DAMAGED_HELMET_BINARY\n\n`
++ `Also, some models are intended to be moved around, others are not.\n\n`
++ `So if the camera "pops" or feels off, know that it's in the domain of the *demo* code for not handling this case.\n`
++ `It is not a bug in the renderer itself :D`;
+
 const _NavBar = (props) => {
     const {classes} = props;
     return ( 
@@ -98,7 +106,7 @@ const _NavBar = (props) => {
                             <Button 
                                 className={classes.repoButton} 
                                 variant="raised" 
-                                onClick={() => alert(`Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\nFor example, the following are all different formats of the same GLTF:\n\n/#DAMAGED_HELMET\n/#DAMAGED_HELMET_EMBEDDED\n/#DAMAGED_HELMET_BINARY`)}
+                                onClick={() => alert(alertMessage)}
                             >
                                 <b>Notes</b>
                             </Button>

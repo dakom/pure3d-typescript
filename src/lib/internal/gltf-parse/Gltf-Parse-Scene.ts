@@ -13,7 +13,9 @@ export const GLTF_PARSE_createScene = ({ renderer, environment, data, config}: {
 
 	const gltf = data.original;
 
-	const camera = config.cameraIndex === undefined ? config.camera : GLTF_PARSE_getCamera(gltf) (config.cameraIndex);
+	const camera = typeof config.camera === "number"
+            ? GLTF_PARSE_getCamera(gltf) (config.camera)
+            : config.camera;
 
         if(!camera) {
             throw new Error("no camera set!");

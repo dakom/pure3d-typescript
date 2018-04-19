@@ -24,7 +24,7 @@ export interface State {
   }
 }
 
-export const createState = (mFreshState:Maybe<{bridge:GltfBridge, cameraPosition: Array<number>}>) => (mState:Maybe<State>):Maybe<State> => {
+export const createState = (mFreshBridge:Maybe<GltfBridge>) => (mState:Maybe<State>):Maybe<State> => {
   
   S.map(state => {
     if(state.world !== undefined) {
@@ -32,19 +32,13 @@ export const createState = (mFreshState:Maybe<{bridge:GltfBridge, cameraPosition
     }
   }) (mState);
   
-  return S.map(({bridge, cameraPosition}:{bridge:GltfBridge, cameraPosition: Array<number>}) => {
+  return S.map((bridge:GltfBridge) => {
     const animate = createGltfAnimator(bridge.data.animations.map(animation => ({
       animation,
       loop: true
     })));
   
-    const updatedScene = updateTransforms(
-      Object.assign(bridge.cloneOriginalScene(), {
-        camera: {position: cameraPosition,
-          view: mat4.lookAt(mat4.create(), cameraPosition, [0.0, 0.0, 0.0], [0,1, 0])
-        }
-      })
-    );
+    const updatedScene = updateTransforms(bridge.cloneOriginalScene());
 
     //TODO: calculate initial roll and pitch where camera position is not 0,0
     
@@ -53,11 +47,11 @@ export const createState = (mFreshState:Maybe<{bridge:GltfBridge, cameraPosition
       scene: updatedScene,
       animate, 
       controls: {
-        yaw: 0, roll: 0, pitch: 0, translate: vec3.distance(cameraPosition, [0,0,0])
+        yaw: 0, roll: 0, pitch: 0, translate: vec3.distance(updatedScene.camera.position, [0,0,0])
       },
       pointer: {}
     } as State
-  }) (mFreshState);
+  }) (mFreshBridge);
 };
 
 export const pointerStart = evt => S.map((state:State) => {
