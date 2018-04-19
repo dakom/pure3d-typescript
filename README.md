@@ -2,7 +2,7 @@
 
 ## Pure3D
 
-**WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
+## **WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
 
 ## [DEMO](https://dakom.github.io/pure3d/#DAMAGED_HELMET_BINARY)
 
@@ -10,11 +10,11 @@
 
 ## Models
 
-[x] Simple
-[ ] Complex
-[ ] Pbr Set 1
-[ ] Pbr Set 2
-[ ] Feature Test
+- [x] Simple
+- [ ] Complex
+- [ ] Pbr Set 1
+- [ ] Pbr Set 2
+- [ ] Feature Test
 
 ## Remaining Features
 
