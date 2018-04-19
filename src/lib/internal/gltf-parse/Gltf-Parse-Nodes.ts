@@ -12,9 +12,7 @@ import {
 } from '../../Types';
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
 
-
-export const GLTF_PARSE_getNodeTransform = ({originalNode, parent, data, camera,config}:{originalNode:GLTF_ORIGINAL_Node, parent?:GltfTransform, camera:GltfCamera, data: GltfData, config:GltfInitConfig}):GltfTransform => {
-  let values = 
+export const GLTF_PARSE_getNodeTransformValues = (originalNode:GLTF_ORIGINAL_Node) => 
     originalNode.matrix
       ? {
           kind: GltfTransformKind.MATRIX,
@@ -41,13 +39,18 @@ export const GLTF_PARSE_getNodeTransform = ({originalNode, parent, data, camera,
           }
         })() as GltfTransformValues_TRS;
 
+
+export const GLTF_PARSE_getNodeTransform = ({originalNode, parent, data, camera,config}:{originalNode:GLTF_ORIGINAL_Node, parent:GltfTransform, camera:GltfCamera, data: GltfData, config:GltfInitConfig}):GltfTransform => {
+  let values = GLTF_PARSE_getNodeTransformValues(originalNode); 
+
         
   if(config.transformKind) {
     values = convertTransformKind(config.transformKind) (values);
   }
 
   const hasNormals = data.original.meshes[originalNode.mesh].primitives.some(p => GLTF_PARSE_primitiveHasAttribute("NORMAL")(p));
-  const matrices = getTransformMatrices({values, parent, hasNormals, camera, projection: config.projection});
+  const matrices = getTransformMatrices({values, parent, hasNormals, camera});
   
   return {...values, ...matrices};
 }
+

@@ -6,7 +6,5 @@ export type GltfScene = Readonly<{
 	lighting: GltfLighting;
 
 	nodes: Array<GltfNode>;
-
-	projection: TypedNumberArray;
 }>
 

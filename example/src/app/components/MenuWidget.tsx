@@ -98,6 +98,13 @@ const _NavBar = (props) => {
                             <Button 
                                 className={classes.repoButton} 
                                 variant="raised" 
+                                onClick={() => alert(`Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\nFor example, the following are all different formats of the same GLTF:\n\n/#DAMAGED_HELMET\n/#DAMAGED_HELMET_EMBEDDED\n/#DAMAGED_HELMET_BINARY`)}
+                            >
+                                <b>Notes</b>
+                            </Button>
+                            <Button 
+                                className={classes.repoButton} 
+                                variant="raised" 
                                 onClick={() => document.location.href = "https://github.com/dakom/pure3d"}
                             >
                                 <b>Github Repo</b>
@@ -118,7 +125,6 @@ const NavBar = withStyles(topStyles) (_NavBar);
 export class MenuWidget extends React.Component<any, any> {
     constructor(props) {
         super(props);
-        console.log(props);
         this.state = {selectedMenu: null, drawer: false};
     }
     

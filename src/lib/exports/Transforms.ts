@@ -42,16 +42,20 @@ export const getLocalTransformMatrix = (values:GltfTransformValues):Array<number
       ? values.matrix.slice()
       : mat4.fromRotationTranslationScale(new Array<number>(16), values.trs.rotation, values.trs.translation, values.trs.scale);
 
-export const getTransformMatrices = ({values, parent, hasNormals, camera, projection}:{values: Readonly<GltfTransformValues>, parent?:Readonly<GltfTransform>, projection:TypedNumberArray, camera:Readonly<GltfCamera>, hasNormals?:boolean}):GltfTransformMatrices => {
-  const _tmp = mat4.create();
-
-  const _localTransform = getLocalTransformMatrix(values);
-      
-  
+export const getWorldTransformMatrix = (values:GltfTransformValues) => (parent:GltfTransform):Float32Array => {
+  const localTransform = getLocalTransformMatrix(values);
   //TODO adjust based on parent. Note that this one can be mutable since it was created locally
-  const model = parent ? mat4.clone(_localTransform) : mat4.clone(_localTransform);
-  const _modelView = mat4.multiply(_tmp, camera.view, model);
-  const modelViewProjection = mat4.multiply(mat4.create(), projection, _modelView);
+  return parent ? mat4.clone(localTransform) : mat4.clone(localTransform);
+}
+
+export const getTransformMatrices = ({values, parent, hasNormals, camera}:{values: Readonly<GltfTransformValues>, parent?:Readonly<GltfTransform>,  camera:Readonly<GltfCamera>, hasNormals?:boolean}):GltfTransformMatrices => {
+  const _tmp = mat4.create();
+  const model = getWorldTransformMatrix(values) (parent);
+
+
+  //TODO - figure out this const _modelView = mat4.multiply(_tmp, camera.view, model);
+  const _modelView = mat4.multiply(_tmp, new Array<number>(16).fill(0), model); //TEMP FIX
+  const modelViewProjection = mat4.multiply(mat4.create(), camera.view, _modelView);
   
   const matrices = {model, modelViewProjection} as GltfTransformMatrices;
 
@@ -65,14 +69,13 @@ export const getTransformMatrices = ({values, parent, hasNormals, camera, projec
 
 
 
-export const updateTransform = ({transform, parent, camera, projection}:{transform:Readonly<GltfTransform>, camera:Readonly<GltfCamera>, projection:TypedNumberArray, parent?:Readonly<GltfTransform>}):GltfTransform => 
+export const updateTransform = ({transform, parent, camera}:{transform:Readonly<GltfTransform>, camera:Readonly<GltfCamera>, parent?:Readonly<GltfTransform>}):GltfTransform => 
   Object.assign({}, transform,
     getTransformMatrices({
       values: transform,
       parent, 
       hasNormals: transform.normal !== undefined, 
       camera,
-      projection
     })
   )
 
@@ -83,7 +86,7 @@ export const updateTransformsFrom = (path:Array<number>) => (scene:GltfScene):Gl
 
   const nodes = scene.nodes.map(node => 
     Object.assign({}, node, {
-      transform: updateTransform({transform: node.transform, camera: scene.camera, projection: scene.projection})
+      transform: updateTransform({transform: node.transform, camera: scene.camera})
     })
   )
 

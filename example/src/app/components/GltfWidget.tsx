@@ -29,7 +29,13 @@ class GltfDisplay extends React.Component<{path:string, model:string}, {error?:a
         environmentPath: MODEL_ENVIRONMENT_EMPTY.has(model) ? undefined : "static/world/world.json", 
         gltfPath: this.props.path, 
         config: {
-          projection: getDefaultPerspectiveProjection()
+            //TODO: set cameraIndex just if it exists - otherwise use camera override
+          //cameraIndex: 1,
+            camera: {
+                view: getDefaultPerspectiveProjection(), 
+                position: Float32Array.from([0,0,0])
+            }
+
         }
       })
       .fork(
