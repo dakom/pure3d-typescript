@@ -20,8 +20,6 @@
 
 See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
-# About
-
 ## What it is: 
 
 * Pipeline to split between pure scene data and ready-to-rock GLTF renderer
