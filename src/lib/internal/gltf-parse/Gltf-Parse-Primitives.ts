@@ -34,9 +34,9 @@ export const GLTF_PARSE_createNodePrimitives = ({ renderer, environment, data, c
 					data.shaders.set(_shaderIdCounter, shader);
 					_shaderLookup.set(shaderSource, _shaderIdCounter);
 					_shaderIdCounter++;
-					console.log(`new shader compiled`);
+					//console.log(`new shader compiled`);
 				} else {
-					console.log(`nice! re-using existing shader`);
+					//console.log(`nice! re-using existing shader`);
 				}
 
 				const shaderIdLookup = _shaderLookup.get(shaderSource);

@@ -5,9 +5,9 @@ import { AppContext } from '../App-Main';
 import { sBridge } from '../frp/Bridge-FRP';
 import { renderer } from '../renderer/DemoRenderer';
 import { LoadingGraphic } from './LoadingGraphic';
-import { ModelContext,MODEL_URLS, MODEL_CAMERA_INDEX, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from '../models/Models';
+import { ModelContext,MODEL_URLS, MODEL_CAMERA_INDEX, MODEL_CAMERA_LOOKAT, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from '../models/Models';
 import {S, Maybe} from "../utils/Sanctuary";
-import { getCameraOrbit} from '../utils/Camera';
+import { getCameraOrbit, getCameraLook} from '../utils/Camera';
 
 const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/";
 const DEV_ASSET_PATH = "http://localhost:4101/";
@@ -23,10 +23,15 @@ class GltfDisplay extends React.Component<{path:string, model:string}, {error?:a
 
   startLoad() {
       const model = this.props.model;
-      const cameraPosition = MODEL_CAMERA_POSITIONS.has(model) ? MODEL_CAMERA_POSITIONS.get(model) : [0,0,4]
+      //const cameraPosition = MODEL_CAMERA_POSITIONS.has(model) ? MODEL_CAMERA_POSITIONS.get(model) : [0,0,4]
       const camera = MODEL_CAMERA_INDEX.has(model) 
           ? MODEL_CAMERA_INDEX.get(model) 
-          : getCameraOrbit({yaw: 0, pitch: 0, roll: 0, translate: cameraPosition[2]})
+          : MODEL_CAMERA_POSITIONS.has(model) || MODEL_CAMERA_LOOKAT.has(model)
+            ?   getCameraLook([
+                    MODEL_CAMERA_POSITIONS.has(model) ?  MODEL_CAMERA_POSITIONS.get(model) : [0,0,4],
+                    MODEL_CAMERA_LOOKAT.has(model) ?  MODEL_CAMERA_LOOKAT.get(model) : [0,0,0],
+                ])
+            :   getCameraOrbit({yaw: 0, pitch: 0, roll: 0, translate: 4})
 
     this.setState({isLoaded: false}, () => {
       loadGltfBridge({

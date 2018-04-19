@@ -2,19 +2,35 @@
 
 ## Pure3D
 
-### WORK-IN-PROGRESS: There _will_ be breaking changes and what's there is sometimes purposefully broken too ;)
+**WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
 
 ## [DEMO](https://dakom.github.io/pure3d/#DAMAGED_HELMET_BINARY)
 
-## What it will be:
+# Roadmap
 
-* Pipeline to split between pure scene data and ready-to-rock renderer
-* Pure scene here means it can be immutable _and_ completely serializable into primitives (hopefully just numbers)
+## Models
+
+[x] Simple
+[ ] Complex
+[ ] Pbr Set 1
+[ ] Pbr Set 2
+[ ] Feature Test
+
+## Remaining Features
+
+See [Issue Tracker](https://github.com/dakom/pure3d/issues)
+
+# About
+
+## What it is: 
+
+* Pipeline to split between pure scene data and ready-to-rock GLTF renderer
+* Pure scene here means it can be immutable _and_ completely serializable into primitives 
 * Very simple API surface (e.g. "load, animate, transform, render")
 * Stands on the foundation of [webgl-simple](https://github.com/dakom/webgl-simple) to optimize and skip unnecessary low-level webgl calls (and can share the context)
 * Follows the same idea here - e.g. batching shaders with the same source, re-using buffers, etc.
 * Geared for a functional pipeline
-* Initial focus is GLTF, via the reference PBR shader from Khronos Group (hence WebGL1 only for now)
+* Uses the reference PBR shader from Khronos Group (hence WebGL1 only for now)
 * Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
 * Some helpers to drive transform updates and animations
 * Fully exported Typescript definitions
@@ -31,3 +47,4 @@
 * Built on WebGL 2
 * Supporting more extensions
 * Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes)
+

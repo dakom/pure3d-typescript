@@ -23,6 +23,10 @@ export const GLTF_PARSE_createScene = ({ renderer, environment, data, config}: {
 	const lighting = getEmptyLighting();
 
 	const nodePrimitives = GLTF_PARSE_createNodePrimitives({ renderer, environment, data, config});
+
+        if(gltf.nodes && gltf.nodes.findIndex(node => node.children ? true : false) !== -1) {
+            console.error("transforms with children aren't supported yet!");
+        }
 	const nodes = !gltf.nodes 
 		? [] 
 		: gltf.nodes
@@ -42,6 +46,7 @@ export const GLTF_PARSE_createScene = ({ renderer, environment, data, config}: {
 
 			const node = {transform,primitives} as GltfNode;
 
+                        
 			if(morphWeights) {
 				node.morphWeights = morphWeights;
 			}

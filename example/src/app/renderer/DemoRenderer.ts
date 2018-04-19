@@ -21,7 +21,8 @@ renderer.resize({ width: window.innerWidth, height: window.innerHeight });
 
 cScene.listen(S.map(({bridge, scene}:{bridge: GltfBridge, scene: GltfScene}) => {
     renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
-    
+
+
     bridge.renderScene(scene);
   }
 ));
