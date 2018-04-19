@@ -2,7 +2,7 @@
 
 ## Pure3D
 
-### WORK-IN-PROGRESS: There _will_ be breaking changes and what's there isn't reliably working either ;)
+### WORK-IN-PROGRESS: There _will_ be breaking changes and what's there is sometimes purposefully broken too ;)
 
 ## [DEMO](https://dakom.github.io/pure3d/#DAMAGED_HELMET)
 
