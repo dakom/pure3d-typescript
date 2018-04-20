@@ -1,5 +1,6 @@
 import * as React from "react";
-import {MODEL_LIST_SIMPLE, MODEL_LIST_COMPLEX, MODEL_LIST_PBR1, MODEL_LIST_PBR2, MODEL_LIST_FEATURETEST, ModelContext} from "../models/Models";
+import {MODEL_LIST_SIMPLE, MODEL_LIST_COMPLEX, MODEL_LIST_PBR1, MODEL_LIST_PBR2, MODEL_LIST_FEATURETEST} from "../models/Models";
+import {ModelContext} from "../App-Main";
 //import {Button, AppBar, ToolBar, IconButton, MenuIcon, Typography} from "material-ui";
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
@@ -133,44 +134,50 @@ const _NavBar = (props) => {
 const NavBar = withStyles(topStyles) (_NavBar);
 
 
-export class MenuWidget extends React.Component<any, any> {
+export class MenuWidget extends React.Component<{}, any> {
     constructor(props) {
         super(props);
         this.state = {selectedMenu: null, drawer: false};
     }
     
     render() {
-        return <div> 
-            {!this.state.drawer &&
-                
-                <div style={{marginLeft: "10px", marginTop: "10px"}}>
-                            <Button
-                            color="inherit"               
-                variant="fab" 
-                                onClick={() => this.setState({drawer: true})}
-                            >
-                <MenuIcon />
+
+        const openButton = !this.state.drawer 
+            ? <div style={{marginLeft: "10px", marginTop: "10px"}}>
+                <Button color="inherit" variant="fab" 
+                    onClick={() => this.setState({drawer: true})}
+                >
+                    <MenuIcon />
                 </Button>
-                </div>
-            }
-            <SwipeableDrawer
-            anchor="top"
-          open={this.state.drawer}
-          onClose={() => this.setState({drawer: false})}
-          onOpen={() => this.setState({drawer: true})}
-        >
-            
-            <NavBar 
-            selectedMenu={this.state.selectedMenu} 
-            handlePopupMenu={selectedMenu => 
-                this.setState({ selectedMenu }) 
-            } 
-            handleSelected={sel => {
-                this.props.handleSelected(sel);
-                this.setState({selectedMenu: null, drawer: false});
-            }}
-            />
-            </SwipeableDrawer>
-        </div>
+               </div>
+               
+            : null;
+
+        return <ModelContext.Consumer>
+            {({model, changeModel, isProductionBuild}) => (
+            <div>
+                {openButton} 
+
+                <SwipeableDrawer
+                    anchor="top"
+                    open={this.state.drawer}
+                    onClose={() => this.setState({drawer: false})}
+                    onOpen={() => this.setState({drawer: true})}
+                >
+
+                    <NavBar 
+                        selectedMenu={this.state.selectedMenu} 
+                        handlePopupMenu={selectedMenu => 
+                            this.setState({ selectedMenu }) 
+                        } 
+                        handleSelected={sel => {
+                            changeModel(sel);
+                            this.setState({selectedMenu: null, drawer: false});
+                        }}
+                    />
+                </SwipeableDrawer>
+            </div>
+            )}
+        </ModelContext.Consumer>
     }
 }

@@ -1,11 +1,12 @@
 import { loadGltfBridge } from 'lib/Lib';
 import * as React from 'react';
 
-import { AppContext } from '../App-Main';
+import { ModelContext } from '../App-Main';
 import { sBridge } from '../frp/Bridge-FRP';
 import { renderer } from '../renderer/DemoRenderer';
 import { LoadingGraphic } from './LoadingGraphic';
-import { ModelContext,MODEL_URLS, MODEL_CAMERA_INDEX, MODEL_CAMERA_LOOKAT, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from '../models/Models';
+import { MODEL_URLS, MODEL_CAMERA_INDEX, MODEL_CAMERA_LOOKAT, MODEL_CAMERA_POSITIONS, MODEL_ENVIRONMENT_EMPTY } from '../models/Models';
+
 import {S, Maybe} from "../utils/Sanctuary";
 import { getCameraOrbit, getCameraLook} from '../utils/Camera';
 
@@ -82,11 +83,8 @@ class GltfDisplay extends React.Component<{path:string, model:string}, {error?:a
 }
 
 export const GltfWidget = () => (
-  <div>
-    <AppContext.Consumer>
-    {({isProductionBuild, buildMode, buildVersion}) => (
       <ModelContext.Consumer>
-        {({model, changeModel}) => {
+        {({model, changeModel, isProductionBuild}) => {
           const assetPath = isProductionBuild ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
 
           const path = MODEL_URLS.has(model) ? MODEL_URLS.get(model) : null;
@@ -98,8 +96,4 @@ export const GltfWidget = () => (
             : <GltfDisplay model={model} path={assetPath + path} />
         }}
       </ModelContext.Consumer>
-    )}
-    
-    </AppContext.Consumer>
-  </div>
 )

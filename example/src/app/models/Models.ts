@@ -150,7 +150,3 @@ export const MODEL_LIST_ALL =
         .concat(Object.keys(MODEL_LIST_ALTERNATES).reduce((acc, val) => acc.concat(MODEL_LIST_ALTERNATES[val]), []))
     
 
-export const ModelContext = (React as any).createContext({
-  model: "",
-  changeModel: (model:string) => {}
-});

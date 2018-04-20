@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {MenuWidget} from "./components/MenuWidget";
 import {GltfWidget} from "./components/GltfWidget";
 
-import {ModelContext, MODEL_LIST_ALL} from "./models/Models";
+import {MODEL_LIST_ALL} from "./models/Models";
 import "./Main.css";
 
 const buildMode = process.env['NODE_ENV'];
@@ -12,7 +12,8 @@ export const isProductionBuild = buildMode === "production" ? true : false;
 
 console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
 
-export const AppContext = (React as any).createContext();
+
+export const ModelContext = (React as any).createContext()
 
 class App extends React.Component<{}, {model:string}> {
 
@@ -42,14 +43,12 @@ class App extends React.Component<{}, {model:string}> {
   }
 
   render() {
-    return <div>
-      <AppContext.Provider value={{isProductionBuild, buildMode, buildVersion}} >
-        <ModelContext.Provider value={{model: this.state.model, changeModel: this.changeModel}}>
-          <MenuWidget handleSelected={this.changeModel}/>
-          <GltfWidget/>
+    return (
+        <ModelContext.Provider value={{model: this.state.model, changeModel: this.changeModel, isProductionBuild}}>
+          <GltfWidget />
+          <MenuWidget />
         </ModelContext.Provider>
-      </AppContext.Provider>
-    </div>
+    );
   }
 }
 
