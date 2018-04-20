@@ -1,5 +1,5 @@
 import * as React from "react";
-import {MODEL_LIST_SIMPLE, MODEL_LIST_COMPLEX, MODEL_LIST_PBR1, MODEL_LIST_PBR2, MODEL_LIST_FEATURETEST} from "../models/Models";
+import {MODEL_MENUS} from "../models/Models";
 import {ModelContext} from "../App-Main";
 //import {Button, AppBar, ToolBar, IconButton, MenuIcon, Typography} from "material-ui";
 import { withStyles } from 'material-ui/styles';
@@ -99,11 +99,9 @@ const _NavBar = (props) => {
                 return (
                     <AppBar position="static" className={classes.appBar}>
                         <Toolbar>
-                            <PopupMenuButton menuKey="1" {...props} items={MODEL_LIST_SIMPLE} label="Simple"/>
-                            <PopupMenuButton menuKey="2" {...props} items={MODEL_LIST_COMPLEX} label="Complex" />
-                            <PopupMenuButton menuKey="3" {...props} items={MODEL_LIST_PBR1} label="PBR Set 1"/>
-                            <PopupMenuButton menuKey="4" {...props} items={MODEL_LIST_PBR2} label="PBR Set 2" />
-                            <PopupMenuButton menuKey="5" {...props} items={MODEL_LIST_FEATURETEST} label="Feature Test"/>
+                            {MODEL_MENUS.map(({label, items}) => {
+                              return <PopupMenuButton key={label} menuKey={label} {...props} items={items} label={label} /> 
+                            })}
                             <Typography variant="title" color="inherit" className={classes.flex}>
                                 Pure3D Tests (samples from <a className={classes.link} href="http://github.com/khronosGroup/glTF-Sample-Models">Khronos</a>)
                             </Typography>
