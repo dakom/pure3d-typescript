@@ -5,8 +5,12 @@ const fs = require('fs');
 const serveIndex = require('serve-index');
 const cors = require('cors');
 
+console.log(os.platform());
+
+const platform = os.platform();
+
 let localPath = 
-    os.platform() === "darwin"
+    platform === "darwin" || platform === "linux"
     ?   `../example/gltf-sample-models/2.0`
     :   `..\\example\\gltf-sample-models\\2.0`
 
