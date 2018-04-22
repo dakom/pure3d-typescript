@@ -1,4 +1,4 @@
-import { loadGltfBridge } from 'lib/Lib';
+import {GltfIblLight, getDefaultIblLight, loadGltfBridge } from 'lib/Lib';
 import * as React from 'react';
 
 import { ModelContext } from '../App-Main';
@@ -23,11 +23,20 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
 
     startLoad() {
         const {model} = this.props.modelInfo;
+
+        const cameraPosition = model.cameraPosition !== undefined ? model.cameraPosition : [0,0,4];
+
+        if(model.cameraIndex !== undefined) {
+            throw new Error("need to re-implement getting camera from gltf");
+        }
+
+        const ibl:GltfIblLight = getDefaultIblLight(Float32Array.from(cameraPosition));
+        
         const camera = model.cameraIndex !== undefined 
             ? model.cameraIndex 
             : model.cameraPosition !== undefined || model.cameraLookAt !== undefined 
             ?   getCameraLook([
-                model.cameraPosition !== undefined ? model.cameraPosition : [0,0,4],
+                cameraPosition, 
                 model.cameraLookAt !== undefined ? model.cameraLookAt : [0,0,0],
             ])
             :   getCameraOrbit({yaw: 0, pitch: 0, roll: 0, translate: 4})
@@ -37,9 +46,7 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
                 renderer, 
                 environmentPath: "static/world/world.json", 
                 gltfPath: this.props.path, 
-                config: {
-                    camera
-                }
+                config: { }
             })
                 .fork(
                     error => {
@@ -48,7 +55,7 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
                     },
                     bridge => {
                         this.setState({isLoaded: true});
-                        sBridge.send(S.Just( bridge));
+                        sBridge.send(S.Just( {bridge, camera, ibl}));
                     }
                 );
         });

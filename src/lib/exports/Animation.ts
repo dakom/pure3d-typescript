@@ -4,8 +4,6 @@ import {
   GltfAnimator,
   GltfAnimatorOptions,
   GltfNode,
-  GltfTransformValues_TRS,
-  GltfScene
 } from '../Types';
 
 export const setAnimationTime = (animation: Readonly<GltfAnimationData>) => (time: number) => (nodes:Readonly<Array<GltfNode>>): Array<GltfNode> => {
@@ -35,7 +33,7 @@ export const setAnimationTime = (animation: Readonly<GltfAnimationData>) => (tim
         ? {morphWeights:  Float32Array.from(values as Array<number> | Float32Array)}
         : {transform: 
             Object.assign({}, node.transform, {
-              trs: Object.assign({}, (node.transform as GltfTransformValues_TRS).trs, {
+              trs: Object.assign({}, node.transform.trs, {
                 [animation.channel.target.path]: values
               })
             })
@@ -50,11 +48,10 @@ export const createGltfAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): 
   const totalTimes = new Array(opts.length).fill(0);
   let lastTs: number;
 
-  return (ts: number) => (scene:GltfScene): GltfScene => {
+  return (ts: number) => (nodes:Array<GltfNode>): Array<GltfNode> => {
     const dt = lastTs === undefined ? 0 : ((ts - lastTs) / 1000);
     lastTs = ts;
 
-    let nodes = scene.nodes;
 
     opts.forEach(({ animation, loop }, index) => {
       const prevTime = totalTimes[index];
@@ -74,7 +71,6 @@ export const createGltfAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): 
       totalTimes[index] = nextTime;
     });
 
-
-    return Object.assign({}, scene, {nodes});
+    return nodes;
   }
 }

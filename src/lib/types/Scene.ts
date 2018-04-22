@@ -1,10 +1,7 @@
-import {GltfCamera, GltfLighting, GltfNode, TypedNumberArray, GltfTransformKind} from "../Types";
+import {GltfCamera, GltfIblLight, GltfNode, TypedNumberArray} from "../Types";
 
 export type GltfScene = Readonly<{
-	camera: GltfCamera;
-
-	lighting: GltfLighting;
-
+        ibl?: GltfIblLight;
 	nodes: Array<GltfNode>;
 }>
 

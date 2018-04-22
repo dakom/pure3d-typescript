@@ -2,6 +2,7 @@ import * as React from "react";
 
 export interface Model {
     primary: string;
+    label?: string;
     urls: {
         [key:string]: string
     },
@@ -58,6 +59,7 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
     },
     {
         primary: "ANIMATED_MORPH_SPHERE_BINARY", 
+        label: "ANIMATED_MORPH_SPHERE",
         urls: {
             "ANIMATED_MORPH_SPHERE_BINARY":  "AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb",
             "ANIMATED_MORPH_SPHERE":  "AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf",
@@ -66,6 +68,7 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
     },
     {
         primary: "MORPH_CUBE_ANIMATED_BINARY", 
+        label: "MORPH_CUBE_ANIMATED",
         urls: {
             "MORPH_CUBE_ANIMATED_BINARY":  "AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb",
             "MORPH_CUBE_ANIMATED":  "AnimatedMorphCube/glTF/AnimatedMorphCube.gltf",
@@ -97,6 +100,7 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
 export const MODEL_LIST_COMPLEX:Array<Model> = [
     {
         primary: "BOX_BINARY",
+        label: "BOX",
         urls: {
             "BOX_GLOSSY": "Box/glTF-pbrSpecularGlossiness/Box.gltf",
             "BOX_DRACO": "Box/glTF-Draco/Box.gltf",
@@ -111,6 +115,7 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
 export const MODEL_LIST_PBR1:Array<Model> = [
     {
         primary: "DAMAGED_HELMET_BINARY", 
+        label: "DAMAGED_HELMET",
         urls: {
             "DAMAGED_HELMET":   "DamagedHelmet/glTF/DamagedHelmet.gltf",
             "DAMAGED_HELMET_EMBEDDED":  "DamagedHelmet/glTF-Embedded/DamagedHelmet.gltf",
@@ -149,7 +154,7 @@ export const getModel = (name:string):ModelInfo => {
 const convertMenu = ([label, models]:[string, Array<Model>]) => {
     return {
         label,
-        items: models.map(model => model.primary)
+        items: models.map(model => [model.label ? model.label : model.primary, model.primary])
     }
 }
 

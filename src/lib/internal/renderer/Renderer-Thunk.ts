@@ -3,18 +3,23 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import { WebGlConstants, WebGlRenderer, createShader, activateShader, WebGlVertexArray, WebGlShader } from 'webgl-simple';
 import { Future } from "fluture";
 import {GltfBridge} from "../../exports/Bridge";
-import {GltfTextureInfo,GltfCamera,GltfLighting, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind, GltfEnvironmentKind} from "../../Types";
+import {GltfLight,GltfMeshNode, GltfLightNode, GltfLightKind, GltfTextureInfo,GltfCamera,GltfIblLight, GltfDirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind, GltfEnvironmentKind} from "../../Types";
 
-export const createRendererThunk = ({bridge, scene, nodeIndex, primitiveIndex}:{bridge: GltfBridge, scene:GltfScene, nodeIndex:number, primitiveIndex: number}) => () => {
+export interface GltfRendererThunk {
+    bridge: GltfBridge;
+    node: GltfMeshNode;
+    primitive: GltfPrimitive;
+    lightList: Array<GltfLightNode>;
+    ibl: GltfIblLight;
+}
+
+export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
+    const {bridge, node, primitive, lightList, ibl} = thunk;
     const {renderer, environment, data} = bridge;
 
     const { gl } = renderer;    
-    const {nodes, camera, lighting} = scene;
     
     const gltf = data.original;
-
-    const node = nodes[nodeIndex];
-    const primitive = node.primitives[primitiveIndex];
 
     const {material, drawMode, shaderKind} = primitive;
     
@@ -30,7 +35,7 @@ export const createRendererThunk = ({bridge, scene, nodeIndex, primitiveIndex}:{
         Set the environment uniforms
     */
 
-    if(environment.kind === GltfEnvironmentKind.PBR_IBL) {
+    if(environment.kind === GltfEnvironmentKind.PBR_IBL && ibl) {
       renderer.switchTexture(samplerIndex)(environment.textures.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   
@@ -45,20 +50,27 @@ export const createRendererThunk = ({bridge, scene, nodeIndex, primitiveIndex}:{
       }
 
       //this is actually just used in fragment shader (e.g. not for transforms), but it's required
-    
-      uniform3fv("u_Camera")(camera.position);
+   
+      uniform3fv("u_Camera")(ibl.cameraPosition);
 
       
-      uniform4fv("u_ScaleDiffBaseMR")(lighting.scaleDiffBaseMR);
-      uniform4fv("u_ScaleFGDSpec")(lighting.scaleFGDSpec);
-      uniform4fv("u_ScaleIBLAmbient")(lighting.scaleIBLAmbient);
-
-      uniform3fv("u_LightDirection")(lighting.directional.direction);
-      uniform3fv("u_LightColor")(lighting.directional.color);
+      uniform4fv("u_ScaleDiffBaseMR")(ibl.scaleDiffBaseMR);
+      uniform4fv("u_ScaleFGDSpec")(ibl.scaleFGDSpec);
+      uniform4fv("u_ScaleIBLAmbient")(ibl.scaleIBLAmbient);
 
     }
 
-    
+    lightList.forEach(lightNode => {
+        const {light} = lightNode;
+        //TODO - allow multiple lights, point lights, etc.
+        if(light.kind === GltfLightKind.DIRECTIONAL) {
+
+            uniform3fv("u_LightDirection")(light.direction);
+            uniform3fv("u_LightColor")(light.color);
+        }
+    })
+
+   
 
     
     /*
@@ -66,11 +78,11 @@ export const createRendererThunk = ({bridge, scene, nodeIndex, primitiveIndex}:{
     */
 
     
-    uniformMatrix4fv("u_MVPMatrix")(false)(node.transform.modelViewProjection);
-    uniformMatrix4fv("u_ModelMatrix")(false)(node.transform.model);
+    uniformMatrix4fv("u_MVPMatrix")(false)(node.transform.modelViewProjectionMatrix);
+    uniformMatrix4fv("u_ModelMatrix")(false)(node.transform.modelMatrix);
     
-    if(node.transform.normal) {
-      uniformMatrix4fv("u_NormalMatrix")(false)(node.transform.normal);
+    if(node.transform.normalMatrix) {
+      uniformMatrix4fv("u_NormalMatrix")(false)(node.transform.normalMatrix);
     }
     
     /*

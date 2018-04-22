@@ -1,14 +1,11 @@
-import {GltfLighting} from "../Types";
+import {GltfIblLight} from "../Types";
 
-export const getEmptyLighting = ():GltfLighting => {
+export const getDefaultIblLight = (cameraPosition: Float32Array):GltfIblLight => {
   return {
-    directional: { 
-      direction: Float32Array.from([0.0, 0.0, 0.0]),
-      color: Float32Array.from([0.0, 0.0, 0.0]),
-    },
     scaleDiffBaseMR: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
     scaleFGDSpec: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
-    scaleIBLAmbient: Float32Array.from([1.0, 1.0, 0.0, 0.0])
+    scaleIBLAmbient: Float32Array.from([1.0, 1.0, 0.0, 0.0]),
+    cameraPosition
   } 
 }
 

@@ -1,7 +1,6 @@
 import { GLTF_ORIGINAL, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_Camera, GLTF_ORIGINAL_CameraPerspective, GLTF_ORIGINAL_CameraOrthographic, GltfCamera } from '../../Types';
-import {GLTF_PARSE_getNodeTransformValues} from "./Gltf-Parse-Nodes";
-import {getWorldTransformMatrix} from "../../exports/Transforms";
 import {mat4, vec3} from "gl-matrix";
+import {getCameraView} from "../../exports/Camera";
 
 const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
     const values = new Array<number>(16).fill(0);
@@ -35,26 +34,17 @@ const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
 
     return values; 
 }
-export const GLTF_PARSE_getCamera = (original:GLTF_ORIGINAL) => (cameraIndex:number):GltfCamera => {
-    const originalCamera:GLTF_ORIGINAL_Camera = original.cameras[cameraIndex];
-    const cameraNode:GLTF_ORIGINAL_Node = original.nodes.find(node => node.camera === cameraIndex);
+export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:Array<number>):GltfCamera => {
 
-    const cameraNodeParent = null; //TODO 
-    const cameraTransformValues = GLTF_PARSE_getNodeTransformValues(cameraNode);
-    const cameraTransformMatrix = getWorldTransformMatrix(cameraTransformValues) (cameraNodeParent);
+    const view = getCameraView(modelMatrix);
 
-    const view = mat4.invert(mat4.create(),cameraTransformMatrix); 
-
+    
     const projection = originalCamera.type === "perspective" 
         ? getPerspectiveProjection(originalCamera.perspective) 
         : getOrthographicProjection(originalCamera.orthographic) as Array<number>;
 
-
-    const position = mat4.getTranslation(vec3.create(), cameraTransformMatrix) as Float32Array; //not really tested yet - only affects fragment shader
-
     return {
         view,
-        position,
         projection
     }
 }

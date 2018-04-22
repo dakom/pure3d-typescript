@@ -3,100 +3,77 @@ import { mat4 } from 'gl-matrix';
 import {
   GltfCamera,
   GltfTransform,
-  GltfTransformMatrices,
-  GltfTransformValues,
-  GltfTransformValues_Matrix,
-  GltfTransformValues_TRS,
+  GltfTransform_TRS,
   TypedNumberArray,
-  GltfTransformKind,
   GltfScene,
-  GltfLighting,
-  GltfNode
+  GltfNode,
+    GltfTransformUpdateOptions
 } from '../Types';
 
-export const convertTransformKind = (kind: GltfTransformKind) => (values:GltfTransformValues):GltfTransformValues => 
-  kind === values.kind
-    ? values
-    : (values.kind === GltfTransformKind.TRS)
-      ?   {
-            kind: GltfTransformKind.MATRIX,
-            matrix: getLocalTransformMatrix(values)
-          } as GltfTransformValues_Matrix
-      :   (() => {
-            //rotation will be wrong if we don't scale first
-            const scale = mat4.getScaling(new Array(3), values.matrix);
-            const scaledMatrix = mat4.scale(new Array(16), values.matrix, [1/scale[0], 1/scale[1], 1/scale[2]]);
 
-            return {
-              kind: GltfTransformKind.TRS,
-              trs: {
-                translation: mat4.getTranslation(new Array(3), values.matrix),
-                rotation: mat4.getRotation(new Array(4), scaledMatrix),
-                scale
-              }
-            } as GltfTransformValues_TRS
-          })();
+export const getTrsFromMatrix = (matrix:Array<number>):GltfTransform_TRS => {
+    const scale = mat4.getScaling(new Array(3), matrix);
+    const scaledMatrix = mat4.scale(new Array(16), matrix, [1/scale[0], 1/scale[1], 1/scale[2]]);
 
-export const getLocalTransformMatrix = (values:GltfTransformValues):Array<number> =>
-  (values.kind === GltfTransformKind.MATRIX)
-      ? values.matrix.slice()
-      : mat4.fromRotationTranslationScale(new Array<number>(16), values.trs.rotation, values.trs.translation, values.trs.scale);
+    return {
+        translation: mat4.getTranslation(new Array(3), matrix),
+        rotation: mat4.getRotation(new Array(4), scaledMatrix),
+        scale
 
-export const getWorldTransformMatrix = (values:GltfTransformValues) => (parent:GltfTransform):Float32Array => {
-  const localTransform = getLocalTransformMatrix(values);
-  //TODO adjust based on parent. Note that this one can be mutable since it was created locally
-  return parent ? mat4.clone(localTransform) : mat4.clone(localTransform);
+    }
 }
 
-export const getTransformMatrices = ({values, parent, hasNormals, camera}:{values: Readonly<GltfTransformValues>, parent?:Readonly<GltfTransform>,  camera:Readonly<GltfCamera>, hasNormals?:boolean}):GltfTransformMatrices => {
-  const _tmp = mat4.create();
-  const model = getWorldTransformMatrix(values) (parent);
+export const getMatrixFromTrs = (trs:GltfTransform_TRS):Array<number> => 
+    mat4.fromRotationTranslationScale(new Array<number>(16), trs.rotation, trs.translation, trs.scale);
+
+export const getModelMatrix = (parentModelMatrix:Array<number>) => (localMatrix:Array<number>):Array<number> =>
+    parentModelMatrix
+        ?   mat4.multiply(new Array(16), parentModelMatrix, localMatrix)
+        :   localMatrix.slice();
 
 
-  //TODO - figure out this const _modelView = mat4.multiply(_tmp, camera.view, model);
-//console.log(camera);
+export const getNormalMatrix = (modelMatrix:Array<number>):Float32Array => 
+    mat4.transpose(mat4.create(), mat4.invert(mat4.create(), modelMatrix)) 
 
-  const _modelView = mat4.multiply(_tmp, camera.view, model); //TEMP FIX
-  const modelViewProjection = mat4.multiply(mat4.create(), camera.projection,_modelView);
-  
-  const matrices = {model, modelViewProjection} as GltfTransformMatrices;
-
-  if (hasNormals) {
-    const modelInverse = mat4.invert(_tmp, model);
-    matrices.normal = mat4.transpose(mat4.create(), modelInverse);
-  }
-
-  return matrices;
-}
-
-
-
-export const updateTransform = ({transform, parent, camera}:{transform:Readonly<GltfTransform>, camera:Readonly<GltfCamera>, parent?:Readonly<GltfTransform>}):GltfTransform => 
-  Object.assign({}, transform,
-    getTransformMatrices({
-      values: transform,
-      parent, 
-      hasNormals: transform.normal !== undefined, 
-      camera,
-    })
-  )
-
-export const updateTransformsFrom = (path:Array<number>) => (scene:GltfScene):GltfScene => {
-
-  //TODO - only update from path
-  //TODO - pass parent
-
-  const nodes = scene.nodes.map(node => 
-    Object.assign({}, node, {
-      transform: updateTransform({transform: node.transform, camera: scene.camera})
-    })
-  )
-
-  //simple immutable assignment, the only thing that changes is world->scene->nodes->transform
-  return Object.assign({}, scene, {nodes})
-
-}
+export const getViewMatrices = (camera:GltfCamera) => (modelMatrix:Array<number>):{modelViewMatrix: Float32Array, modelViewProjectionMatrix: Float32Array} => {
+    const modelViewMatrix = mat4.multiply(mat4.create(), camera.view, modelMatrix);
+    const modelViewProjectionMatrix = mat4.multiply(mat4.create(), camera.projection, modelViewMatrix);
     
+    return {
+        modelViewMatrix,
+        modelViewProjectionMatrix
+    }
+}
 
-export const updateTransforms = (scene:GltfScene): GltfScene => 
-  updateTransformsFrom([0]) (scene);
+export const updateTransform = (opts:GltfTransformUpdateOptions) => (parentModelMatrix:Array<number>) => (transform:GltfTransform):GltfTransform => {
+    console.log(transform);
+
+    const localMatrix = opts.updateLocal ? getMatrixFromTrs(transform.trs) : transform.localMatrix;
+
+    const modelMatrix = opts.updateModel ? getModelMatrix(parentModelMatrix) (localMatrix) : transform.modelMatrix;
+    const normalMatrix = opts.updateModel && transform.normalMatrix
+        ?   getNormalMatrix(modelMatrix)
+        :   undefined;
+
+    const {modelViewMatrix, modelViewProjectionMatrix} = opts.updateView ? getViewMatrices (opts.camera) (modelMatrix) : transform;
+
+
+    return Object.assign({}, transform, {
+        localMatrix, modelMatrix, normalMatrix, modelViewMatrix, modelViewProjectionMatrix
+    });
+}
+
+export const updateNodeTransforms = (opts:GltfTransformUpdateOptions) => (parentModelMatrix:Array<number>) => (node:GltfNode):GltfNode => {
+   const _update = (_parentModelMatrix:Array<number>) => (_node:GltfNode):GltfNode => {
+       console.log(_node);
+
+       const t = updateTransform(opts) (_parentModelMatrix) (_node.transform)
+        return !_node.children
+            ? Object.assign({}, _node, {transform: t}) 
+            : Object.assign({}, _node, {transform: t, children: _node.children.map(n => _update (t.modelMatrix) (n))});
+    }
+    return _update (parentModelMatrix) (node)
+}
+
+export const updateNodeListTransforms = (opts:GltfTransformUpdateOptions) => (parentModelMatrix:Array<number>) => (nodes:Array<GltfNode>):Array<GltfNode> =>
+    nodes.map(updateNodeTransforms (opts) (parentModelMatrix));

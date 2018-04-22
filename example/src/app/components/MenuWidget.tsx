@@ -39,6 +39,7 @@ const topStyles = {
 
 const PopupMenu = (props) => {
     const {classes, items, anchorEl, handlePopupMenu, handleSelected, visible} = props;
+
     return <Menu 
         id="model-menu" 
         open={visible} 
@@ -48,8 +49,8 @@ const PopupMenu = (props) => {
         anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
     >
 
-        {items.map(key =>
-            <MenuItem key={key} onClick={() => handleSelected(key) }>{key}</MenuItem>
+        {items.map(([label, key]) =>
+            <MenuItem key={key} onClick={() => handleSelected(key) }>{label}</MenuItem>
         )}
 
     </Menu>; //console.log(Menu);
@@ -135,7 +136,7 @@ const NavBar = withStyles(topStyles) (_NavBar);
 export class MenuWidget extends React.Component<{}, any> {
     constructor(props) {
         super(props);
-        this.state = {selectedMenu: null, drawer: false};
+        this.state = {selectedMenu: null, drawer: true};
     }
     
     render() {

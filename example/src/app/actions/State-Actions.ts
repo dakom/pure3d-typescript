@@ -1,5 +1,5 @@
 import {Stream, StreamSink, Cell} from "sodiumjs";
-import { GltfCamera, GltfBridge, GltfScene, createGltfAnimator, updateTransforms, GltfAnimator } from 'lib/Lib';
+import { GltfIblLight, GltfCamera, GltfBridge, GltfScene, createGltfAnimator, updateNodeListTransforms, GltfAnimator } from 'lib/Lib';
 import {getCameraOrbit} from "../utils/Camera";
 
 import {input} from "../frp/Input-FRP";
@@ -12,6 +12,7 @@ export interface State {
   bridge:GltfBridge;
   scene:GltfScene;
   animate:GltfAnimator;
+    camera: GltfCamera;
   controls: {
     yaw: number,
     roll: number,
@@ -24,7 +25,13 @@ export interface State {
   }
 }
 
-export const createState = (mFreshBridge:Maybe<GltfBridge>) => (mState:Maybe<State>):Maybe<State> => {
+export interface FreshBridge {
+    bridge: GltfBridge,
+    camera: GltfCamera,
+    ibl: GltfIblLight
+}
+
+export const createState = (mFreshBridge:Maybe<FreshBridge>) => (mState:Maybe<State>):Maybe<State> => {
   
   S.map(state => {
     if(state.world !== undefined) {
@@ -32,22 +39,37 @@ export const createState = (mFreshBridge:Maybe<GltfBridge>) => (mState:Maybe<Sta
     }
   }) (mState);
   
-  return S.map((bridge:GltfBridge) => {
+  return S.map(({bridge, camera, ibl}:{bridge:GltfBridge, camera:GltfCamera, ibl: GltfIblLight}) => {
     const animate = createGltfAnimator(bridge.data.animations.map(animation => ({
       animation,
       loop: true
     })));
-  
-    const updatedScene = updateTransforms(bridge.cloneOriginalScene());
 
+
+      console.log(bridge.nodes);
+
+
+      const scene:GltfScene = {
+          ibl,
+          nodes: updateNodeListTransforms ({
+              updateLocal: true,
+              updateModel: true,
+              updateView: true,
+              camera
+
+          })
+          (null)
+          (bridge.nodes)
+      }
     //TODO: calculate initial roll and pitch where camera position is not 0,0
     
     return {
       bridge, 
-      scene: updatedScene,
+      scene,
+        camera,
       animate, 
       controls: {
-        yaw: 0, roll: 0, pitch: 0, translate: vec3.distance(updatedScene.camera.position, [0,0,0])
+        yaw: 0, roll: 0, pitch: 0, translate: vec3.distance(ibl.cameraPosition, [0,0,0])
       },
       pointer: {}
     } as State
@@ -80,6 +102,8 @@ export const pointerMove = (evt:PointerEventData) => S.map((state:State) => {
     const camera = getCameraOrbit({yaw, roll, pitch, translate});
 
     return Object.assign({}, state, {
+        camera,
+
       scene: Object.assign({}, state.scene, {camera: Object.assign({}, camera)}),
       pointer: Object.assign({}, state.pointer, {
         initial: state.pointer.initial,
@@ -109,9 +133,21 @@ export const pointerEnd = evt => S.map((state:State) => {
 });
 
 export const onTick = (evt:TickEventData) => S.map((state:State) => 
-  !state.animate
+    !state.animate
     ? state
     : Object.assign({}, state, {
-        scene: updateTransforms(state.animate(evt.frameTs) (state.scene))
-      })
+        scene: 
+        Object.assign({}, state.scene, {
+            nodes: updateNodeListTransforms
+            ({              updateLocal: true,
+                updateModel: true,
+                updateView: true,
+                camera: state.camera
+
+            })
+            (null)
+            (state.animate(evt.frameTs) (state.scene.nodes))
+        })
+
+    })
 );
