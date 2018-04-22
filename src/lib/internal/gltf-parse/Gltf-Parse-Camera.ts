@@ -1,6 +1,5 @@
 import { GLTF_ORIGINAL, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_Camera, GLTF_ORIGINAL_CameraPerspective, GLTF_ORIGINAL_CameraOrthographic, GltfCamera } from '../../Types';
 import {mat4, vec3} from "gl-matrix";
-import {getCameraView} from "../../exports/Camera";
 
 const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
     const values = new Array<number>(16).fill(0);
@@ -34,6 +33,14 @@ const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
 
     return values; 
 }
+
+const getCameraView = (modelMatrix:Array<number>) => 
+    mat4.invert(mat4.create(),modelMatrix);
+
+//not really tested yet - only affects fragment shader
+const getCameraPosition = (modelMatrix:Array<number>) =>
+    mat4.getTranslation(vec3.create(), modelMatrix) as Float32Array; 
+ 
 export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:Array<number>):GltfCamera => {
 
     const view = getCameraView(modelMatrix);

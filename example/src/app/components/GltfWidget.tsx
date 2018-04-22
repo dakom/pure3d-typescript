@@ -7,12 +7,12 @@ import { renderer } from '../renderer/DemoRenderer';
 import { LoadingGraphic } from './LoadingGraphic';
 import {getModel, ModelInfo} from "../models/Models";
 import {S, Maybe} from "../utils/Sanctuary";
-import { getCameraOrbit, getCameraLook} from '../utils/Camera';
+import { getCameraOrbit, getCameraOrbitPosition, getCameraLook} from '../utils/Camera';
 
 const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/";
 const DEV_ASSET_PATH = "http://localhost:4101/";
 
-class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {error?:any, isLoaded: boolean}> {
+class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, modelName:string}, {error?:any, isLoaded: boolean}> {
     constructor(props) {
         super(props);
         this.state = {isLoaded: false}
@@ -22,24 +22,6 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
     }
 
     startLoad() {
-        const {model} = this.props.modelInfo;
-
-        const cameraPosition = model.cameraPosition !== undefined ? model.cameraPosition : [0,0,4];
-
-        if(model.cameraIndex !== undefined) {
-            throw new Error("need to re-implement getting camera from gltf");
-        }
-
-        const ibl:GltfIblLight = getDefaultIblLight(Float32Array.from(cameraPosition));
-        
-        const camera = model.cameraIndex !== undefined 
-            ? model.cameraIndex 
-            : model.cameraPosition !== undefined || model.cameraLookAt !== undefined 
-            ?   getCameraLook([
-                cameraPosition, 
-                model.cameraLookAt !== undefined ? model.cameraLookAt : [0,0,0],
-            ])
-            :   getCameraOrbit({yaw: 0, pitch: 0, roll: 0, translate: 4})
 
         this.setState({isLoaded: false}, () => {
             loadGltfBridge({
@@ -55,15 +37,14 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
                     },
                     bridge => {
                         this.setState({isLoaded: true});
-                        sBridge.send(S.Just( {bridge, camera, ibl}));
+                        sBridge.send(S.Just( {bridge, modelInfo: this.props.modelInfo}));
                     }
                 );
         });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.modelInfo !== this.props.modelInfo &&
-            prevProps.modelInfo.url !== this.props.modelInfo.url) {
+        if(this.props.modelName !== prevProps.modelName) {
             this.startLoad();
         }
     }
@@ -89,7 +70,7 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo}, {e
 
 export const GltfWidget = () => (
     <ModelContext.Consumer>
-    {({modelInfo, changeModel, isProductionBuild}) => {
+    {({modelInfo, changeModel, isProductionBuild, modelName}) => {
         const assetPath = isProductionBuild ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
 
         if(modelInfo) {
@@ -97,7 +78,7 @@ export const GltfWidget = () => (
         }
         return !modelInfo 
             ? null
-            : <GltfDisplay modelInfo={modelInfo} path={assetPath + modelInfo.url} />
+            : <GltfDisplay modelInfo={modelInfo} path={assetPath + modelInfo.url} modelName={modelName} />
     }}
     </ModelContext.Consumer>
 )

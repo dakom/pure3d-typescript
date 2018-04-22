@@ -108,7 +108,20 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_BINARY": "Box/glTF-Binary/Box.glb",
             "BOX": "Box/glTF/Box.gltf",
         },
-        cameraPosition: [0,0,4]
+        cameraPosition: [-4,-4,4],
+        cameraLookAt: [0,0,0]
+    },
+{
+        primary: "BOX_INTERLEAVED",
+        label: "BOX_INTERLEAVED",
+        urls: {
+            "BOX_INTERLEAVED_GLOSSY": "BoxInterleaved/glTF-pbrSpecularGlossiness/BoxInterleaved.gltf",
+            "BOX_INTERLEAVED_EMBEDDED": "BoxInterleaved/glTF-Embedded/BoxInterleaved.gltf",
+            "BOX_INTERLEAVED_BINARY": "BoxInterleaved/glTF-Binary/BoxInterleaved.glb",
+            "BOX_INTERLEAVED": "BoxInterleaved/glTF/BoxInterleaved.gltf",
+        },
+        cameraPosition: [-4,-4,4],
+        cameraLookAt: [0,0,0]
     },
 ]
 

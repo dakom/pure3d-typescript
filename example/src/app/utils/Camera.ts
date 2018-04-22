@@ -15,13 +15,6 @@ export const getCameraLook = ([cameraPosition, cameraLook]:[Array<number>, Array
 //taken from the khronos demo repo
 //should be updated
 export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}):GltfCamera => {
-    /*
-  const position = [
-    -translate * Math.sin(roll) * Math.cos(-pitch),
-    -translate * Math.sin(-pitch),
-    translate * Math.cos(roll) * Math.cos(-pitch)
-  ];
-  */
 
   // Update view matrix
   const xRotation = mat4.fromRotation(mat4.create(), roll, [0,1,0]);
@@ -33,3 +26,11 @@ export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch
 
   return {view, projection: getDefaultPerspectiveProjection()}
 }
+
+
+export const getCameraOrbitPosition = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}) => [
+    -translate * Math.sin(roll) * Math.cos(-pitch),
+    -translate * Math.sin(-pitch),
+    translate * Math.cos(roll) * Math.cos(-pitch)
+ 
+]

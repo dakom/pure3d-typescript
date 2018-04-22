@@ -34,7 +34,7 @@ export const loadGltfBridge = ({ renderer, environmentPath, gltfPath, config }: 
 
 //But environment/gltf can be loaded separately (untested so far)
 export class GltfBridge {
-    private _nodes:Array<GltfNode>;
+    private _allNodes:Array<GltfNode>;
     private _data: GltfData;
     private _environment: GltfEnvironment;
 
@@ -79,8 +79,7 @@ export class GltfBridge {
         });
 
 
-        this._nodes = GLTF_PARSE_getNodes({gltf, primitives});
-
+        this._allNodes = GLTF_PARSE_getNodes({gltf, primitives});
 
     }
 
@@ -141,8 +140,14 @@ export class GltfBridge {
         renderThunks.forEach(thunks => thunks.forEach(fn => fn()));
     }
 
-    public get nodes() {
-        return this._nodes;
+    public get allNodes() {
+        return this._allNodes;
+    }
+
+    public getOriginalSceneNodes(sceneNumber:number) {
+        const originalScene = this.data.original.scenes[sceneNumber];
+
+        return this._allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
     }
 
     public get renderer() {

@@ -46,7 +46,6 @@ export const getViewMatrices = (camera:GltfCamera) => (modelMatrix:Array<number>
 }
 
 export const updateTransform = (opts:GltfTransformUpdateOptions) => (parentModelMatrix:Array<number>) => (transform:GltfTransform):GltfTransform => {
-    console.log(transform);
 
     const localMatrix = opts.updateLocal ? getMatrixFromTrs(transform.trs) : transform.localMatrix;
 
@@ -65,9 +64,9 @@ export const updateTransform = (opts:GltfTransformUpdateOptions) => (parentModel
 
 export const updateNodeTransforms = (opts:GltfTransformUpdateOptions) => (parentModelMatrix:Array<number>) => (node:GltfNode):GltfNode => {
    const _update = (_parentModelMatrix:Array<number>) => (_node:GltfNode):GltfNode => {
-       console.log(_node);
 
-       const t = updateTransform(opts) (_parentModelMatrix) (_node.transform)
+        const t = updateTransform(opts) (_parentModelMatrix) (_node.transform)
+
         return !_node.children
             ? Object.assign({}, _node, {transform: t}) 
             : Object.assign({}, _node, {transform: t, children: _node.children.map(n => _update (t.modelMatrix) (n))});

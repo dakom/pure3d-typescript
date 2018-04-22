@@ -15,13 +15,13 @@ console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; fo
 
 export const ModelContext = (React as any).createContext()
 
-class App extends React.Component<{}, {modelInfo:ModelInfo}> {
+class App extends React.Component<{}, {modelInfo:ModelInfo, modelName:string}> {
 
   constructor(props:{}) {
     super(props);
 
     const loc = location.hash.replace('#', '');
-    this.state = {modelInfo:  getModel(loc)}
+    this.state = {modelInfo:  getModel(loc), modelName: loc}
 
     this.changeModel = this.changeModel.bind(this);
   }
@@ -38,12 +38,12 @@ class App extends React.Component<{}, {modelInfo:ModelInfo}> {
     }
 
 
-    this.setState({modelInfo});
+    this.setState({modelInfo, modelName});
   }
 
   render() {
     return (
-        <ModelContext.Provider value={{modelInfo: this.state.modelInfo, changeModel: this.changeModel, isProductionBuild}}>
+        <ModelContext.Provider value={{modelInfo: this.state.modelInfo, modelName: this.state.modelName, changeModel: this.changeModel, isProductionBuild}}>
           <MenuWidget />
           <GltfWidget />
         </ModelContext.Provider>
