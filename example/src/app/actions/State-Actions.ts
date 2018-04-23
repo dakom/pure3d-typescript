@@ -51,7 +51,6 @@ export const createState = (mFreshBridge:Maybe<FreshBridge>) => (mState:Maybe<St
             ?   bridge.getOriginalSceneNodes(0)
             :   bridge.allNodes;
 
-        console.log(nodes);
 
         let cameraPosition:Array<number>;
         let camera:GltfCamera;

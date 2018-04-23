@@ -20,12 +20,15 @@ const getAccessorStrategy =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:G
   const bufferView = (accessor.bufferView === undefined)
     ? undefined
     : gltf.bufferViews[accessor.bufferView];
+  
+const stride = (bufferView === undefined || bufferView.byteStride === undefined) ? 0 : bufferView.byteStride;
+
 
   return {
     size: typeCount,
     type: accessor.componentType,
     normalized: accessor.normalized === undefined ? false : accessor.normalized,
-    stride: (bufferView === undefined || bufferView.byteStride === undefined) ? 0 : bufferView.byteStride,
+    stride, 
     offset: 0 //since we sliced it off already, it's always 0 here
   }
 }
@@ -46,9 +49,15 @@ const getAccessorValues =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, acc
 
   const bufferView = gltf.bufferViews[accessor.bufferView];
   const byteOffset = (bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset) + (accessor.byteOffset === undefined ? 0 : accessor.byteOffset);
- 
+
+    const byteStride = bufferView.byteStride ? bufferView.byteStride : 0;
+
+    const byteStrideLength = byteStride * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType];
+    const bufferLength = byteStrideLength + byteLength; 
+
+
   return getComponentTypedData({
-    buffer: buffers[bufferView.buffer].slice(byteOffset, byteOffset + byteLength),
+    buffer: buffers[bufferView.buffer].slice(byteOffset, byteOffset + bufferLength), //byteLength),
     componentType: accessor.componentType
   });
 }
