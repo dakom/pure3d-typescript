@@ -21,7 +21,7 @@ const getAccessorStrategy =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:G
     ? undefined
     : gltf.bufferViews[accessor.bufferView];
   
-const stride = (bufferView === undefined || bufferView.byteStride === undefined) ? 0 : bufferView.byteStride;
+    const stride = (bufferView === undefined || bufferView.byteStride === undefined) ? 0 : bufferView.byteStride;
 
 
   return {

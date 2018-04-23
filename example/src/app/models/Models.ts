@@ -111,7 +111,7 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
         cameraPosition: [-4,-4,4],
         cameraLookAt: [0,0,0]
     },
-{
+    {
         primary: "BOX_INTERLEAVED",
         label: "BOX_INTERLEAVED",
         urls: {
@@ -119,6 +119,30 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_INTERLEAVED_EMBEDDED": "BoxInterleaved/glTF-Embedded/BoxInterleaved.gltf",
             "BOX_INTERLEAVED_BINARY": "BoxInterleaved/glTF-Binary/BoxInterleaved.glb",
             "BOX_INTERLEAVED": "BoxInterleaved/glTF/BoxInterleaved.gltf",
+        },
+        cameraPosition: [-4,-4,4],
+        cameraLookAt: [0,0,0]
+    },
+    {
+        primary: "BOX_TEXTURED",
+        label: "BOX_TEXTURED",
+        urls: {
+            "BOX_TEXTURED_GLOSSY": "BoxTextured/glTF-pbrSpecularGlossiness/BoxTextured.gltf",
+            "BOX_TEXTURED_EMBEDDED": "BoxTextured/glTF-Embedded/BoxTextured.gltf",
+            "BOX_TEXTURED_BINARY": "BoxTextured/glTF-Binary/BoxTextured.glb",
+            "BOX_TEXTURED": "BoxTextured/glTF/BoxTextured.gltf",
+        },
+        cameraPosition: [-4,-4,4],
+        cameraLookAt: [0,0,0]
+    },
+    {
+        primary: "BOX_NPOT",
+        label: "BOX_NPOT",
+        urls: {
+            "BOX_NPOT_GLOSSY": "BoxTexturedNonPowerOfTwo/glTF-pbrSpecularGlossiness/BoxTexturedNonPowerOfTwo.gltf",
+            "BOX_NPOT_EMBEDDED": "BoxTexturedNonPowerOfTwo/glTF-Embedded/BoxTexturedNonPowerOfTwo.gltf",
+            "BOX_NPOT_BINARY": "BoxTexturedNonPowerOfTwo/glTF-Binary/BoxTexturedNonPowerOfTwo.glb",
+            "BOX_NPOT": "BoxTexturedNonPowerOfTwo/glTF/BoxTexturedNonPowerOfTwo.gltf",
         },
         cameraPosition: [-4,-4,4],
         cameraLookAt: [0,0,0]
