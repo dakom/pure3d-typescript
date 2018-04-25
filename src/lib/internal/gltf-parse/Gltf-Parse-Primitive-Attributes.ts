@@ -40,7 +40,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
   if (originalPrimitive.indices !== undefined) {
     //console.log("elements", data.accessors.get(originalPrimitive.indices).values);
 
-    vao.elementBufferId = data.accessors.get(originalPrimitive.indices).rendererBufferId;
+    vao.elementBufferId = data.attributes.get(originalPrimitive.indices).rendererBufferId;
   }
 
   const attributeKeys = GLTF_PARSE_getPrimitiveAttributeKeys(originalPrimitive);
@@ -55,8 +55,8 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
     if(shader.attributes.getLocation(attributeName) !== -1) {
       vao.data.push({
         attributeName,
-        bufferId: data.accessors.get(accessorId).rendererBufferId,
-        ...data.accessors.get(accessorId).strategy
+        bufferId: data.attributes.get(accessorId).rendererBufferId,
+        ...data.attributes.get(accessorId).strategy
       });
     }
 
@@ -74,8 +74,8 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
         
         vao.data.push({
           attributeName: aMorph,
-          bufferId: data.accessors.get(accessorId).rendererBufferId,
-          ...data.accessors.get(accessorId).strategy
+          bufferId: data.attributes.get(accessorId).rendererBufferId,
+          ...data.attributes.get(accessorId).strategy
         });
       });
     });

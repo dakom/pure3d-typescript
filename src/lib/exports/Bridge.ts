@@ -25,11 +25,11 @@ import { createRendererThunk } from '../internal/renderer/Renderer-Thunk';
 
 //The usual entry point
 export const loadGltfBridge = ({ renderer, environmentPath, gltfPath, config }: { renderer: WebGlRenderer, environmentPath?: string, gltfPath: string, config: GltfInitConfig }): Future<any, GltfBridge> => {
-    const controller = new GltfBridge(renderer);
+    const bridge = new GltfBridge(renderer);
 
-    return controller.loadEnvironment(environmentPath)
-        .chain(() => controller.loadGltf({ path: gltfPath, config }))
-        .map(() => controller);
+    return bridge.loadEnvironment(environmentPath)
+        .chain(() => bridge.loadGltf({ path: gltfPath, config }))
+        .map(() => bridge);
 }
 
 //But environment/gltf can be loaded separately (untested so far)

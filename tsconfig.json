@@ -1,26 +1,22 @@
 {
-	"compilerOptions": {
-		"target": "es5",
+    "compilerOptions": {
+        "target": "es6",
         "module": "es2015",
-		"sourceMap": true,
+        "sourceMap": true,
         "declaration": true,
         "declarationDir": "dist/typings",
-		"moduleResolution": "node",
+        "moduleResolution": "node",
         "diagnostics": true,
         "outDir": "dist",
-        "jsx": "react",
-        "lib": [
-            "es6",
-            "es5",
-            "dom"
-        ]
-	},
-	"files": [
-		"./src/lib/Lib.ts"
+        "lib": [ "es6", "es5", "dom" ] 
+    },
+    "files": [
+        "./src/lib/Lib.ts"
     ],
     "include": [
-        "**/*.d.ts"
+        "src/**/*.ts"
     ],
+
     "exclude": [
         "node_modules",
         "gltf-sample-models",
