@@ -147,6 +147,17 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
         cameraPosition: [-4,-4,4],
         cameraLookAt: [0,0,0]
     },
+    {
+        primary: "BOX_VERTEX_COLORS",
+        label: "BOX_VERTEX_COLORS",
+        urls: {
+            "BOX_VERTEX_COLORS_EMBEDDED": "BoxVertexColors/glTF-Embedded/BoxVertexColors.gltf",
+            "BOX_VERTEX_COLORS_BINARY": "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
+            "BOX_VERTEX_COLORS": "BoxVertexColors/glTF/BoxVertexColors.gltf",
+        },
+        cameraPosition: [-4,-4,4],
+        cameraLookAt: [0,0,0]
+    },
 ]
 
 export const MODEL_LIST_PBR1:Array<Model> = [

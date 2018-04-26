@@ -11,7 +11,6 @@ export interface GltfData {
 }
 
 export type GltfAttributeData = Map<number, {
-    values: TypedNumberArray;
     strategy: WebGlAttributeActivateOptions;
     rendererBufferId: Symbol;
 }>

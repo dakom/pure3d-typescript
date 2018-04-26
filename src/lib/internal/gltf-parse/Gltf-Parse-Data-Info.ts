@@ -4,7 +4,7 @@ import { GLTF_ORIGINAL,GLTF_ORIGINAL_MeshPrimitive, TypedNumberArray,_GltfAccess
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE, GLTF_PARSE_COMPONENT_BYTE_SIZE } from './Gltf-Parse-Data-Constants';
 
 
-const getAccessorInfo =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}):_GltfAccessorDataInfo => {
+const getAccessorInfo =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor }):_GltfAccessorDataInfo => {
     const byteLength = (accessor.count * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType]);
 
     if(accessor.bufferView === undefined) {
@@ -36,16 +36,15 @@ const getAccessorInfo =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, acces
     }
 }
 
-const getSparseAccessorIndicesInfo =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}):_GltfAccessorDataInfo => {
+const getSparseAccessorIndicesInfo =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor}):_GltfAccessorDataInfo => {
     const values = accessor.sparse.indices;
     const byteLength = (accessor.sparse.count * GLTF_PARSE_COMPONENT_BYTE_SIZE[values.componentType]);
     const bufferView = gltf.bufferViews[values.bufferView];
     const byteOffset = (bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset) + (values.byteOffset === undefined ? 0 : values.byteOffset);
 
-
     return {
         bufferLength: byteLength,
-        componentType: accessor.componentType,
+        componentType: values.componentType,
         bufferViewIndex: accessor.bufferView,
         bufferIndex: bufferView.buffer,
         byteOffset,
@@ -53,7 +52,7 @@ const getSparseAccessorIndicesInfo =({ gltf, accessor, buffers}: { gltf: GLTF_OR
     }
 }
 
-const getSparseAccessorValuesInfo =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}):_GltfAccessorDataInfo => {
+const getSparseAccessorValuesInfo =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor}):_GltfAccessorDataInfo => {
     const values = accessor.sparse.values;
     const byteLength = (accessor.sparse.count * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType]);
     const bufferView = gltf.bufferViews[values.bufferView];
@@ -70,16 +69,16 @@ const getSparseAccessorValuesInfo =({ gltf, accessor, buffers}: { gltf: GLTF_ORI
     }
 }
 
-export const GLTF_PARSE_getAccessorDataInfo = ({gltf, accessorId, buffers}:{gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, accessorId: number}):GltfAccessorDataInfo => {
+export const GLTF_PARSE_getAccessorDataInfo = ({gltf, accessorId}:{gltf: GLTF_ORIGINAL, accessorId: number}):GltfAccessorDataInfo => {
     const accessor = gltf.accessors[accessorId];
 
-    const info = getAccessorInfo({gltf, accessor, buffers}) as GltfAccessorDataInfo;
+    const info = getAccessorInfo({gltf, accessor}) as GltfAccessorDataInfo;
 
 
     if(accessor.sparse) {
         info.sparse = {
-            indices: getSparseAccessorIndicesInfo({gltf, accessor, buffers}),
-            values: getSparseAccessorValuesInfo({gltf, accessor, buffers})
+            indices: getSparseAccessorIndicesInfo({gltf, accessor}),
+            values: getSparseAccessorValuesInfo({gltf, accessor})
         }
     }
 

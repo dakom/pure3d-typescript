@@ -4,6 +4,8 @@ import { GLTF_PARSE_ACCESSOR_TYPE_SIZE, GLTF_PARSE_COMPONENT_BYTE_SIZE } from '.
 import { WebGlConstants, WebGlRenderer } from 'webgl-simple';
 
 const getComponentTypedData = ({ buffer, componentType}: { buffer:ArrayBuffer, componentType:number}):TypedNumberArray => {
+    
+
     switch (componentType) {
         case WebGlConstants.BYTE: return new Int8Array(buffer);
         case WebGlConstants.UNSIGNED_BYTE: return new Uint8Array(buffer);

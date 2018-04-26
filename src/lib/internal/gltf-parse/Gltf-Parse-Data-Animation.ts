@@ -1,6 +1,8 @@
 import { GLTF_ORIGINAL, GltfAnimationData } from '../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE } from './Gltf-Parse-Data-Constants';
 import {WebGlAttributeActivateOptions} from "webgl-simple";
+import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
+import {GLTF_PARSE_getAccessorDataInfo} from "./Gltf-Parse-Data-Info";
 
 export const GLTF_PARSE_createAnimations = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}): Array<GltfAnimationData> => {
   //load animation list
@@ -12,11 +14,22 @@ export const GLTF_PARSE_createAnimations = ({ gltf, buffers }: { gltf: GLTF_ORIG
         .channels
         .filter(channel => channel.target.node !== undefined)
         .forEach(channel => {
+            
 
           const sampler = animation.samplers[channel.sampler];
           const timeAccessor = gltf.accessors[sampler.input];
-          const timings = accessors.get(sampler.input).values;
-          const values = accessors.get(sampler.output).values;
+          const timings = GLTF_PARSE_getAccessorTypedData({
+              gltf, 
+              buffers,
+              info: GLTF_PARSE_getAccessorDataInfo({gltf, accessorId: sampler.input})
+          });
+
+          const values = GLTF_PARSE_getAccessorTypedData({
+              gltf, 
+              buffers,
+              info: GLTF_PARSE_getAccessorDataInfo({gltf, accessorId: sampler.output})
+          });
+              
           const valuesAccessor = gltf.accessors[sampler.output];
 
           //can't be map() because Array != Float32Array
