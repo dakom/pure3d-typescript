@@ -1,8 +1,8 @@
-import { GLTF_ORIGINAL, GltfAccessorData, GltfAnimationData } from '../../Types';
+import { GLTF_ORIGINAL, GltfAnimationData } from '../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE } from './Gltf-Parse-Data-Constants';
 import {WebGlAttributeActivateOptions} from "webgl-simple";
 
-export const GLTF_PARSE_createAnimations = ({ gltf, accessors }: { gltf: GLTF_ORIGINAL, accessors: GltfAccessorData }): Array<GltfAnimationData> => {
+export const GLTF_PARSE_createAnimations = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}): Array<GltfAnimationData> => {
   //load animation list
   let animations = new Array<GltfAnimationData>();
 

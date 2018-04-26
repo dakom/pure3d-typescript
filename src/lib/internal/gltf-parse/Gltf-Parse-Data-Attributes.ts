@@ -22,7 +22,7 @@ const getAccessorStrategy =({ gltf, accessor}: { gltf: GLTF_ORIGINAL, accessor:G
 }
 
 
-export const GLTF_PARSE_createAttributeData = ({ gltf, buffers, renderer }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, renderer: WebGlRenderer }): GltfAttributeData => {
+export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, renderer: WebGlRenderer }): GltfAttributeData => {
   const accessorData = new Map<number, { values: TypedNumberArray; strategy: WebGlAttributeActivateOptions; rendererBufferId: Symbol }>();
 
   const indicesList = [];

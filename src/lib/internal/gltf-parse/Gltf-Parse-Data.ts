@@ -4,7 +4,7 @@ import { WebGlRenderer, WebGlShader } from 'webgl-simple';
 
 import { GLTF_ORIGINAL, GltfData } from '../../Types';
 import { prepWebGlRenderer } from '../webgl/WebGl-Helpers';
-import { GLTF_PARSE_createAccessorData } from './Gltf-Parse-Data-Accessors';
+import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 
@@ -57,16 +57,14 @@ export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath
 export const GLTF_PARSE_CreateData = ({ gltf, imageElements, renderer, buffers }: { gltf: GLTF_ORIGINAL, imageElements: Array<HTMLImageElement>, renderer: WebGlRenderer, buffers: Array<ArrayBuffer> }): GltfData => {
     prepWebGlRenderer(renderer);
     const textures = GLTF_PARSE_createTextures({ renderer, gltf, imageElements });
-    const typed = GLTF_PARSE_createTypedData({gltf, buffers});
-    const attributes = GLTF_PARSE_createAttributeData({ gltf, buffers, renderer });
-    const animations = GLTF_PARSE_createAnimations({ gltf, typed});
+    const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
+    const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
     const shaders = new Map<number, WebGlShader>();
     const vaoIds = new Map<number, Symbol>();
     return {
         original: gltf,
         animations,
         attributes,
-        typed,
         textures,
         shaders,
         vaoIds

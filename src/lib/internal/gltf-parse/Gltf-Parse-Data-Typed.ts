@@ -1,7 +1,7 @@
-import { WebGlAttributeActivateOptions, WebGlConstants, WebGlRenderer } from 'webgl-simple';
-
-import { GLTF_ORIGINAL,GLTF_ORIGINAL_MeshPrimitive, TypedNumberArray, GLTF_ORIGINAL_Accessor, GLTF_ORIGINAL_AccessorSparse, GLTF_ORIGINAL_BufferView } from '../../Types';
+import {TypedNumberArray,_GltfAccessorDataInfo, GltfAccessorDataInfo, GLTF_ORIGINAL} from "../../Types";
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE, GLTF_PARSE_COMPONENT_BYTE_SIZE } from './Gltf-Parse-Data-Constants';
+
+import { WebGlConstants, WebGlRenderer } from 'webgl-simple';
 
 const getComponentTypedData = ({ buffer, componentType}: { buffer:ArrayBuffer, componentType:number}):TypedNumberArray => {
     switch (componentType) {
@@ -14,69 +14,27 @@ const getComponentTypedData = ({ buffer, componentType}: { buffer:ArrayBuffer, c
         default: throw new Error("unknown accessor component type!");
     }
 }
+const getTypedDataFromInfo = ({info, buffers}:{info:_GltfAccessorDataInfo, buffers: Array<ArrayBuffer>}):TypedNumberArray => 
+   
+    (info.bufferViewIndex === undefined) 
+        ?   getComponentTypedData({
+                buffer: new ArrayBuffer(info.bufferLength),
+                componentType: info.componentType
+            })
 
-const getAccessorValues =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}) => {
-    const byteLength = (accessor.count * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType]);
+        :   getComponentTypedData({
+                buffer: buffers[info.bufferIndex].slice(info.byteOffset, info.byteOffset + info.bufferLength), //byteLength),
+                componentType: info.componentType
+            });
 
-    if(accessor.bufferView === undefined) {
-        if(accessor.sparse === undefined) {
-            throw new Error("accessor must either be sparse or have a buffer view");
-        }
-        return getComponentTypedData({
-            buffer: new ArrayBuffer(byteLength),
-            componentType: accessor.componentType
-        });
-    }
-
-    const bufferView = gltf.bufferViews[accessor.bufferView];
-    const byteOffset = (bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset) + (accessor.byteOffset === undefined ? 0 : accessor.byteOffset);
-
-    const byteStride = bufferView.byteStride ? bufferView.byteStride : 0;
-
-    const byteStrideLength = byteStride * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType];
-    const bufferLength = byteStrideLength + byteLength; 
+export const GLTF_PARSE_getAccessorTypedData = ({gltf, info, buffers}:{gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, info:GltfAccessorDataInfo}) => {
+    const values = getTypedDataFromInfo({info, buffers});
 
 
-    return getComponentTypedData({
-        buffer: buffers[bufferView.buffer].slice(byteOffset, byteOffset + bufferLength), //byteLength),
-        componentType: accessor.componentType
-    });
-}
-
-const getSparseAccessorIndices =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}) => {
-    const values = accessor.sparse.indices;
-    const byteLength = (accessor.sparse.count * GLTF_PARSE_COMPONENT_BYTE_SIZE[values.componentType]);
-    const bufferView = gltf.bufferViews[values.bufferView];
-    const byteOffset = (bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset) + (values.byteOffset === undefined ? 0 : values.byteOffset);
-
-    return getComponentTypedData({
-            buffer: buffers[bufferView.buffer].slice(byteOffset, byteOffset + byteLength),
-            componentType: values.componentType
-    });
-}
-
-const getSparseAccessorValues =({ gltf, accessor, buffers}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, buffers:Array<ArrayBuffer>}) => {
-    const values = accessor.sparse.values;
-    const byteLength = (accessor.sparse.count * GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type] * GLTF_PARSE_COMPONENT_BYTE_SIZE[accessor.componentType]);
-    const bufferView = gltf.bufferViews[values.bufferView];
-    const byteOffset = (bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset) + (values.byteOffset === undefined ? 0 : values.byteOffset);
-
-    return getComponentTypedData({
-        buffer: buffers[bufferView.buffer].slice(byteOffset, byteOffset + byteLength),
-        componentType: accessor.componentType
-    });
-}
-
-export const GLTF_PARSE_getAccessorTypedData = ({gltf, accessorId, buffers}:{gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, accessorId: number}) => {
-    const accessor = gltf.accessors[accessorId];
-
-    const values = getAccessorValues({gltf, accessor, buffers});
-
-
-    if(accessor.sparse) {
-        const sparseIndices = getSparseAccessorIndices({gltf, accessor, buffers});
-        const sparseValues = getSparseAccessorValues({gltf, accessor, buffers});
-        const typeCount = GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type];
+    if(info.sparse) {
+        const typeCount = GLTF_PARSE_ACCESSOR_TYPE_SIZE[info.accessorType];
+        const sparseIndices = getTypedDataFromInfo({info: info.sparse.indices, buffers});
+        const sparseValues = getTypedDataFromInfo({info: info.sparse.values, buffers});
 
         (sparseIndices as any)
             .map(value => value * typeCount)
@@ -90,6 +48,7 @@ export const GLTF_PARSE_getAccessorTypedData = ({gltf, accessorId, buffers}:{glt
     return values;
 }
 
+/*
 export const GLTF_PARSE_createTypedData = ({ gltf, buffers}: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}) => {
 
     const accessorData = new Map<number, TypedNumberArray>();
@@ -109,7 +68,7 @@ export const GLTF_PARSE_createTypedData = ({ gltf, buffers}: { gltf: GLTF_ORIGIN
             ) !== -1
         }) !== -1
     }
-   
+
     const isImage = (accessorId:number):boolean => {
         if(!gltf.images || !gltf.images.length) {
             return false;
@@ -135,3 +94,4 @@ export const GLTF_PARSE_createTypedData = ({ gltf, buffers}: { gltf: GLTF_ORIGIN
 
     return accessorData;
 }
+ */
