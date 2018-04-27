@@ -11,8 +11,8 @@ attribute vec4 a_Tangent;
 attribute vec2 a_UV;
 #endif
 #ifdef HAS_COLOR
-attribute vec3 a_Color;
-varying vec3 v_Color;
+attribute vec4 a_Color;
+varying vec4 v_Color;
 #endif
 
 uniform mat4 u_MVPMatrix;

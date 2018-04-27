@@ -17,13 +17,13 @@ export const GLTF_PARSE_sortPrimitiveAttributeKeys = (keys: Array<string>): Arra
     if (a === b) {
       return 0;
     }
-    switch (a) {
-      case "POSITION": return -1;
-      case "TANGENT": return 1;
-      case "NORMAL": return b === "POSITION" ? 1 : -1;
-    }
 
-    return 1;
+    const ORDER = ["POSITION", "NORMAL", "TANGENT", "TEXCOOR_0", "COLOR_0"];
+
+    const oa = ORDER.indexOf(a);
+    const ob = ORDER.indexOf(b);
+    
+    return oa < ob ? -1 : oa > ob ? 1 : 0;
   });
 
 export const GLTF_PARSE_primitiveHasAttribute = (attributeName: string) => (originalPrimitive: GLTF_ORIGINAL_MeshPrimitive): boolean =>
@@ -58,7 +58,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
         ...data.attributes.get(accessorId).strategy
       });
     } else {
-        console.warn(attributeName, " is -1");
+        console.warn(attributeName, " is -1 (this is fine if it's due to a vertex attr not being used in fragment)");
     }
 
   });

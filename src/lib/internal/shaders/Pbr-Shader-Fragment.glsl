@@ -45,7 +45,7 @@ uniform float u_OcclusionStrength;
 #endif
 
 #ifdef HAS_COLOR
-varying vec3 v_Color;
+varying vec4 v_Color;
 #endif
 
 uniform vec2 u_MetallicRoughnessValues;
@@ -243,7 +243,7 @@ void main()
 
     vec3 f0 = vec3(0.04);
 #ifdef HAS_COLOR
-    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * v_Color;
+    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * SRGBtoLINEAR(v_Color).rgb;
     diffuseColor *= 1.0 - metallic;
 #else
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);

@@ -158,6 +158,31 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
         cameraPosition: [-4,-4,4],
         cameraLookAt: [0,0,0]
     },
+    {primary: "DUCK_BINARY",
+        label: "DUCK",
+        urls: {
+            "DUCK_GLOSSY": "Duck/glTF-pbrSpecularGlossiness/Duck.gltf",
+            "DUCK_DRACO": "Duck/glTF-Draco/Duck.gltf",
+            "DUCK_EMBEDDED": "Duck/glTF-Embedded/Duck.gltf",
+            "DUCK_BINARY": "Duck/glTF-Binary/Duck.glb",
+            "DUCK": "Duck/glTF/Duck.gltf",
+        },
+        cameraPosition: [4,1,4],
+        cameraLookAt: [0,1,0]
+    },
+
+    {primary: "2CYLINDER_ENGINE_BINARY",
+        label: "2CYLINDER_ENGINE",
+        urls: {
+            "2CYLINDER_ENGINE_GLOSSY": "2CylinderEngine/glTF-pbrSpecularGlossiness/2CylinderEngine.gltf",
+            "2CYLINDER_ENGINE_DRACO": "2CylinderEngine/glTF-Draco/2CylinderEngine.gltf",
+            "2CYLINDER_ENGINE_EMBEDDED": "2CylinderEngine/glTF-Embedded/2CylinderEngine.gltf",
+            "2CYLINDER_ENGINE_BINARY": "2CylinderEngine/glTF-Binary/2CylinderEngine.glb",
+            "2CYLINDER_ENGINE": "2CylinderEngine/glTF/2CylinderEngine.gltf",
+        },
+        cameraPosition: [0,0,100],
+        cameraLookAt: [0,0,0]
+    },
 ]
 
 export const MODEL_LIST_PBR1:Array<Model> = [

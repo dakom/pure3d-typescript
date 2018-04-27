@@ -74,6 +74,7 @@ export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf:
 
             let rendererBufferId, buffer;
 
+
             if(accessor.sparse) {
                 rendererBufferId = Symbol(`accessor ${accessorId}`);
                 buffer = GLTF_PARSE_getAccessorTypedData({

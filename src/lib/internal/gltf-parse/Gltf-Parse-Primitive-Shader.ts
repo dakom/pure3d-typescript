@@ -45,8 +45,6 @@ const hasAttribute = (gltf:GLTF_ORIGINAL) => (attr: string): boolean => {
 
     let flag = false;
 
-    console.log(attr);
-
     gltf.meshes.every(mesh => mesh.primitives.every((primitive: GLTF_ORIGINAL_MeshPrimitive) => {
         flag = Object.keys(primitive.attributes).indexOf(attr) !== -1;
         return !flag;
@@ -152,6 +150,7 @@ export const GLTF_PARSE_getPrimitiveShaderSources = ({config, environment, gltf,
         : emptyFragmentShader;
 
     const defines = definesList.map(value => `#define ${value} 1\n`).join('');
+
 
     const vertex = defines + getDynamicVertexShader(originalPrimitive) (vertexShaderSource);
     const fragment = defines + fragmentShaderSource;
