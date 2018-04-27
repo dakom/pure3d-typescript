@@ -8,7 +8,8 @@ const attributeShaderNameLookup = {
   "POSITION": "a_Position",
   "NORMAL": "a_Normal",
   "TANGENT": "a_Tangent",
-  "TEXCOORD_0": "a_UV"
+  "TEXCOORD_0": "a_UV",
+  "COLOR_0": "a_Color"
 }
 
 export const GLTF_PARSE_sortPrimitiveAttributeKeys = (keys: Array<string>): Array<string> =>
@@ -50,14 +51,14 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
     const accessorId = originalPrimitive.attributes[attributeKey];
     const attributeName = attributeShaderNameLookup[attributeKey];
 
-    //console.log(attributeName, data.accessors.get(accessorId).strategy.offset);
-
     if(shader.attributes.getLocation(attributeName) !== -1) {
       vao.data.push({
         attributeName,
         bufferId: data.attributes.get(accessorId).rendererBufferId,
         ...data.attributes.get(accessorId).strategy
       });
+    } else {
+        console.warn(attributeName, " is -1");
     }
 
   });

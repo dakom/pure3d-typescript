@@ -44,6 +44,10 @@ uniform sampler2D u_OcclusionSampler;
 uniform float u_OcclusionStrength;
 #endif
 
+#ifdef HAS_COLOR
+varying vec3 v_Color;
+#endif
+
 uniform vec2 u_MetallicRoughnessValues;
 uniform vec4 u_BaseColorFactor;
 
@@ -238,8 +242,13 @@ void main()
 #endif
 
     vec3 f0 = vec3(0.04);
+#ifdef HAS_COLOR
+    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0) * v_Color;
+    diffuseColor *= 1.0 - metallic;
+#else
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= 1.0 - metallic;
+#endif
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
     // Compute reflectance.

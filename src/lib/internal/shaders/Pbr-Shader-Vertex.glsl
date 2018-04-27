@@ -10,6 +10,10 @@ attribute vec4 a_Tangent;
 #ifdef HAS_UV
 attribute vec2 a_UV;
 #endif
+#ifdef HAS_COLOR
+attribute vec3 a_Color;
+varying vec3 v_Color;
+#endif
 
 uniform mat4 u_MVPMatrix;
 uniform mat4 u_ModelMatrix;
@@ -61,6 +65,11 @@ void main()
   #else
   v_UV = vec2(0.,0.);
   #endif
+
+    #ifdef HAS_COLOR
+    v_Color = a_Color;
+    #endif
+
 
   gl_Position = u_MVPMatrix * m_Position; // needs w for proper perspective correction
 }
