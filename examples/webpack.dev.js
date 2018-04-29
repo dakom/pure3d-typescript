@@ -20,7 +20,10 @@ module.exports = merge(common, {
         contentBase: path.resolve(__dirname, './src/webpage'),
         compress: true,
         port: 3000,
-        headers: { "Access-Control-Allow-Origin": "*" }
+        headers: { "Access-Control-Allow-Origin": "*" },
+        historyApiFallback: {
+            disableDotRule: true
+        }
     },
     plugins: [
         

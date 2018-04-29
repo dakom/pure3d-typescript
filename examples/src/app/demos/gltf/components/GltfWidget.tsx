@@ -1,14 +1,14 @@
 import {GltfIblLight, getDefaultIblLight, loadGltfBridge } from 'lib/Lib';
 import * as React from 'react';
 
-import { ModelContext } from '../App-Main';
 import { sBridge } from '../frp/Bridge-FRP';
-import { renderer } from '../renderer/DemoRenderer';
 import { LoadingGraphic } from './LoadingGraphic';
+import {renderer} from "utils/renderer/ExampleRenderer";
 import {getModel, ModelInfo} from "../models/Models";
-import {S, Maybe} from "../utils/Sanctuary";
-import { getCameraOrbit, getCameraOrbitPosition, getCameraLook} from '../utils/Camera';
-import {GLTF_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH} from "../utils/Path";
+import {S, Maybe} from "utils/Sanctuary";
+import { getCameraOrbit, getCameraOrbitPosition, getCameraLook} from 'utils/Camera';
+import {GLTF_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH} from "utils/Path";
+import {AppContext} from "../../../App-Main";
 
 class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, modelName:string}, {error?:any, isLoaded: boolean}> {
     constructor(props) {
@@ -20,7 +20,6 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
     }
 
     startLoad() {
-
         this.setState({isLoaded: false}, () => {
             loadGltfBridge({
                 renderer, 
@@ -51,6 +50,11 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
         this.startLoad();
     }
 
+    
+    componentWillUnmount() {
+        sBridge.send(S.Nothing);
+    }
+
     render() {
         return (
             <div>
@@ -66,17 +70,12 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
     }
 }
 
-export const GltfWidget = () => (
-    <ModelContext.Consumer>
-    {({modelInfo, changeModel, isProductionBuild, modelName}) => {
-        const assetPath = isProductionBuild ? GLTF_PRODUCTION_ASSET_PATH : GLTF_DEV_ASSET_PATH;
+export const GltfWidget = ({modelInfo, modelName}:{modelInfo:ModelInfo, modelName:string}) => (
+    <AppContext.Consumer>
+    {({isProduction}) => {
+        const assetPath = isProduction ? GLTF_PRODUCTION_ASSET_PATH : GLTF_DEV_ASSET_PATH;
 
-        if(modelInfo) {
-            console.log(modelInfo.url);
-        }
-        return !modelInfo 
-            ? null
-            : <GltfDisplay modelInfo={modelInfo} path={assetPath + modelInfo.url} modelName={modelName} />
+        return !modelInfo ? null : <GltfDisplay modelInfo={modelInfo} path={assetPath + modelInfo.url} modelName={modelName} />
     }}
-    </ModelContext.Consumer>
+    </AppContext.Consumer>
 )

@@ -23,7 +23,7 @@
     "rollup:watch": "cross-env NODE_ENV=production rollup -c -w",
     "test": "jest",
     "test:clear": "jest --clearCache",
-    "example": "cd example && npm run dev:auto-reload"
+    "examples": "cd examples && npm run dev:auto-reload"
   },
   "jest": {
     "transform": {
@@ -42,7 +42,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "22.2.3",
-    "@types/node": "9.6.6",
+    "@types/node": "10.0.0",
     "chokidar": "2.0.3",
     "cross-env": "5.1.4",
     "fluture": "8.0.2",
@@ -62,7 +62,7 @@
     "sanctuary": "0.14.1",
     "shelljs": "0.8.1",
     "ts-jest": "22.4.4",
-    "ts-node": "6.0.0",
+    "ts-node": "6.0.2",
     "typescript": "2.8.3",
     "uglify-es": "3.3.10"
   },

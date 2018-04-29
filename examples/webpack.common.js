@@ -36,7 +36,8 @@ module.exports = {
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
-            "lib": path.resolve(__dirname, '../src/lib/')
+            "lib": path.resolve(__dirname, '../src/lib/'),
+            "utils": path.resolve(__dirname, './src/app/utils/')
         }
     },
     plugins: [

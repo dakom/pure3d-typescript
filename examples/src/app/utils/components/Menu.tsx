@@ -1,6 +1,4 @@
 import * as React from "react";
-import {MODEL_MENUS} from "../models/Models";
-import {ModelContext} from "../App-Main";
 //import {Button, AppBar, ToolBar, IconButton, MenuIcon, Typography} from "material-ui";
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
@@ -12,6 +10,9 @@ import Menu, {MenuItem} from "material-ui/Menu";
 import AddIcon from '@material-ui/icons/Add';
 import SwipeableDrawer from 'material-ui/SwipeableDrawer';
 import MenuIcon from '@material-ui/icons/Menu';
+import {withRouter} from "react-router-dom";
+import HomeIcon from '@material-ui/icons/Home';
+import blue from 'material-ui/colors/blue';
 
 const topStyles = {
     appBar: {
@@ -34,7 +35,7 @@ const topStyles = {
     },
     link: {
         color: 'white'
-    }
+    },
 };
 
 const PopupMenu = (props) => {
@@ -82,37 +83,32 @@ const PopupMenuButton = (props) => {
         </div>
     )
 }
-const alertMessage =
-`Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\n`
-+ `For example, the following are all different formats of the same GLTF:\n\n`
-+ `#DAMAGED_HELMET\n#DAMAGED_HELMET_EMBEDDED\n#DAMAGED_HELMET_BINARY\n\n`
-+ `Also, some models are intended to be moved around, others are not.\n\n`
-+ `So if the camera "pops" or feels off, know that it's in the domain of the *demo* code for not handling this case.\n`
-+ `It is not a bug in the renderer itself :D`;
 
 const _NavBar = (props) => {
-    const {classes} = props;
+    const {classes, buttons, alertMessage, onHome} = props;
     return ( 
-        <ModelContext.Consumer>
-        {({model, changeModel}) => 
-            {// <Dropdown label="Choose a Model" options={Object.keys(MODEL) as Array<MODEL>} onSelectedItem={changeModel} initialItem={model} />}
-
-                return (
                     <AppBar position="static" className={classes.appBar}>
+                
                         <Toolbar>
-                            {MODEL_MENUS.map(({label, items}) => {
+                            <Button onClick={onHome}>
+                                <HomeIcon color="primary" />
+                            </Button>
+                            {buttons.map(({label, items}) => {
                               return <PopupMenuButton key={label} menuKey={label} {...props} items={items} label={label} /> 
                             })}
+                            
                             <Typography variant="title" color="inherit" className={classes.flex}>
-                                Pure3D Tests (samples from <a className={classes.link} href="http://github.com/khronosGroup/glTF-Sample-Models">Khronos</a>)
+                                Pure3D Tests 
                             </Typography>
-                            <Button 
-                                className={classes.repoButton} 
-                                variant="raised" 
-                                onClick={() => alert(alertMessage)}
-                            >
-                                <b>Notes</b>
-                            </Button>
+                            {alertMessage && 
+                                <Button 
+                                    className={classes.repoButton} 
+                                    variant="raised" 
+                                    onClick={() => alert(alertMessage)}
+                                >
+                                    <b>Notes</b>
+                                </Button>
+                            }
                             <Button 
                                 className={classes.repoButton} 
                                 variant="raised" 
@@ -124,16 +120,12 @@ const _NavBar = (props) => {
                     
                     </AppBar>    
                 )
-            }
-        }   
-        </ModelContext.Consumer>
-    );
 }
 
 const NavBar = withStyles(topStyles) (_NavBar);
 
 
-export class MenuWidget extends React.Component<{}, any> {
+export class _MenuWidget extends React.Component<{history, basePage, buttons, alertMessage}, any> {
     constructor(props) {
         super(props);
         this.state = {selectedMenu: null, drawer: true};
@@ -152,8 +144,7 @@ export class MenuWidget extends React.Component<{}, any> {
                
             : null;
 
-        return <ModelContext.Consumer>
-            {({model, changeModel, isProductionBuild}) => (
+       return ( 
             <div>
                 {openButton} 
 
@@ -164,19 +155,23 @@ export class MenuWidget extends React.Component<{}, any> {
                     onOpen={() => this.setState({drawer: true})}
                 >
 
-                    <NavBar 
+                    <NavBar
+                        onHome={() => this.props.history.push('/')}
+                        buttons={this.props.buttons}
+                        alertMessage={this.props.alertMessage}
                         selectedMenu={this.state.selectedMenu} 
                         handlePopupMenu={selectedMenu => 
                             this.setState({ selectedMenu }) 
                         } 
                         handleSelected={sel => {
-                            changeModel(sel);
+                            this.props.history.push(`/${this.props.basePage}/${sel}`); 
                             this.setState({selectedMenu: null, drawer: false});
                         }}
                     />
                 </SwipeableDrawer>
             </div>
-            )}
-        </ModelContext.Consumer>
+       ) 
     }
 }
+
+export const MenuWidget = withRouter(_MenuWidget);

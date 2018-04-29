@@ -1,10 +1,10 @@
 import {Stream, StreamSink, Cell} from "sodiumjs";
 import { getDefaultIblLight, GltfIblLight, Camera, GltfBridge, GltfScene, GltfNodeKind, createGltfAnimator, updateNodeListTransforms, GltfAnimator } from 'lib/Lib';
-import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "../utils/Camera";
+import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "utils/Camera";
 
 import {input} from "../frp/Input-FRP";
 import { TickEventData, PointerEventData} from "input-sender";
-import {S, Maybe} from "../utils/Sanctuary";
+import {S, Maybe} from "utils/Sanctuary";
 import {vec3, mat4} from "gl-matrix";
 import {Model, ModelInfo} from "../models/Models";
 
@@ -30,15 +30,8 @@ export interface FreshBridge {
     modelInfo:ModelInfo;
 }
 
-export const createState = (mFreshBridge:Maybe<FreshBridge>) => (mState:Maybe<State>):Maybe<State> => {
 
-    S.map(state => {
-        if(state.world !== undefined) {
-            //TODO, destroy world / assets rather than just have them go out of scope (e.g. gl.destroyTexture etc.)
-        }
-    }) (mState);
-
-    return S.map((fresh:FreshBridge) => {
+export const createState = (mFresh:Maybe<FreshBridge>) => () => S.map(fresh => {
         const {bridge, modelInfo: {model}} = fresh;
 
         const animate = createGltfAnimator(bridge.data.animations.map(animation => ({
@@ -102,8 +95,7 @@ export const createState = (mFreshBridge:Maybe<FreshBridge>) => (mState:Maybe<St
             },
             pointer: {}
         } as State
-    }) (mFreshBridge);
-};
+}) (mFresh);
 
 export const pointerStart = evt => S.map((state:State) => {
     return Object.assign({}, state, {

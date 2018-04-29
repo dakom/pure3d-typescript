@@ -8,7 +8,8 @@
                 "node_modules/@types/*",
                 "*"
               ],
-              "lib/*": ["../src/lib/*"]
+              "lib/*": ["../src/lib/*"],
+              "utils/*": ["src/app/utils/*"]
         },
         "outDir": "dist/tsc",
         "sourceMap": true,
