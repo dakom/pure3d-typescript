@@ -4,7 +4,7 @@
 
 ## **WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
 
-## [DEMO](https://dakom.github.io/pure3d/#DAMAGED_HELMET_BINARY)
+## [DEMO](https://dakom.github.io/pure3d/#/gltf/DAMAGED_HELMET_BINARY)
 
 # Roadmap
 
