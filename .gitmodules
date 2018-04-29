@@ -1,0 +1,3 @@
+[submodule "examples/assets"]
+	path = examples/assets
+	url = git@github.com:dakom/pure3d-example-assets.git

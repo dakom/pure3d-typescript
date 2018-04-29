@@ -11,8 +11,8 @@ const platform = os.platform();
 
 let localPath = 
     platform === "darwin" || platform === "linux"
-    ?   `../example/gltf-sample-models/2.0`
-    :   `..\\example\\gltf-sample-models\\2.0`
+    ?   `assets`
+    :   `assets`
 
 localPath = path.resolve(localPath);
 

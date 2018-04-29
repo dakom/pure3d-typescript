@@ -8,9 +8,7 @@ import { LoadingGraphic } from './LoadingGraphic';
 import {getModel, ModelInfo} from "../models/Models";
 import {S, Maybe} from "../utils/Sanctuary";
 import { getCameraOrbit, getCameraOrbitPosition, getCameraLook} from '../utils/Camera';
-
-const PRODUCTION_ASSET_PATH = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/";
-const DEV_ASSET_PATH = "http://localhost:4101/";
+import {GLTF_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH} from "../utils/Path";
 
 class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, modelName:string}, {error?:any, isLoaded: boolean}> {
     constructor(props) {
@@ -71,7 +69,7 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
 export const GltfWidget = () => (
     <ModelContext.Consumer>
     {({modelInfo, changeModel, isProductionBuild, modelName}) => {
-        const assetPath = isProductionBuild ? PRODUCTION_ASSET_PATH : DEV_ASSET_PATH;
+        const assetPath = isProductionBuild ? GLTF_PRODUCTION_ASSET_PATH : GLTF_DEV_ASSET_PATH;
 
         if(modelInfo) {
             console.log(modelInfo.url);
