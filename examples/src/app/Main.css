@@ -7,21 +7,19 @@
   padding:0; 
   margin:0;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  background-color: rgba(.2,.2,.2,1);
 }
 
 canvas {
   position: absolute; 
-  top: 100px;
+  top: 0px;
   left: 0px;
-  z-index: -1;
   width: 100%; 
-  height: calc(100% - 100px); 
+  height: 100%; 
   overflow: hidden;
   touch-action:none;
 }
 
-#pointer {
+#app {
   position: absolute; 
   top: 0px;
   left: 0px;
@@ -29,6 +27,7 @@ canvas {
   width: 100%; 
   height: 100%; 
   overflow: hidden;
+    background-color: #fff;
 }
 
 .loadingContainer {

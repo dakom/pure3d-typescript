@@ -1,6 +1,6 @@
 import {Maybe, S} from "utils/Sanctuary";
 import {StreamSink} from "sodiumjs";
-import {cleanupRenderer} from "utils/renderer/ExampleRenderer";
+import {disposeRenderer} from "utils/renderer/ExampleRenderer";
 
 let animationTick = null;
 let thunk = null;
@@ -16,7 +16,6 @@ export const cleanup = () => {
        
     thunk = null;
    
-    cleanupRenderer();
 }
 
 
@@ -35,6 +34,6 @@ sScene.filter(S.isJust).listen(S.map(newThunk => {
 }));
 
 sScene.filter(S.isNothing).listen(() => {
-
     cleanup();
+    disposeRenderer();
 });

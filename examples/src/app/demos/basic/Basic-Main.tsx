@@ -5,11 +5,12 @@ import {SceneWidget} from "./scenes/Basic-Scenes-Widget";
 
 export const Basic = props => (
     <React.Fragment>
+        <SceneWidget sceneName={props.match.params.scene} /> 
+
         <MenuWidget 
             basePage="basic"
             buttons={SCENE_MENUS}
         />     
-        <SceneWidget sceneName={props.match.params.scene} /> 
     </React.Fragment>
 );
 

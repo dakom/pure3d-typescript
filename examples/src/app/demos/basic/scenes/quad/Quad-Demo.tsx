@@ -3,9 +3,8 @@ import { createQuadRenderer, SHADER_ID as quadShaderId } from "./quad-renderer/Q
 import {fetchImage} from "fluture-loaders";
 import { mat4 } from "gl-matrix";
 import {Future} from "fluture";
-import {renderer} from "utils/renderer/ExampleRenderer";
 
-export const startQuad =  (assetPath:string) => { 
+export const startQuad =  (renderer:WebGlRenderer) => (assetPath:string) => { 
 
 
   //Setup element renderers
@@ -24,7 +23,7 @@ export const startQuad =  (assetPath:string) => {
         width: img.naturalWidth,
         height: img.naturalHeight,
         texture,
-        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [0,window.innerHeight - img.naturalHeight,0])) //position in top-left corner
+        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [(window.innerWidth - img.naturalWidth)/2,(window.innerHeight - img.naturalHeight)/2,0])) //position in top-left corner
       }
 
       //render!

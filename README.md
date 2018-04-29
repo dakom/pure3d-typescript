@@ -8,7 +8,9 @@
 
 # Roadmap
 
-## Models
+## Core WebGL Abstraction (done for now)
+
+## GlTF Models
 
 - [x] Simple
 - [ ] Complex
@@ -22,27 +24,26 @@ See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
 ## What it is: 
 
-* Pipeline to split between pure scene data and ready-to-rock GLTF renderer
-* Pure scene here means it can be immutable _and_ completely serializable into primitives 
+* An abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
+* Automatically optimize and skip unnecessary low-level webgl calls, as well as batch GLTF things.
+* Pure separation of data and rendering to make interop with functional frameworks, workers, and wasm a bit more organic.
+* Multi-layered approach for writing bare-metal renderers or batteries-included GLTF 
 * Very simple API surface (e.g. "load, animate, transform, render")
-* Stands on the foundation of [webgl-simple](https://github.com/dakom/webgl-simple) to optimize and skip unnecessary low-level webgl calls (and can share the context)
-* Follows the same idea here - e.g. batching shaders with the same source, re-using buffers, etc.
-* Geared for a functional pipeline
-* Uses the reference PBR shader from Khronos Group (hence WebGL1 only for now)
-* Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
-* Some helpers to drive transform updates and animations
+* Some pure helpers to drive transform updates and animations (not forced into render pipeline)
 * Fully exported Typescript definitions
 
 ## What it probably won't be:
 
-* A full engine (bring your own physics, sound, input, particle emitters, etc.)
-* A hub for added functionality (the idea is for projects to build on and around this rather than add to it, similar to the webgl-simple relationship)
-* Optimized beyond the low-level (bring your own culling)
+* A full game engine (bring your own physics, sound, input, particle emitters, etc.)
+* A full rendering engine, beyond the low-level primitives (bring your own culling)
 * Bleeding edge / state of the art (e.g. GLTF extensions at the proposal stage are not on the radar)
 
-## What it might be later:
+## What it hopes to be later:
 
-* Built on WebGL 2
-* Supporting more extensions
-* Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes)
+* WebGL 2 added functionality / speed gains
+* Supporting more GLTF extensions (esp the official ones: lights, webgl-shader, etc.)
+* Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes, drawInstanced, etc.)
 
+## Peer-Dependencies
+
+* Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)

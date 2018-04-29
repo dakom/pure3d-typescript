@@ -8,6 +8,7 @@ import { withStyles } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import Typography from 'material-ui/Typography';
 import "./Main.css";
+
 export const buildMode = process.env['NODE_ENV'];
 export const buildVersion =  process.env['BUILD_VERSION'];
 export const isProduction = buildMode === "production" ? true : false;

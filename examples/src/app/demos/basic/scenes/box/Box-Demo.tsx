@@ -6,9 +6,8 @@ import {Future} from "fluture";
 import {BoxElement} from "./Box-Element";
 import {uploadData} from "./Box-Data";
 
-import {renderer} from "utils/renderer/ExampleRenderer";
 
-export const startBox = (style:"basic" | "vao") => {
+export const startBox = (renderer:WebGlRenderer) => (style:"basic" | "vao") => {
 
   //Upload data
   uploadData(renderer);

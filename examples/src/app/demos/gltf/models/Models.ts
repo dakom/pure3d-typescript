@@ -180,8 +180,7 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "2CYLINDER_ENGINE_BINARY": "2CylinderEngine/glTF-Binary/2CylinderEngine.glb",
             "2CYLINDER_ENGINE": "2CylinderEngine/glTF/2CylinderEngine.gltf",
         },
-        cameraPosition: [0,0,100],
-        cameraLookAt: [0,0,0]
+        cameraIndex: 0
     },
 ]
 

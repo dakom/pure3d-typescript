@@ -9,22 +9,30 @@ import {startVideo} from "./video/Video-Demo";
 import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../../../App-Main";
+import {WebGlRenderer} from "lib/Lib";
+import {createRenderer} from "utils/renderer/ExampleRenderer";
 
-const _loadScene = (sceneName:string):Future<any,Maybe<() => void>> => {
+const _loadScene = ({renderer, sceneName}:{renderer:WebGlRenderer, sceneName:string}):Future<any,Maybe<() => void>> => {
     const path = !isProduction ? WEBGL_DEV_ASSET_PATH : WEBGL_PRODUCTION_ASSET_PATH;
     
     switch(sceneName) {
-        case "BOX_BASIC": return startBox("basic").map(S.Just);
-        case "BOX_VAO": return startBox("vao").map(S.Just);
-        case "QUAD":    return startQuad(path).map(S.Just); 
-        case "TEXTURES_COMBINED": return startCombinedTextures().map(S.Just);
-        case "SPRITESHEET": return startSpriteSheet(path).map(S.Just);
-        case "VIDEO_QUAD": return startVideo(path).map(S.Just); 
+        case "BOX_BASIC": return startBox(renderer) ("basic").map(S.Just);
+        case "BOX_VAO": return startBox (renderer) ("vao").map(S.Just);
+        case "QUAD":    return startQuad (renderer) (path).map(S.Just); 
+        case "TEXTURES_COMBINED": return startCombinedTextures (renderer).map(S.Just);
+        case "SPRITESHEET": return startSpriteSheet (renderer) (path).map(S.Just);
+        case "VIDEO_QUAD": return startVideo (renderer) (path).map(S.Just); 
         default: return Future.of(S.Nothing);
     }
 }
 
 export class SceneWidget extends React.Component<{sceneName:string}, {}> {
+    private canvasRef:React.RefObject<HTMLCanvasElement>; 
+
+    constructor(props) {
+        super(props);
+        this.canvasRef = React.createRef();
+    }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(this.props.sceneName !== prevProps.sceneName) {
@@ -34,17 +42,25 @@ export class SceneWidget extends React.Component<{sceneName:string}, {}> {
     componentDidMount() {
         this.loadScene();
     }
-
-
-    loadScene() {
-        _loadScene(this.props.sceneName).fork(console.error, mThunk => sScene.send(mThunk));
-    }
-
     componentWillUnmount() {
         sScene.send(S.Nothing);
     }
 
+    loadScene() {
+
+        //automatically disposes the previous one
+        const renderer = createRenderer({
+            canvas: this.canvasRef.current,
+            version: 1
+        });
+
+        _loadScene({
+            renderer,
+            sceneName: this.props.sceneName
+        }).fork(console.error, mThunk => sScene.send(mThunk));
+    }
+
     render() {
-        return null;
+        return <canvas ref={this.canvasRef}/>
     }
 }

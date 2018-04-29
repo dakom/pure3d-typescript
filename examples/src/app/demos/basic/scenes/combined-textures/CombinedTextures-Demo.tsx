@@ -4,7 +4,6 @@ import { mat4 } from "gl-matrix";
 import { createPerlinTexture } from "./PerlinTexture";
 import {createSolidTexture} from "./SolidTexture";
 import {Future} from "fluture";
-import {renderer} from "utils/renderer/ExampleRenderer";
 
 const perlinGreyscale = ({ x, y, noise }: { x: number, y: number, noise: number }): Array<number> => {
   const color = Math.round(255 * noise);
@@ -13,7 +12,7 @@ const perlinGreyscale = ({ x, y, noise }: { x: number, y: number, noise: number 
 }
 
 
-export const startCombinedTextures =  () => {
+export const startCombinedTextures = (renderer:WebGlRenderer) => {
 
   //Setup element renderer
   const renderTextures = createCombinedTexturesRenderer(renderer);
@@ -46,7 +45,7 @@ export const startCombinedTextures =  () => {
     height,
     noiseTexture,
     imgTexture,
-    clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [0, window.innerHeight - height, 0])) //position in top-left corner
+    clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [(window.innerWidth-width)/2, (window.innerHeight - height)/2, 0]))
   }
 
   //render!

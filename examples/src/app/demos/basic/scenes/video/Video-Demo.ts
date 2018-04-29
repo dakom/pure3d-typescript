@@ -3,9 +3,8 @@ import { createVideoRenderer, SHADER_ID as videoShaderId } from "./video-rendere
 import { mat4 } from "gl-matrix";
 import {playVideo} from "fluture-loaders";
 import {Future} from "fluture";
-import {renderer} from "utils/renderer/ExampleRenderer";
 
-export const startVideo = (assetPath:string) => {
+export const startVideo = (renderer:WebGlRenderer) => (assetPath:string) => {
 
   //Setup element renderers
   const renderVideo = createVideoRenderer(renderer);
@@ -25,7 +24,7 @@ export const startVideo = (assetPath:string) => {
         height: videoHeight,
         texture,
         video,
-        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [0,window.innerHeight - videoHeight,0])) //position in top-left corner
+        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [(window.innerWidth-videoWidth)/2,(window.innerHeight - videoHeight)/2,0]))
       }
 
       //render!

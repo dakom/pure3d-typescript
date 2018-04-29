@@ -3,7 +3,7 @@ import { getDefaultIblLight, GltfIblLight, Camera, GltfBridge, GltfScene, GltfNo
 import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "utils/Camera";
 
 import {input} from "../frp/Input-FRP";
-import { TickEventData, PointerEventData} from "input-sender";
+import { TickEventData, PointerEventData} from "input-senders";
 import {S, Maybe} from "utils/Sanctuary";
 import {vec3, mat4} from "gl-matrix";
 import {Model, ModelInfo} from "../models/Models";

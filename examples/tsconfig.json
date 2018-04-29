@@ -19,7 +19,8 @@
             "es6",
             "es5",
             "dom"
-        ]
+        ],
+        "types": []
     },
     "include": [
         "src/**/*.ts",

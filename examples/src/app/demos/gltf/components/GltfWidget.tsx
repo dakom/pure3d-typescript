@@ -3,26 +3,32 @@ import * as React from 'react';
 
 import { sBridge } from '../frp/Bridge-FRP';
 import { LoadingGraphic } from './LoadingGraphic';
-import {renderer} from "utils/renderer/ExampleRenderer";
+import {createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel, ModelInfo} from "../models/Models";
 import {S, Maybe} from "utils/Sanctuary";
 import { getCameraOrbit, getCameraOrbitPosition, getCameraLook} from 'utils/Camera';
 import {GLTF_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH} from "utils/Path";
 import {AppContext} from "../../../App-Main";
+import {startInput} from "../frp/Input-FRP";
 
 class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, modelName:string}, {error?:any, isLoaded: boolean}> {
+    private canvasRef:React.RefObject<HTMLCanvasElement>;
+
     constructor(props) {
         super(props);
         this.state = {isLoaded: false}
 
         this.startLoad = this.startLoad.bind(this);
-
+        this.canvasRef = React.createRef();
     }
 
     startLoad() {
         this.setState({isLoaded: false}, () => {
             loadGltfBridge({
-                renderer, 
+                renderer: createRenderer({
+                    canvas: this.canvasRef.current,
+                    version: 1
+                }), 
                 environmentPath: "static/world/world.json", 
                 gltfPath: this.props.path, 
                 config: { }
@@ -35,6 +41,7 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
                     bridge => {
                         this.setState({isLoaded: true});
                         sBridge.send(S.Just( {bridge, modelInfo: this.props.modelInfo}));
+                        startInput(this.canvasRef.current);
                     }
                 );
         });
@@ -56,15 +63,17 @@ class GltfDisplay extends React.Component<{path:string, modelInfo:ModelInfo, mod
     }
 
     render() {
+        const overlay = this.state.error
+            ?   <div><h1>Error!</h1></div> 
+            :   (!this.state.error && !this.state.isLoaded)
+                    ?   <LoadingGraphic />
+                    :   null;
+            
         return (
-            <div>
-            {this.state.error &&
-                <div><h1>Error!</h1></div>
-            }
-            {(!this.state.error && !this.state.isLoaded) &&
-                    <LoadingGraphic />
-            }
-            </div>
+            <React.Fragment>
+                <canvas ref={this.canvasRef}/>
+                {overlay}
+            </React.Fragment>
         )
 
     }

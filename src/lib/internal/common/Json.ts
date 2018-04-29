@@ -1,7 +1,8 @@
-import * as TE_PolyFill from "text-encoding";
+import {TextDecoder} from "text-encoding-shim";
+
 
 export const getJsonFromArrayBuffer = (aBuffer:ArrayBuffer) => {
-  const str = new TE_PolyFill.TextDecoder().decode(aBuffer);
+  const str = new TextDecoder('utf-8').decode(new Uint8Array(aBuffer));
   //console.log(str);
 
   return JSON.parse(str);

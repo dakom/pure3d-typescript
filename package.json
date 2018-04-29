@@ -67,13 +67,12 @@
     "uglify-es": "3.3.10"
   },
   "peerDependencies": {
-    "fluture": ">=6.0.0",
-    "webgl-simple": ">=8.x.x"
+    "fluture": ">=6.0.0"
   },
   "dependencies": {
     "binary-search-curryed": "1.0.1",
     "fluture-loaders": "^2.1.2",
     "gl-matrix": "^2.5.1",
-    "text-encoding": "^0.6.4"
+    "text-encoding-shim": "^1.0.0"
   }
 }

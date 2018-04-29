@@ -3,7 +3,6 @@ import { createSpriteSheetRenderer, SHADER_ID as spriteSheetShaderId, SpriteShee
 import { mat4 } from "gl-matrix";
 import {fetchImage} from "fluture-loaders";
 import {Future} from "fluture";
-import {renderer} from "utils/renderer/ExampleRenderer";
 
 const getRandomSequence = ():number => {
   const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -11,7 +10,7 @@ const getRandomSequence = ():number => {
 }
 
 
-export const startSpriteSheet = (assetPath:string) => {
+export const startSpriteSheet = (renderer:WebGlRenderer) => (assetPath:string) => {
 
 
   //Setup element renderers
@@ -36,7 +35,7 @@ export const startSpriteSheet = (assetPath:string) => {
         height: 64,
         uvScale: Float32Array.from([cellSize[0] / textureSize[0], cellSize[1] / textureSize[1]]),
         texture,
-        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [0,window.innerHeight - 64,0])) //position in top-left corner
+        clipSpace: mat4.multiply(mat4.create(), cameraMatrix as any, mat4.fromTranslation(mat4.create(), [(window.innerWidth-64)/2, (window.innerHeight-64)/2, 0])) 
       }
 
 

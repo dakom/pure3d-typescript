@@ -14,13 +14,13 @@ import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttribute
 
 import vertexShader from "../shaders/Gltf-Shader-Vertex.glsl";
 import pbrFragmentShader from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
+import emptyFragmentShader from "../shaders/Gltf-Empty-Shader-Fragment.glsl";
 
 const PbrDefines = [
     //vertex
     "HAS_NORMALS",
     "HAS_TANGENTS",
     "HAS_UV",
-
 
     //fragment
     "USE_IBL",
@@ -143,7 +143,7 @@ export const GLTF_PARSE_getPrimitiveShaderSources = ({config, environment, gltf,
 
     const fragmentShaderSource = shaderKind === GltfShaderKind.PBR
         ? pbrFragmentShader
-        : pbrFragmentShader; //TODO - have another source :P
+        : emptyFragmentShader; 
 
     const defines = definesList.map(value => `#define ${value} 1\n`).join('');
 
