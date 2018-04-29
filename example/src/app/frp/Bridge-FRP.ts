@@ -3,7 +3,7 @@ import { StreamSink } from 'sodiumjs';
 import { Maybe, S } from '../utils/Sanctuary';
 import { createState, onTick, pointerEnd, pointerMove, FreshBridge, pointerStart, State } from '../actions/State-Actions';
 import { input } from './Input-FRP';
-import {GltfBridge, GltfCamera, GltfIblLight} from "lib/Lib";
+import {GltfBridge, Camera, GltfIblLight} from "lib/Lib";
 
 export const sBridge = new StreamSink<Maybe<FreshBridge>>();
 

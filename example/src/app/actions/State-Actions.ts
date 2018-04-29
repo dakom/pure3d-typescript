@@ -1,5 +1,5 @@
 import {Stream, StreamSink, Cell} from "sodiumjs";
-import { getDefaultIblLight, GltfIblLight, GltfCamera, GltfBridge, GltfScene, GltfNodeKind, createGltfAnimator, updateNodeListTransforms, GltfAnimator } from 'lib/Lib';
+import { getDefaultIblLight, GltfIblLight, Camera, GltfBridge, GltfScene, GltfNodeKind, createGltfAnimator, updateNodeListTransforms, GltfAnimator } from 'lib/Lib';
 import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "../utils/Camera";
 
 import {input} from "../frp/Input-FRP";
@@ -12,7 +12,7 @@ export interface State {
     bridge:GltfBridge;
     scene:GltfScene;
     animate:GltfAnimator;
-    camera: GltfCamera;
+    camera: Camera;
     controls: {
         yaw: number,
             roll: number,
@@ -53,7 +53,7 @@ export const createState = (mFreshBridge:Maybe<FreshBridge>) => (mState:Maybe<St
 
 
         let cameraPosition:Array<number>;
-        let camera:GltfCamera;
+        let camera:Camera;
         if(model.cameraIndex !== undefined) {
             const cameraNode = bridge.allNodes.filter(node => node.kind === GltfNodeKind.CAMERA)[model.cameraIndex];
             if(cameraNode.kind === GltfNodeKind.CAMERA) {

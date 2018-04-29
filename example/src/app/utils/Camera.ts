@@ -1,11 +1,11 @@
 import {mat4} from "gl-matrix";
-import {GltfCamera} from "lib/Lib";
+import {Camera} from "lib/Lib";
 
 const getDefaultPerspectiveProjection = () => {
   return mat4.perspective(mat4.create(), 45.0 * Math.PI / 180.0, window.innerWidth / window.innerHeight, 0.01, 100.0);
 }
 
-export const getCameraLook = ([cameraPosition, cameraLook]:[Array<number>, Array<number>]):GltfCamera => {
+export const getCameraLook = ([cameraPosition, cameraLook]:[Array<number>, Array<number>]):Camera => {
     const projection = getDefaultPerspectiveProjection();
     const view = mat4.lookAt(new Array(16), cameraPosition, cameraLook,[0,1,0]);
 
@@ -14,7 +14,7 @@ export const getCameraLook = ([cameraPosition, cameraLook]:[Array<number>, Array
 }
 //taken from the khronos demo repo
 //should be updated
-export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}):GltfCamera => {
+export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}):Camera => {
 
   // Update view matrix
   const xRotation = mat4.fromRotation(mat4.create(), roll, [0,1,0]);

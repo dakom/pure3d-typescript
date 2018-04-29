@@ -64,8 +64,7 @@
     "ts-jest": "22.4.4",
     "ts-node": "6.0.0",
     "typescript": "2.8.3",
-    "uglify-es": "3.3.10",
-    "webgl-simple": "^8.0.1"
+    "uglify-es": "3.3.10"
   },
   "peerDependencies": {
     "fluture": ">=6.0.0",

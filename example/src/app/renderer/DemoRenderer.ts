@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { createWebGlRenderer, WebGlConstants } from 'webgl-simple';
 
 import { cScene} from '../frp/Bridge-FRP';
 import { S } from '../utils/Sanctuary';
-import { GltfBridge, GltfScene } from 'lib/Lib';
+import { createWebGlRenderer, WebGlConstants, GltfBridge, GltfScene } from 'lib/Lib';
 
 export const renderer = createWebGlRenderer({
   canvas: document.getElementById("canvas") as HTMLCanvasElement,
