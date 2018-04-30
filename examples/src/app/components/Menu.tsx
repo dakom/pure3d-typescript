@@ -125,7 +125,7 @@ const _NavBar = (props) => {
 const NavBar = withStyles(topStyles) (_NavBar);
 
 
-export class _MenuWidget extends React.Component<{history, basePage, buttons, alertMessage}, any> {
+export class _TopMenu extends React.Component<{history, basePage, buttons, alertMessage}, any> {
     constructor(props) {
         super(props);
         this.state = {selectedMenu: null, drawer: true};
@@ -174,4 +174,4 @@ export class _MenuWidget extends React.Component<{history, basePage, buttons, al
     }
 }
 
-export const MenuWidget = withRouter(_MenuWidget);
+export const TopMenu = withRouter(_TopMenu);
