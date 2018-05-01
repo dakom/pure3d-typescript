@@ -1,33 +1,11 @@
 import {GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
 import {ModelInfo, Model} from "./Gltf-Models";
-import {mat4, vec3} from "gl-matrix";
-import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "utils/Camera";
+import {getInitialCamera} from "./Gltf-Camera-Controller";
+import {addInputListener} from "../../utils/Input";
+import {PointerEventStatus} from "input-senders";
+import {cameraUpdateStart, cameraUpdateMove, cameraUpdateEnd} from "./Gltf-Camera-Controller";
 
-const getInitialCamera = (bridge:GltfBridge) => (model:Model) => {
-    let cameraPosition:Array<number>;
-        let camera:Camera;
-        if(model.cameraIndex !== undefined) {
-            const cameraNode = bridge.allNodes.filter(node => node.kind === GltfNodeKind.CAMERA)[model.cameraIndex];
-            if(cameraNode.kind === GltfNodeKind.CAMERA) {
-                camera = cameraNode.camera;
-                cameraPosition = mat4.getTranslation(vec3.create(), cameraNode.transform.localMatrix); 
-            }
-
-        } else if(model.cameraPosition !== undefined) {
-            cameraPosition = model.cameraPosition !== undefined ? model.cameraPosition : [0,0,4];
-            camera = getCameraLook([
-                cameraPosition, 
-                model.cameraLookAt !== undefined ? model.cameraLookAt : [0,0,0],
-            ])
-        } else {
-            const initOrbit = {yaw: 0, pitch: 0, roll: 0, translate: 4};
-            camera = getCameraOrbit(initOrbit);
-            cameraPosition = getCameraOrbitPosition(initOrbit);
-        }
-    return {cameraPosition, camera};
-}
-
-export const startGltf = (renderer:WebGlRenderer) => (modelPath:string) => (modelInfo:ModelInfo) => 
+export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{modelPath:string, modelInfo:ModelInfo}) => 
     loadGltfBridge({
         renderer, 
         environmentPath: "static/world/world.json", 
@@ -61,6 +39,10 @@ export const startGltf = (renderer:WebGlRenderer) => (modelPath:string) => (mode
             (null)
             (nodes)
         }
+
+        addInputListener(PointerEventStatus.START) (evt => scene = cameraUpdateStart(evt) (scene));
+        addInputListener(PointerEventStatus.MOVE) (evt => scene = cameraUpdateMove(evt) (scene));
+        addInputListener(PointerEventStatus.END) (evt => scene = cameraUpdateEnd (evt) (scene));
 
         return (frameTs:number) => {
             scene = Object.assign({}, scene, {

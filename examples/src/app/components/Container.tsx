@@ -13,15 +13,7 @@ import {isProduction} from "../App-Main";
 import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
-import {
-    PointerEventStatus,
-    PointerScreenEventData,
-    startPointer,
-    startTick,
-    startTickPointer,
-    TickEventData,
-    TickPointerScreenEventData,
-} from 'input-senders';
+import {startInput} from "../utils/Input";
 
 const _loadScene = ({renderer, section, scene}:{renderer:WebGlRenderer, scene:string, section:string}):Future<any,Maybe<(frameTs:number) => void>> => {
     
@@ -38,8 +30,12 @@ const _loadScene = ({renderer, section, scene}:{renderer:WebGlRenderer, scene:st
     } else {
         const path = !isProduction ? GLTF_DEV_ASSET_PATH : GLTF_PRODUCTION_ASSET_PATH;
         const modelInfo = getModel(scene);
-        const modelPath = path + modelInfo.url;
-        return startGltf(renderer) (modelPath) (modelInfo).map(S.Just);
+        if(modelInfo) {
+            return startGltf(renderer) ({
+                modelPath: path + modelInfo.url,
+                modelInfo
+            }).map(S.Just);
+        }
     }
 
     return Future.of(S.Nothing);
@@ -61,7 +57,6 @@ export class Container extends React.Component<{section: string, scene:string}, 
         this.animateScene = this.animateScene.bind(this);
         this.disposeScene = this.disposeScene.bind(this);
         this.loadScene = this.loadScene.bind(this);
-        this.startInput = this.startInput.bind(this);
 
         this.state = {isLoading: false};
     }
@@ -116,52 +111,8 @@ export class Container extends React.Component<{section: string, scene:string}, 
             this.setState({isLoading: false});
             this.mThunk = mThunk;
             this.mTick = S.map(() => requestAnimationFrame(this.animateScene)) (mThunk);
-            this.mStopInput= S.map(this.startInput) (mThunk);
+            this.mStopInput= S.map(() => startInput(this.canvasRef.current)) (mThunk);
         });
-    }
-
-    startInput() {
-        const hasPointer = (window as any).PointerEvent ? true : false;
-        const stoppers = [];
-        const domElement = this.canvasRef.current;
-
-        stoppers.push(
-            startPointer
-            ({
-                domElement,
-                hasPointer,
-                status: PointerEventStatus.START,
-            })
-            (({ data }) => {})
-        );
-
-        stoppers.push(
-            startTickPointer
-            ({
-                domElement,
-                hasPointer,
-                status: PointerEventStatus.MOVE,
-            })
-            (({ data }) => {})
-        );
-
-        stoppers.push(
-            startPointer
-            ({
-                domElement,
-                hasPointer,
-                status: PointerEventStatus.END,
-            })
-            (({ data }) => {})
-        );
-
-        stoppers.push(
-            startTick
-            ({})
-            (({data}) => {})
-        );
-
-        return () => stoppers.forEach(fn => fn());
     }
 
     render() {
