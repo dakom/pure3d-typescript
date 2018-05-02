@@ -1,7 +1,9 @@
 export * from "./Types";
 
 //common
-export * from "./exports/common/Transform";
+export * from "./exports/common/transform/Transform";
+export * from "./exports/common/math/Spherical";
+export * from "./exports/common/camera/OrbitCamera";
 
 //exports/GLTF
 export * from "./exports/gltf/Gltf-Animation";

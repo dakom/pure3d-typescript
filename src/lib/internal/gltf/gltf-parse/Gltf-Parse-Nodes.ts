@@ -1,4 +1,4 @@
-import {getTrsFromMatrix, getModelMatrix, getNormalMatrix, getMatrixFromTrs, getViewMatrices, updateTransform } from '../../../exports/common/Transform'; 
+import {getTrsFromMatrix, getModelMatrix, getNormalMatrix, getMatrixFromTrs, getViewMatrices, updateTransform } from '../../../exports/common/transform/Transform'; 
 import {GLTF_PARSE_getCamera} from "./Gltf-Parse-Camera";
 
 import {
@@ -22,7 +22,7 @@ import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attribu
 //could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
 export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
-    const getNodeTransform = (parentModelMatrix: Array<number>) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
+    const getNodeTransform = (parentModelMatrix: Float32Array) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
 
         const baseNode = {
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length
@@ -34,8 +34,8 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, prim
 
 
 
-        const trs = node.matrix ? getTrsFromMatrix(node.matrix) : getTrs(node);
-        const localMatrix = node.matrix ? node.matrix : getMatrixFromTrs(trs);
+        const trs = node.matrix ? getTrsFromMatrix(Float64Array.from(node.matrix)) : getTrs(node);
+        const localMatrix = node.matrix ? new Float64Array(node.matrix) : getMatrixFromTrs(trs);
         const modelMatrix = getModelMatrix(parentModelMatrix) (localMatrix); 
 
         baseNode.transform = {trs, localMatrix, modelMatrix} as Transform;
@@ -79,9 +79,9 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, prim
 
 function getTrs(node:GLTF_ORIGINAL_Node):Transform_TRS {
     const trs = {
-        translation: [0.0, 0.0, 0.0],
-        rotation: [0.0, 0.0, 0.0, 1.0],
-        scale: [1.0, 1.0, 1.0]
+        translation: Float64Array.from([0.0, 0.0, 0.0]),
+        rotation: Float64Array.from([0.0, 0.0, 0.0, 1.0]),
+        scale: Float64Array.from([1.0, 1.0, 1.0])
     }
     Object.keys(trs).forEach(prop => {
         const nodeTrsProp = node[prop]

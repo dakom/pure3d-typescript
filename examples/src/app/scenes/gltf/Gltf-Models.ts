@@ -6,8 +6,8 @@ export interface Model {
     urls: {
         [key:string]: string
     },
-    cameraPosition?: Array<number>;
-    cameraLookAt?: Array<number>;
+    cameraPosition?: Float64Array;
+    cameraLookAt?: Float64Array;
     cameraIndex?: number;
 }
 
@@ -40,8 +40,8 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
             "SIMPLE_SPARSE_ACCESSOR_EMBEDDED":  "SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf",
             "SIMPLE_SPARSE_ACCESSOR":  "SimpleSparseAccessor/glTF/SimpleSparseAccessor.gltf",
         },
-        cameraPosition: [0,2,10],
-        cameraLookAt: [0,2,0]
+        cameraPosition: Float64Array.from([0,2,10]),
+        cameraLookAt: Float64Array.from([0,2,0])
     },
     {
         primary: "SIMPLE_MORPH", 
@@ -64,7 +64,7 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
             "ANIMATED_MORPH_SPHERE_BINARY":  "AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb",
             "ANIMATED_MORPH_SPHERE":  "AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf",
         },
-        cameraPosition: [4,4,4]
+        cameraPosition: Float64Array.from([4,4,4])
     },
     {
         primary: "MORPH_CUBE_ANIMATED_BINARY", 
@@ -73,7 +73,7 @@ export const MODEL_LIST_SIMPLE:Array<Model> = [
             "MORPH_CUBE_ANIMATED_BINARY":  "AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb",
             "MORPH_CUBE_ANIMATED":  "AnimatedMorphCube/glTF/AnimatedMorphCube.gltf",
         },
-        cameraPosition: [4,4,4]
+        cameraPosition: Float64Array.from([4,4,4])
     },
     {
         primary: "TRIANGLE_ANIMATED", 
@@ -108,8 +108,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_BINARY": "Box/glTF-Binary/Box.glb",
             "BOX": "Box/glTF/Box.gltf",
         },
-        cameraPosition: [-4,-4,4],
-        cameraLookAt: [0,0,0]
+        cameraPosition: Float64Array.from([-4,-4,4]),
+        cameraLookAt: Float64Array.from([0,0,0])
     },
     {
         primary: "BOX_INTERLEAVED",
@@ -120,8 +120,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_INTERLEAVED_BINARY": "BoxInterleaved/glTF-Binary/BoxInterleaved.glb",
             "BOX_INTERLEAVED": "BoxInterleaved/glTF/BoxInterleaved.gltf",
         },
-        cameraPosition: [-4,-4,4],
-        cameraLookAt: [0,0,0]
+        cameraPosition: Float64Array.from([-4,-4,4]),
+        cameraLookAt: Float64Array.from([0,0,0])
     },
     {
         primary: "BOX_TEXTURED",
@@ -132,8 +132,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_TEXTURED_BINARY": "BoxTextured/glTF-Binary/BoxTextured.glb",
             "BOX_TEXTURED": "BoxTextured/glTF/BoxTextured.gltf",
         },
-        cameraPosition: [-4,-4,4],
-        cameraLookAt: [0,0,0]
+        cameraPosition: Float64Array.from([-4,-4,4]),
+        cameraLookAt: Float64Array.from([0,0,0])
     },
     {
         primary: "BOX_NPOT",
@@ -144,8 +144,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_NPOT_BINARY": "BoxTexturedNonPowerOfTwo/glTF-Binary/BoxTexturedNonPowerOfTwo.glb",
             "BOX_NPOT": "BoxTexturedNonPowerOfTwo/glTF/BoxTexturedNonPowerOfTwo.gltf",
         },
-        cameraPosition: [-4,-4,4],
-        cameraLookAt: [0,0,0]
+        cameraPosition: Float64Array.from([-4,-4,4]),
+        cameraLookAt: Float64Array.from([0,0,0])
     },
     {
         primary: "BOX_VERTEX_COLORS",
@@ -155,8 +155,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "BOX_VERTEX_COLORS_BINARY": "BoxVertexColors/glTF-Binary/BoxVertexColors.glb",
             "BOX_VERTEX_COLORS": "BoxVertexColors/glTF/BoxVertexColors.gltf",
         },
-        cameraPosition: [-4,-4,4],
-        cameraLookAt: [0,0,0]
+        cameraPosition: Float64Array.from([-4,-4,4]),
+        cameraLookAt: Float64Array.from([0,0,0])
     },
     {primary: "DUCK_BINARY",
         label: "DUCK",
@@ -167,8 +167,8 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "DUCK_BINARY": "Duck/glTF-Binary/Duck.glb",
             "DUCK": "Duck/glTF/Duck.gltf",
         },
-        cameraPosition: [4,1,4],
-        cameraLookAt: [0,1,0]
+        cameraPosition: Float64Array.from([4,1,4]),
+        cameraLookAt: Float64Array.from([0,1,0])
     },
 
     {primary: "2CYLINDER_ENGINE_BINARY",

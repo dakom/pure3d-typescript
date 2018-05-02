@@ -5,7 +5,7 @@ const getDefaultPerspectiveProjection = () => {
   return mat4.perspective(mat4.create(), 45.0 * Math.PI / 180.0, window.innerWidth / window.innerHeight, 0.01, 100.0);
 }
 
-export const getCameraLook = ([cameraPosition, cameraLook]:[Array<number>, Array<number>]):Camera => {
+export const getCameraLook = ([cameraPosition, cameraLook]:[Float64Array, Float64Array]):Camera => {
     const projection = getDefaultPerspectiveProjection();
     const view = mat4.lookAt(new Array(16), cameraPosition, cameraLook,[0,1,0]);
 
@@ -28,9 +28,9 @@ export const getCameraOrbit = ({yaw, pitch, roll, translate}:{yaw: number, pitch
 }
 
 
-export const getCameraOrbitPosition = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}) => [
+export const getCameraOrbitPosition = ({yaw, pitch, roll, translate}:{yaw: number, pitch:number, roll:number, translate: number}) => Float64Array.from([
     -translate * Math.sin(roll) * Math.cos(-pitch),
     -translate * Math.sin(-pitch),
     translate * Math.cos(roll) * Math.cos(-pitch)
  
-]
+])

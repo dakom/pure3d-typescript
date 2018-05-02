@@ -12,9 +12,10 @@ export * from "./types/gltf/Gltf-Shader-Types";
 export * from "./types/gltf/Gltf-Init-Types";
 
 //Common
-export * from "./types/common/Transform-Types";
-export * from "./types/common/Math-Types";
-export * from "./types/common/Camera-Types";
+export * from "./types/common/transform/Transform-Types";
+export * from "./types/common/math/Spherical-Types";
+export * from "./types/common/camera/Camera-Types";
+export * from "./types/common/array/Array-Types";
 
 //WebGL
 export * from "./types/webgl/WebGl-Attribute-Types";

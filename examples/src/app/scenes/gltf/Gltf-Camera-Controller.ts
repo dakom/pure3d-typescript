@@ -4,9 +4,10 @@ import {mat4, vec3} from "gl-matrix";
 import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "utils/Camera";
 import {ModelInfo, Model} from "./Gltf-Models";
 import {PointerEventStatus, PointerScreenEventData} from "input-senders";
+import {createOrbitCamera} from "lib/Lib";
 
 export const getInitialCamera = (bridge:GltfBridge) => (model:Model) => {
-    let cameraPosition:Array<number>;
+    let cameraPosition: Float64Array;
         let camera:Camera;
         if(model.cameraIndex !== undefined) {
             const cameraNode = bridge.allNodes.filter(node => node.kind === GltfNodeKind.CAMERA)[model.cameraIndex];
@@ -16,17 +17,17 @@ export const getInitialCamera = (bridge:GltfBridge) => (model:Model) => {
             }
 
         } else if(model.cameraPosition !== undefined) {
-            cameraPosition = model.cameraPosition !== undefined ? model.cameraPosition : [0,0,4];
+            cameraPosition = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);
             camera = getCameraLook([
                 cameraPosition, 
-                model.cameraLookAt !== undefined ? model.cameraLookAt : [0,0,0],
+                model.cameraLookAt !== undefined ? model.cameraLookAt : Float64Array.from([0,0,0]),
             ])
         } else {
             const initOrbit = {yaw: 0, pitch: 0, roll: 0, translate: 4};
             camera = getCameraOrbit(initOrbit);
             cameraPosition = getCameraOrbitPosition(initOrbit);
         }
-    return {cameraPosition, camera};
+    return createOrbitCamera(Object.assign({}, camera, {position: cameraPosition}));
 }
 
 const _inputStatus: {
@@ -48,7 +49,7 @@ export const cameraUpdateStart = (evt:PointerScreenEventData) => (scene:GltfScen
 export const cameraUpdateMove = (evt:PointerScreenEventData) => (scene:GltfScene):GltfScene => {
     if(_inputStatus.active) {
         _inputStatus.move = evt;
-        console.log(_inputStatus);
+        
     }
     return scene;
 }

@@ -2,7 +2,7 @@ import { GLTF_ORIGINAL, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_Camera, GLTF_ORIGINAL_
 import {mat4, vec3} from "gl-matrix";
 
 const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
-    const values = new Array<number>(16).fill(0);
+    const values = new Float64Array(16).fill(0); 
     const r = cam.xmag;
     const t = cam.ymag;
     const f = cam.zfar;
@@ -18,7 +18,7 @@ const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
 }
 
 const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
-    const values = new Array<number>(16).fill(0);
+    const values = new Float64Array(16).fill(0); 
     const a = cam.aspectRatio;
     const y = cam.yfov;
     const n = cam.znear;
@@ -34,21 +34,21 @@ const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
     return values; 
 }
 
-const getCameraView = (modelMatrix:Array<number>) => 
+const getCameraView = (modelMatrix:Float32Array) => 
     mat4.invert(mat4.create(),modelMatrix);
 
 //not really tested yet - only affects fragment shader
-const getCameraPosition = (modelMatrix:Array<number>) =>
+const getCameraPosition = (modelMatrix:Float32Array) =>
     mat4.getTranslation(vec3.create(), modelMatrix) as Float32Array; 
  
-export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:Array<number>):Camera => {
+export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:Float32Array):Camera => {
 
     const view = getCameraView(modelMatrix);
 
     
     const projection = originalCamera.type === "perspective" 
         ? getPerspectiveProjection(originalCamera.perspective) 
-        : getOrthographicProjection(originalCamera.orthographic) as Array<number>;
+        : getOrthographicProjection(originalCamera.orthographic) as Float64Array;
 
     return {
         view,

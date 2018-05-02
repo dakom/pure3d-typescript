@@ -1,5 +1,5 @@
-import {TypedNumberArray} from "./Math-Types";
-import {Camera} from "./Camera-Types";
+import {TypedNumberArray} from "../array/Array-Types";
+import {Camera} from "../camera/Camera-Types";
 
 export interface Transform {
     //updating this is free but typically won't change display
@@ -7,11 +7,10 @@ export interface Transform {
 
     //this could be done with every change to trs or just on frame tick
     //it's not actually uploaded to buffer, so higher-fidelity is allowed
-    localMatrix:Array<number>;
+    localMatrix:Float64Array;
 
     //from model's local space to world space
-    //also not uploaded to buffer so kept in higher fidelity
-    modelMatrix:Array<number>;
+    modelMatrix:Float32Array;
  
     //normals to world space
     normalMatrix?: Float32Array;
@@ -26,9 +25,9 @@ export interface Transform {
 }
 
 export interface Transform_TRS {
-    translation: Array<number>;
-    rotation: Array<number>;
-    scale: Array<number>;
+    translation: Float64Array; 
+    rotation: Float64Array; 
+    scale: Float64Array; 
 }
 
 export interface TransformUpdateOptions {
