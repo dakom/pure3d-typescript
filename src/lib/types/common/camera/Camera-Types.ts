@@ -1,13 +1,13 @@
-
+import {NumberArray} from "../array/Array-Types";
 import {createOrbitCamera} from "../../../exports/common/camera/OrbitCamera";
 
 export interface Camera {
-  view: Float64Array; 
-  projection: Float64Array;
+  view: NumberArray; 
+  projection: NumberArray;
 }
 
 export interface PositionCamera extends Camera {
-    position: Float64Array;
+    position: NumberArray;
 }
 
 export type OrbitCamera = ReturnType<typeof createOrbitCamera>;

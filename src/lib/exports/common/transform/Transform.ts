@@ -1,39 +1,41 @@
 import { mat4 } from 'gl-matrix';
 
+import {createVec3, createVec4, createQuat, createMat4} from "../array/Array";
 import {
   Camera,
   Transform,
   Transform_TRS,
   TypedNumberArray,
-  TransformUpdateOptions
+  TransformUpdateOptions,
+  NumberArray
 } from '../../../Types';
 
 
-export const getTrsFromMatrix = (matrix:Float64Array):Transform_TRS => {
-    const scale = mat4.getScaling(new Array(3), matrix);
-    const scaledMatrix = mat4.scale(new Array(16), matrix, [1/scale[0], 1/scale[1], 1/scale[2]]);
+export const getTrsFromMatrix = (matrix:NumberArray):Transform_TRS => {
+    const scale = mat4.getScaling(createVec3(), matrix);
+    const scaledMatrix = mat4.scale(createMat4(), matrix, [1/scale[0], 1/scale[1], 1/scale[2]]);
 
     return {
-        translation: mat4.getTranslation(new Array(3), matrix),
-        rotation: mat4.getRotation(new Array(4), scaledMatrix),
+        translation: mat4.getTranslation(createVec3(), matrix),
+        rotation: mat4.getRotation(createVec4(), scaledMatrix),
         scale
 
     }
 }
 
-export const getMatrixFromTrs = (trs:Transform_TRS):Float64Array => 
-    mat4.fromRotationTranslationScale(new Float64Array(16), trs.rotation, trs.translation, trs.scale);
+export const getMatrixFromTrs = (trs:Transform_TRS):NumberArray => 
+    mat4.fromRotationTranslationScale(createMat4(), trs.rotation, trs.translation, trs.scale);
 
-export const getModelMatrix = (parentModelMatrix:Float32Array) => (localMatrix:Float64Array):Float32Array =>
+export const getModelMatrix = (parentModelMatrix:NumberArray) => (localMatrix:NumberArray):NumberArray =>
     parentModelMatrix
-        ?   mat4.multiply(new Float32Array(16), parentModelMatrix, localMatrix)
+        ?   mat4.multiply(createMat4(), parentModelMatrix, localMatrix)
         :   localMatrix.slice();
 
 
-export const getNormalMatrix = (modelMatrix:Float32Array):Float32Array => 
+export const getNormalMatrix = (modelMatrix:NumberArray):NumberArray => 
     mat4.transpose(mat4.create(), mat4.invert(mat4.create(), modelMatrix)) 
 
-export const getViewMatrices = (camera:Camera) => (modelMatrix:Float32Array):{modelViewMatrix: Float32Array, modelViewProjectionMatrix: Float32Array} => {
+export const getViewMatrices = (camera:Camera) => (modelMatrix:NumberArray):{modelViewMatrix: NumberArray, modelViewProjectionMatrix: NumberArray} => {
     const modelViewMatrix = mat4.multiply(mat4.create(), camera.view, modelMatrix);
     const modelViewProjectionMatrix = mat4.multiply(mat4.create(), camera.projection, modelViewMatrix);
     
@@ -43,7 +45,7 @@ export const getViewMatrices = (camera:Camera) => (modelMatrix:Float32Array):{mo
     }
 }
 
-export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatrix:Float32Array) => (transform:Transform):Transform => {
+export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatrix:NumberArray) => (transform:Transform):Transform => {
 
     const localMatrix = opts.updateLocal ? getMatrixFromTrs(transform.trs) : transform.localMatrix;
 

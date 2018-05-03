@@ -1,3 +1,5 @@
+
+import {NumberArray} from "../common/array/Array-Types";
 import {Transform, GltfPrimitive, Camera, GltfLight} from "../../Types";
 
 export enum GltfNodeKind {
@@ -18,7 +20,7 @@ export interface _GltfNode {
 export interface GltfMeshNode extends _GltfNode {
         kind: GltfNodeKind.MESH;
 	primitives?: Array<GltfPrimitive>;
-	morphWeights?: Float32Array;
+	morphWeights?: NumberArray;
 }
 
 export interface GltfCameraNode extends _GltfNode {

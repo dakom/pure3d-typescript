@@ -1,8 +1,9 @@
-import { GLTF_ORIGINAL, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_Camera, GLTF_ORIGINAL_CameraPerspective, GLTF_ORIGINAL_CameraOrthographic, Camera } from '../../../Types';
+import { NumberArray, GLTF_ORIGINAL, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_Camera, GLTF_ORIGINAL_CameraPerspective, GLTF_ORIGINAL_CameraOrthographic, Camera } from '../../../Types';
 import {mat4, vec3} from "gl-matrix";
+import {createVec3, createMat4} from "../../../exports/common/array/Array";
 
 const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
-    const values = new Float64Array(16).fill(0); 
+    const values = createMat4(); 
     const r = cam.xmag;
     const t = cam.ymag;
     const f = cam.zfar;
@@ -18,7 +19,7 @@ const getOrthographicProjection = (cam:GLTF_ORIGINAL_CameraOrthographic) => {
 }
 
 const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
-    const values = new Float64Array(16).fill(0); 
+    const values = createMat4(); 
     const a = cam.aspectRatio;
     const y = cam.yfov;
     const n = cam.znear;
@@ -34,21 +35,21 @@ const getPerspectiveProjection = (cam:GLTF_ORIGINAL_CameraPerspective) => {
     return values; 
 }
 
-const getCameraView = (modelMatrix:Float32Array) => 
-    mat4.invert(mat4.create(),modelMatrix);
+const getCameraView = (modelMatrix:NumberArray) => 
+    mat4.invert(createMat4(),modelMatrix);
 
 //not really tested yet - only affects fragment shader
-const getCameraPosition = (modelMatrix:Float32Array) =>
-    mat4.getTranslation(vec3.create(), modelMatrix) as Float32Array; 
+const getCameraPosition = (modelMatrix:NumberArray) =>
+    mat4.getTranslation(createVec3(), modelMatrix) as NumberArray; 
  
-export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:Float32Array):Camera => {
+export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:NumberArray):Camera => {
 
     const view = getCameraView(modelMatrix);
 
     
     const projection = originalCamera.type === "perspective" 
         ? getPerspectiveProjection(originalCamera.perspective) 
-        : getOrthographicProjection(originalCamera.orthographic) as Float64Array;
+        : getOrthographicProjection(originalCamera.orthographic);
 
     return {
         view,

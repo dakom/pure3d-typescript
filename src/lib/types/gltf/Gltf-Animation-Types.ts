@@ -1,4 +1,4 @@
-import {GLTF_ORIGINAL_AnimationChannel, GLTF_ORIGINAL_AnimationSampler, TypedNumberArray, GltfNode, GltfScene} from "../../Types";
+import {GLTF_ORIGINAL_AnimationChannel, GLTF_ORIGINAL_AnimationSampler, NumberArray, GltfNode, GltfScene} from "../../Types";
 
 export interface GltfAnimatorOptions {
   animation: GltfAnimationData;
@@ -18,6 +18,6 @@ export interface GltfAnimationKeyframe {
   values: GltfAnimationValues;
 }
 
-export type GltfAnimationValues = number | Array<number> | TypedNumberArray;
+export type GltfAnimationValues = number | NumberArray;
 
 export type GltfAnimator = (ts: number) => (nodes:Array<GltfNode>) => Array<GltfNode>;

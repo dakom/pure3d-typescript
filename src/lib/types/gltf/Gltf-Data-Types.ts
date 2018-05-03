@@ -1,4 +1,4 @@
-import {WebGlAttributeActivateOptions, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, TypedNumberArray} from "../../Types";
+import {WebGlAttributeActivateOptions, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
 
 export interface GltfData {
     original: GLTF_ORIGINAL,

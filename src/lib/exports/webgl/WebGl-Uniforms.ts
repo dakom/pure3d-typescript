@@ -1,4 +1,9 @@
-import {WebGlBufferInfo,WebGlBufferData,WebGlRenderer} from "../../Types";
+import {NumberArray, WebGlBufferInfo,WebGlBufferData,WebGlRenderer, TypedNumberArray} from "../../Types";
+
+enum UNIFORM_TYPE {
+    FLOAT,
+    INT
+}
 
 
 export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRenderer, activateShader: () => {program: WebGLProgram, shaderId: Symbol}}) => {
@@ -6,7 +11,7 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
   
   const cache = {
     uniformLocations: new Map<string, WebGLUniformLocation>(),
-    uniformValues: new Map<string, Array<number> | Float32Array | Int32Array>(),
+    uniformValues: new Map<string, TypedNumberArray>(),
     uniformSingleValues: new Map<string, number>(),
     uniformMatrixTranspose: new Map<string, boolean>()
   }
@@ -29,7 +34,7 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
   const hasLocation = (uName:string):boolean =>
     validLocation(getLocation(uName));
 
-  const _isEqual = (uName: string) => (values: Array<number> | Float32Array | Int32Array): boolean => {
+  const _isEqual = (uName: string) => (values: NumberArray): boolean => {
     if (!cache.uniformValues.has(uName)) {
       return false;
     }
@@ -51,11 +56,20 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
 
   
 
-  const _assignCacheValues = (uName: string) => (values: Array<number> | Float32Array | Int32Array) => {
-    //Must make a copy each time, otherwise it could be referencing the same object in subsequent calls
-    //however - the cache is local only, so it's only setting the map the first time (subsequent is just writing to mutable space)
+  const _assignCacheValues = (uType:UNIFORM_TYPE) => (uName: string) => (values: NumberArray) => {
+    //Must make a copy each time for two reasons:
+    //1. Otherwise it could be referencing the same object in subsequent calls
+    //2. Normalizing to 32-bit values
+    //However - the cache is local only, so it's only allocating the first time (subsequent is just writing to mutable space)
     if (!cache.uniformValues.has(uName)) {
-      cache.uniformValues.set(uName, values.slice());
+        switch(uType) {
+            case UNIFORM_TYPE.FLOAT:
+                cache.uniformValues.set(uName, new Float32Array(values.length));
+                break;
+            case UNIFORM_TYPE.INT:
+                cache.uniformValues.set(uName, new Int32Array(values.length));
+                break;
+        }
       return;
     }
 
@@ -70,62 +84,60 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
   
 
   const _setSingleValue = (setterFn: (loc: WebGLUniformLocation) => (value: number) => void) => (uName: string) => (value: number): void => {
-    const values = [value];
-
     if (!cache.uniformSingleValues.has(uName) || cache.uniformSingleValues.get(uName) !== value) {
       cache.uniformSingleValues.set(uName, value);
       const loc = getLocation(uName);
       if (validLocation(loc)) {
-        setterFn(loc)(value);
+        setterFn(loc)(value); //for single values it doesn't get converted
       }
     }
   }
 
-  const _setValue = (setterFn: (loc: WebGLUniformLocation) => (values: (Array<number> | Float32Array | Int32Array)) => void) => (uName: string) => (values: Array<number> | Float32Array | Int32Array): void => {
+  const _setValues = (uType:UNIFORM_TYPE) => (setterFn: (loc: WebGLUniformLocation) => (values:NumberArray) => void) => (uName: string) => (values: NumberArray): void => {
     if (!_isEqual(uName)(values)) {
-      _assignCacheValues(uName)(values);
+      _assignCacheValues (uType) (uName)(values);
       const loc = getLocation(uName);
       if (validLocation(loc)) {
-        setterFn(loc)(values);
+        setterFn(loc)(cache.uniformValues.get(uName)); //for arrays it needs to be grabbed from cache which set the appropriate type
       }
     }
   }
 
-  const _setMatrixValue = (setterFn: (loc: WebGLUniformLocation) => (transpose: boolean) => (values: (Array<number> | Float32Array)) => void) => (uName: string) => (transpose: boolean) => (values: Array<number> | Float32Array): void => {
+  const _setMatrixValues = (uType:UNIFORM_TYPE) => (setterFn: (loc: WebGLUniformLocation) => (transpose: boolean) => (values:NumberArray) => void) => (uName: string) => (transpose: boolean) => (values: NumberArray): void => {
     if (!cache.uniformMatrixTranspose.has(uName) || cache.uniformMatrixTranspose.get(uName) !== transpose || !_isEqual(uName)(values)) {
-      _assignCacheValues(uName)(values);
+      _assignCacheValues (uType) (uName)(values);
       cache.uniformMatrixTranspose.set(uName, transpose);
       const loc = getLocation(uName);
       if (validLocation(loc)) {
-        setterFn(loc)(transpose)(values);
+        setterFn(loc)(transpose)(cache.uniformValues.get(uName));
       }
     }
   }
 
   const setters = {
     uniform1f: _setSingleValue(loc => v => gl.uniform1f(loc, v)),
-    uniform1fv: _setValue(loc => v => gl.uniform1fv(loc, v as Array<number> | Float32Array)),
+    uniform1fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform1fv(loc, v)),
     uniform1i: _setSingleValue(loc => v => gl.uniform1i(loc, v)),
-    uniform1iv: _setValue(loc => v => gl.uniform1iv(loc, v as Array<number> | Int32Array)),
+    uniform1iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform1iv(loc, v)),
 
-    uniform2f: _setValue(loc => v => gl.uniform2f(loc, v[0], v[1])),
-    uniform2fv: _setValue(loc => v => gl.uniform2fv(loc, v as Array<number> | Float32Array)),
-    uniform2i: _setValue(loc => v => gl.uniform2i(loc, v[0], v[1])),
-    uniform2iv: _setValue(loc => v => gl.uniform2iv(loc, v as Array<number> | Int32Array)),
+    uniform2f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform2f(loc, v[0], v[1])),
+    uniform2fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform2fv(loc, v)),
+    uniform2i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform2i(loc, v[0], v[1])),
+    uniform2iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform2iv(loc, v)),
 
-    uniform3f: _setValue(loc => v => gl.uniform3f(loc, v[0], v[1], v[2])),
-    uniform3fv: _setValue(loc => v => gl.uniform3fv(loc, v as Array<number> | Float32Array)),
-    uniform3i: _setValue(loc => v => gl.uniform3i(loc, v[0], v[1], v[2])),
-    uniform3iv: _setValue(loc => v => gl.uniform3iv(loc, v as Array<number> | Int32Array)),
+    uniform3f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform3f(loc, v[0], v[1], v[2])),
+    uniform3fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform3fv(loc, v)),
+    uniform3i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform3i(loc, v[0], v[1], v[2])),
+    uniform3iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform3iv(loc, v)),
 
-    uniform4f: _setValue(loc => v => gl.uniform4f(loc, v[0], v[1], v[2], v[3])),
-    uniform4fv: _setValue(loc => v => gl.uniform4fv(loc, v as Array<number> | Float32Array)),
-    uniform4i: _setValue(loc => v => gl.uniform4i(loc, v[0], v[1], v[2], v[3])),
-    uniform4iv: _setValue(loc => v => gl.uniform4iv(loc, v as Array<number> | Int32Array)),
+    uniform4f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform4f(loc, v[0], v[1], v[2], v[3])),
+    uniform4fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform4fv(loc, v)),
+    uniform4i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform4i(loc, v[0], v[1], v[2], v[3])),
+    uniform4iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform4iv(loc, v)),
 
-    uniformMatrix2fv: _setMatrixValue(loc => t => v => gl.uniformMatrix2fv(loc, t, v)),
-    uniformMatrix3fv: _setMatrixValue(loc => t => v => gl.uniformMatrix3fv(loc, t, v)),
-    uniformMatrix4fv: _setMatrixValue(loc => t => v => gl.uniformMatrix4fv(loc, t, v)),
+    uniformMatrix2fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix2fv(loc, t, v)),
+    uniformMatrix3fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix3fv(loc, t, v)),
+    uniformMatrix4fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix4fv(loc, t, v)),
   }
 
   return {
@@ -136,6 +148,4 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
     hasLocation
   }
 }
-
-
 

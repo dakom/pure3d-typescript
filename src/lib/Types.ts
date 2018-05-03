@@ -24,5 +24,4 @@ export * from "./types/webgl/WebGl-DataBuffer-Types";
 export * from "./types/webgl/WebGl-Shader-Types";
 export * from "./types/webgl/WebGl-Renderer-Types";
 export * from "./types/webgl/WebGl-Texture-Types";
-export * from "./types/webgl/WebGl-Uniform-Types";
 export * from "./types/webgl/WebGl-VertexArray-Types";

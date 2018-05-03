@@ -1,3 +1,5 @@
+import {NumberArray} from "../common/array/Array-Types";
+
 export type GltfLight = GltfDirectionalLight;
 
 export enum GltfLightKind {
@@ -7,17 +9,17 @@ export enum GltfLightKind {
 
 export interface GltfDirectionalLight {
   kind: GltfLightKind.DIRECTIONAL;
-  direction: Float32Array;
-  color: Float32Array;
+  direction: NumberArray;
+  color: NumberArray;
 }
 
 //TODO - point, spot, etc. ... maybe via KHR extension?
 
 export interface GltfIblLight {
-  scaleDiffBaseMR: Float32Array;
-  scaleFGDSpec: Float32Array;
-  scaleIBLAmbient: Float32Array;
-  cameraPosition: Float32Array;
+  scaleDiffBaseMR: NumberArray;
+  scaleFGDSpec: NumberArray;
+  scaleIBLAmbient: NumberArray;
+  cameraPosition: NumberArray;
 }
 
 

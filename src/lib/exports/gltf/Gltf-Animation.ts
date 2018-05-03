@@ -30,7 +30,7 @@ export const setAnimationTime = (animation: Readonly<GltfAnimationData>) => (tim
     const updatedNodes = nodes.slice();
     updatedNodes[nodeIndex] = Object.assign({}, node, 
       (animation.channel.target.path === "weights")
-        ? {morphWeights:  Float32Array.from(values as Array<number> | Float32Array)}
+        ? {morphWeights:  values}
         : {transform: 
             Object.assign({}, node.transform, {
               trs: Object.assign({}, node.transform.trs, {

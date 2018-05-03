@@ -31,7 +31,7 @@ export const GLTF_PARSE_createAnimations = ({ gltf, buffers }: { gltf: GLTF_ORIG
               
           const valuesAccessor = gltf.accessors[sampler.output];
 
-          //can't be map() because Array != Float32Array
+          //can't be map() because Array != Float64Array
           let keyframes = new Array(timings.length);
 
           (timings as any).forEach((timing, index) => {

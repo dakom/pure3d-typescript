@@ -1,3 +1,5 @@
+import {NumberArray} from "../common/array/Array-Types";
+
 export enum GltfMaterialAlphaMode {
   OPAQUE = 1, //"OPAQUE" in original
   MASK = 2, //"MASK" in original
@@ -5,8 +7,8 @@ export enum GltfMaterialAlphaMode {
   OTHER = 4
 }
 export interface GltfMaterial {
-  metallicRoughnessValues: Float32Array;
-  baseColorFactor: Float32Array;
+  metallicRoughnessValues: NumberArray;
+  baseColorFactor: NumberArray;
   baseColorSamplerIndex?: number;
   metallicRoughnessSamplerIndex?: number;
   normal?: {
@@ -17,7 +19,7 @@ export interface GltfMaterial {
     strength: number;
     samplerIndex: number;
   }
-  emissiveFactor?: Float32Array;
+  emissiveFactor?: NumberArray;
   emissiveSamplerIndex?: number;
 
   alphaMode?: GltfMaterialAlphaMode;
@@ -31,7 +33,7 @@ export interface GltfTextureInfo  {
 }
 
 export interface GltfMaterialPbrMetallicRoughness {
-  baseColorFactor?: Float32Array;
+  baseColorFactor?: NumberArray;
   baseColorTexture?: GltfTextureInfo;
   metallicFactor?: number;
   roughnessFactor?: number;

@@ -80,7 +80,6 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     
     uniformMatrix4fv("u_MVPMatrix")(false)(node.transform.modelViewProjectionMatrix);
-    console.log(node.transform.modelMatrix);
     uniformMatrix4fv("u_ModelMatrix")(false)(node.transform.modelMatrix);
     
     if(node.transform.normalMatrix) {

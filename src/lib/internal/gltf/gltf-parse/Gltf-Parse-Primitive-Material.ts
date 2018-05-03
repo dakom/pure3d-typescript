@@ -6,8 +6,8 @@ export const GLTF_PARSE_createMaterialForPrimitive = ({gltf, materialId, data}:{
   const _m = gltf.materials[materialId] as Readonly<GLTF_ORIGINAL_Material>;
   const material = {} as GltfMaterial;
 
-  material.metallicRoughnessValues = Float32Array.from([1.0, 1.0]);
-  material.baseColorFactor = Float32Array.from([1.0, 1.0, 1.0, 1.0]);
+  material.metallicRoughnessValues = Float64Array.from([1.0, 1.0]);
+  material.baseColorFactor = Float64Array.from([1.0, 1.0, 1.0, 1.0]);
 
   if(_m.pbrMetallicRoughness) {
     if(_m.pbrMetallicRoughness.metallicFactor !== undefined) {
@@ -19,7 +19,7 @@ export const GLTF_PARSE_createMaterialForPrimitive = ({gltf, materialId, data}:{
     }
 
     if(_m.pbrMetallicRoughness.baseColorFactor !== undefined) {
-      material.baseColorFactor = Float32Array.from(_m.pbrMetallicRoughness.baseColorFactor);
+      material.baseColorFactor = Float64Array.from(_m.pbrMetallicRoughness.baseColorFactor);
     }
 
     if(_m.pbrMetallicRoughness.baseColorTexture !== undefined) {
@@ -54,7 +54,7 @@ export const GLTF_PARSE_createMaterialForPrimitive = ({gltf, materialId, data}:{
   }
 
   if(_m.emissiveFactor !== undefined) {
-    material.emissiveFactor = Float32Array.from(_m.emissiveFactor);
+    material.emissiveFactor = Float64Array.from(_m.emissiveFactor);
   }
 
   if(_m.alphaMode) {

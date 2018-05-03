@@ -8,7 +8,7 @@ import {
     GLTF_ORIGINAL_Node,
     GltfData,
     GltfInitConfig,
-    TypedNumberArray,
+    NumberArray,
     GLTF_ORIGINAL,
     GltfNode ,
     GltfPrimitive,
@@ -22,7 +22,7 @@ import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attribu
 //could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
 export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
-    const getNodeTransform = (parentModelMatrix: Float32Array) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
+    const getNodeTransform = (parentModelMatrix: NumberArray) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
 
         const baseNode = {
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length
@@ -52,9 +52,9 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, prim
 
             const morphWeights =
                 node.weights
-                ? Float32Array.from(node.weights)
+                ? Float64Array.from(node.weights)
                 : gltf.meshes[node.mesh].weights
-                ? Float32Array.from(gltf.meshes[node.mesh].weights)
+                ? Float64Array.from(gltf.meshes[node.mesh].weights)
                 : undefined;
 
             if(morphWeights) {

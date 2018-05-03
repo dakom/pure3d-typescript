@@ -1,4 +1,4 @@
-import {TypedNumberArray} from "../array/Array-Types";
+import {NumberArray} from "../array/Array-Types";
 import {Camera} from "../camera/Camera-Types";
 
 export interface Transform {
@@ -6,28 +6,27 @@ export interface Transform {
     trs: Transform_TRS;
 
     //this could be done with every change to trs or just on frame tick
-    //it's not actually uploaded to buffer, so higher-fidelity is allowed
-    localMatrix:Float64Array;
+    localMatrix:NumberArray;
 
     //from model's local space to world space
-    modelMatrix:Float32Array;
+    modelMatrix:NumberArray;
  
     //normals to world space
-    normalMatrix?: Float32Array;
+    normalMatrix?: NumberArray;
 
    
     //from model's local space to view space
-    modelViewMatrix?: Float32Array;
+    modelViewMatrix?: NumberArray;
 
     //from model's local space to clip space
-    modelViewProjectionMatrix?: Float32Array;
+    modelViewProjectionMatrix?: NumberArray;
     
 }
 
 export interface Transform_TRS {
-    translation: Float64Array; 
-    rotation: Float64Array; 
-    scale: Float64Array; 
+    translation: NumberArray; 
+    rotation: NumberArray; 
+    scale: NumberArray; 
 }
 
 export interface TransformUpdateOptions {

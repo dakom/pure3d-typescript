@@ -1,5 +1,6 @@
 import {Spherical, PositionCamera} from "../../../Types";
 import {createSpherical} from "../math/Spherical";
+import {createVec2, createVec3, createQuat, createVec4, createMat4} from "../array/Array";
 
 export enum ORBIT_CAMERA_STATE { 
     NONE = -1, 
@@ -44,7 +45,7 @@ export const createOrbitCamera = (camera:PositionCamera) => ({
         enabled: true,
 
 	// "target" sets the location of focus, where the object orbits around
-        target: new Float64Array(3).fill(0),
+        target: createVec3().fill(0),
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	minDistance: 0,
@@ -99,18 +100,18 @@ export const createOrbitCamera = (camera:PositionCamera) => ({
 	sphericalDelta: createSpherical(),
 
 	scale: 1,
-	panOffset: new Float64Array(3).fill(0), 
+	panOffset: createVec3().fill(0), 
 	zoomChanged: false,
 
-	rotateStart: new Float64Array(2).fill(0),
-	rotateEnd: new Float64Array(2).fill(0),
-	rotateDelta: new Float64Array(2).fill(0),
+	rotateStart: createVec2().fill(0),
+	rotateEnd: createVec2().fill(0),
+	rotateDelta: createVec2().fill(0),
 
-	panStart: new Float64Array(2).fill(0),
-	panEnd: new Float64Array(2).fill(0),
-	panDelta: new Float64Array(2).fill(0),
+	panStart: createVec2().fill(0),
+	panEnd: createVec2().fill(0),
+	panDelta: createVec2().fill(0),
 
-	dollyStart: new Float64Array(2).fill(0),
-	dollyEnd: new Float64Array(2).fill(0),
-	dollyDelta: new Float64Array(2).fill(0)
+	dollyStart: createVec2().fill(0),
+	dollyEnd: createVec2().fill(0),
+	dollyDelta: createVec2().fill(0)
 });

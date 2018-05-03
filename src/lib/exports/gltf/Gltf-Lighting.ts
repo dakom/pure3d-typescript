@@ -1,11 +1,11 @@
-import {GltfIblLight} from "../../Types";
+import {NumberArray, GltfIblLight} from "../../Types";
 
-export const getDefaultIblLight = (cameraPosition: Float64Array):GltfIblLight => {
+export const getDefaultIblLight = (cameraPosition: NumberArray):GltfIblLight => {
   return {
-    scaleDiffBaseMR: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
-    scaleFGDSpec: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
-    scaleIBLAmbient: Float32Array.from([1.0, 1.0, 0.0, 0.0]),
-    cameraPosition: new Float32Array(cameraPosition)
+    scaleDiffBaseMR: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
+    scaleFGDSpec: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
+    scaleIBLAmbient: Float64Array.from([1.0, 1.0, 0.0, 0.0]),
+    cameraPosition: cameraPosition.slice() 
   } 
 }
 
@@ -24,9 +24,9 @@ export const getDefaultLighting = ():GltfLights => {
 
   return {
     directional: { direction, color },
-    scaleDiffBaseMR: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
-    scaleFGDSpec: Float32Array.from([0.0, 0.0, 0.0, 0.0]),
-    scaleIBLAmbient: Float32Array.from([1.0, 1.0, 0.0, 0.0])
+    scaleDiffBaseMR: NumberArray.from([0.0, 0.0, 0.0, 0.0]),
+    scaleFGDSpec: NumberArray.from([0.0, 0.0, 0.0, 0.0]),
+    scaleIBLAmbient: NumberArray.from([1.0, 1.0, 0.0, 0.0])
   } 
 }
 */
