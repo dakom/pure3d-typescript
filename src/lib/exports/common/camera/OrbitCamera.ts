@@ -1,6 +1,7 @@
-import {Spherical, PositionCamera} from "../../../Types";
+import {OrbitCamera, Spherical, PositionCamera} from "../../../Types";
 import {createSpherical} from "../math/Spherical";
 import {createVec2, createVec3, createQuat, createVec4, createMat4} from "../array/Array";
+import {quat} from "gl-matrix";
 
 export enum ORBIT_CAMERA_STATE { 
     NONE = -1, 
@@ -38,14 +39,15 @@ export const initializeDomController = (domElement) => {
 
 }
 
-export const createOrbitCamera = (camera:PositionCamera) => ({
+export const createOrbitCamera = (camera:PositionCamera) => {
+    const _c = {
         ...camera,
 
 	// Set to false to disable this control
         enabled: true,
 
 	// "target" sets the location of focus, where the object orbits around
-        target: createVec3().fill(0),
+        target: createVec3(),
 
 	// How far you can dolly in and out ( PerspectiveCamera only )
 	minDistance: 0,
@@ -99,19 +101,128 @@ export const createOrbitCamera = (camera:PositionCamera) => ({
 	spherical: createSpherical(),
 	sphericalDelta: createSpherical(),
 
+        //internals
 	scale: 1,
-	panOffset: createVec3().fill(0), 
+	panOffset: createVec3(), 
 	zoomChanged: false,
 
-	rotateStart: createVec2().fill(0),
-	rotateEnd: createVec2().fill(0),
-	rotateDelta: createVec2().fill(0),
+	rotateStart: createVec2(),
+	rotateEnd: createVec2(),
+	rotateDelta: createVec2(),
 
-	panStart: createVec2().fill(0),
-	panEnd: createVec2().fill(0),
-	panDelta: createVec2().fill(0),
+	panStart: createVec2(),
+	panEnd: createVec2(),
+	panDelta: createVec2(),
 
-	dollyStart: createVec2().fill(0),
-	dollyEnd: createVec2().fill(0),
-	dollyDelta: createVec2().fill(0)
-});
+	dollyStart: createVec2(),
+	dollyEnd: createVec2(),
+	dollyDelta: createVec2(),
+
+
+        //update
+        offset: createVec3(),
+        //"quat" interferes with glmatrix, and the camera doesn't have a preset upvector, so it's [0,1,0]
+        rQuat: quat.rotationTo(createQuat(), Float64Array.from([0,1,0]), Float64Array.from([0,1,0])), 
+
+        rQuatInverse: createQuat(),
+    }
+
+    quat.invert(_c.rQuatInverse, _c.rQuat);
+
+    return _c;
+}
+
+
+export const updateOrbitCamera = (camera:OrbitCamera):OrbitCamera => {
+    const offset = camera.offset.slice();
+    const position = camera.offset.slice();
+    const spherical = Object.assign({}, camera.spherical);
+
+
+/*
+			var position = scope.object.position;
+
+			offset.copy( position ).sub( scope.target );
+
+			// rotate offset to "y-axis-is-up" space
+			offset.applyQuaternion( quat );
+
+			// angle from z-axis around y-axis
+			spherical.setFromVector3( offset );
+
+			if ( scope.autoRotate && state === STATE.NONE ) {
+
+				rotateLeft( getAutoRotationAngle() );
+
+			}
+
+			spherical.theta += sphericalDelta.theta;
+			spherical.phi += sphericalDelta.phi;
+
+			// restrict theta to be between desired limits
+			spherical.theta = Math.max( scope.minAzimuthAngle, Math.min( scope.maxAzimuthAngle, spherical.theta ) );
+
+			// restrict phi to be between desired limits
+			spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
+
+			spherical.makeSafe();
+
+
+			spherical.radius *= scale;
+
+			// restrict radius to be between desired limits
+			spherical.radius = Math.max( scope.minDistance, Math.min( scope.maxDistance, spherical.radius ) );
+
+			// move target to panned location
+			scope.target.add( panOffset );
+
+			offset.setFromSpherical( spherical );
+
+			// rotate offset back to "camera-up-vector-is-up" space
+			offset.applyQuaternion( quatInverse );
+
+			position.copy( scope.target ).add( offset );
+
+			scope.object.lookAt( scope.target );
+
+			if ( scope.enableDamping === true ) {
+
+				sphericalDelta.theta *= ( 1 - scope.dampingFactor );
+				sphericalDelta.phi *= ( 1 - scope.dampingFactor );
+
+				panOffset.multiplyScalar( 1 - scope.dampingFactor );
+
+			} else {
+
+				sphericalDelta.set( 0, 0, 0 );
+
+				panOffset.set( 0, 0, 0 );
+
+			}
+
+			scale = 1;
+
+			// update condition is:
+			// min(camera displacement, camera rotation in radians)^2 > EPS
+			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+			if ( zoomChanged ||
+				lastPosition.distanceToSquared( scope.object.position ) > EPS ||
+				8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ) {
+
+				scope.dispatchEvent( changeEvent );
+
+				lastPosition.copy( scope.object.position );
+				lastQuaternion.copy( scope.object.quaternion );
+				zoomChanged = false;
+
+				return true;
+
+			}
+
+			return false;
+
+		};
+    */
+    return camera;
+}

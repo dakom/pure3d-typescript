@@ -29,12 +29,12 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
 
         let scene:GltfScene = {
             ibl,
+            camera,
             nodes: updateNodeListTransforms ({
                 updateLocal: true,
                 updateModel: true,
                 updateView: true,
                 camera
-
             })
             (null)
             (nodes)
@@ -50,7 +50,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
                     updateLocal: true,
                     updateModel: true,
                     updateView: true,
-                    camera
+                    camera: scene.camera
                 })
                 (null)
                 (animate(frameTs) (scene.nodes))

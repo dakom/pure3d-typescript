@@ -1,5 +1,5 @@
 
-import {GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
+import {OrbitCamera, updateOrbitCamera, GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
 import {mat4, vec3} from "gl-matrix";
 import {getCameraLook, getCameraOrbit, getCameraOrbitPosition} from "utils/Camera";
 import {ModelInfo, Model} from "./Gltf-Models";
@@ -41,6 +41,10 @@ const _inputStatus: {
 }
 
 export const cameraUpdateStart = (evt:PointerScreenEventData) => (scene:GltfScene):GltfScene => {
+    const camera = scene.camera as OrbitCamera; 
+
+    console.log(camera.rQuatInverse);
+
     _inputStatus.active = true;
     _inputStatus.initial = evt;
     return scene;
@@ -49,7 +53,7 @@ export const cameraUpdateStart = (evt:PointerScreenEventData) => (scene:GltfScen
 export const cameraUpdateMove = (evt:PointerScreenEventData) => (scene:GltfScene):GltfScene => {
     if(_inputStatus.active) {
         _inputStatus.move = evt;
-        
+       scene = Object.assign({}, scene, {camera: updateOrbitCamera(scene.camera as OrbitCamera)}); 
     }
     return scene;
 }

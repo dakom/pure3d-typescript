@@ -128,7 +128,12 @@ const NavBar = withStyles(topStyles) (_NavBar);
 export class _TopMenu extends React.Component<{history, basePage, buttons, alertMessage}, any> {
     constructor(props) {
         super(props);
-        this.state = {selectedMenu: null, drawer: true};
+       
+        const drawer = props.match.params.scene
+            ?   false
+            :   true;
+
+        this.state = {selectedMenu: null, drawer};
     }
     
     render() {
