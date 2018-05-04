@@ -46,21 +46,26 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
         */
 
         
-        return (frameTs:number) => {
-            scene = Object.assign({}, scene, {
-                nodes: updateNodeListTransforms ({
-                    updateLocal: true,
-                    updateModel: true,
-                    updateView: true,
-                    camera: scene.camera
+        return [
+            (frameTs:number) => {
+                scene = Object.assign({}, scene, {
+                    nodes: updateNodeListTransforms ({
+                        updateLocal: true,
+                        updateModel: true,
+                        updateView: true,
+                        camera: scene.camera
+                    })
+                    (null)
+                    (animate(frameTs) (scene.nodes))
                 })
-                (null)
-                (animate(frameTs) (scene.nodes))
-            })
 
                 
-            bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
-            bridge.renderScene(scene);
-        }
+                bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
+                bridge.renderScene(scene);
+            },
+            () => {
+                console.log("cleanup!");
+            }
+        ]
     });
 
