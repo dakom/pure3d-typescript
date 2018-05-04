@@ -1,12 +1,13 @@
 import { Future, parallel } from 'fluture';
 import { fetchJsonUrl, fetchArrayBuffer, fetchImage, fetchArrayBufferUrl } from 'fluture-loaders';
-import { WebGlRenderer, createCubeTextureFromTarget, createTextureFromTarget, WebGlConstants } from "../../Lib"; 
+import { createVec3, WebGlRenderer, createCubeTextureFromTarget, createTextureFromTarget, WebGlConstants } from "../../Lib"; 
+import {mat4} from "gl-matrix";
 
 import {
     GLTF_PARSE_CreateData,
     GLTF_PARSE_LoadDataAssets
 } from '../../internal/gltf/gltf-parse/Gltf-Parse-Data';
-import {WebGlBufferInfo,WebGlBufferData, GltfLightNode, GltfMeshNode, GltfNodeKind, GLTF_ORIGINAL, GltfScene, Camera, GltfNode, GltfInitConfig, GltfData, GltfEnvironment, GltfEmptyEnvironment, GltfPbrEnvironment, GltfPbrEnvironmentCubeMap, GltfPbrEnvironmentData, GltfPbrEnvironmentTextures, TypedNumberArray } from '../../Types';
+import {PositionCamera, GltfCameraNode, WebGlBufferInfo,WebGlBufferData, GltfLightNode, GltfMeshNode, GltfNodeKind, GLTF_ORIGINAL, GltfScene, Camera, GltfNode, GltfInitConfig, GltfData, GltfEnvironment, GltfEmptyEnvironment, GltfPbrEnvironment, GltfPbrEnvironmentCubeMap, GltfPbrEnvironmentData, GltfPbrEnvironmentTextures, TypedNumberArray } from '../../Types';
 import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-parse/Gltf-Parse-File";
 import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
 import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
@@ -149,6 +150,16 @@ export class GltfBridge {
         const originalScene = this.data.original.scenes[sceneNumber];
 
         return this._allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
+    }
+
+    public getOriginalCameras():Array<PositionCamera> {
+       return this.allNodes
+            .filter(node => node.kind === GltfNodeKind.CAMERA)
+            .map((node:GltfCameraNode) => {
+                const camera:Partial<PositionCamera> = Object.assign({}, node.camera);
+                camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
+                return camera as PositionCamera
+            });
     }
 
     public get renderer() {

@@ -14,7 +14,6 @@ export * from "./types/gltf/Gltf-Init-Types";
 
 //Common
 export * from "./types/common/transform/Transform-Types";
-export * from "./types/common/math/Spherical-Types";
 export * from "./types/common/camera/Camera-Types";
 export * from "./types/common/array/Array-Types";
 

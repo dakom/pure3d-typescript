@@ -13,7 +13,6 @@ import {isProduction} from "../App-Main";
 import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
-import {startInput} from "../utils/Input";
 
 const _loadScene = ({renderer, section, scene}:{renderer:WebGlRenderer, scene:string, section:string}):Future<any,Maybe<(frameTs:number) => void>> => {
     
@@ -45,14 +44,12 @@ export class Container extends React.Component<{section: string, scene:string}, 
     private canvasRef:React.RefObject<HTMLCanvasElement>; 
     private mThunk:Maybe<(ts:number) => void>
     private mTick:Maybe<number>;
-    private mStopInput: Maybe<() => void>;
 
     constructor(props) {
         super(props);
         this.canvasRef = React.createRef();
         this.mThunk = S.Nothing;
         this.mTick = S.Nothing;
-        this.mStopInput = S.Nothing;
 
         this.animateScene = this.animateScene.bind(this);
         this.disposeScene = this.disposeScene.bind(this);
@@ -83,11 +80,9 @@ export class Container extends React.Component<{section: string, scene:string}, 
 
     disposeScene() {
         S.map(nTick => cancelAnimationFrame(nTick)) (this.mTick);
-        S.map(stopInput => stopInput()) (this.mStopInput);
 
         this.mTick = S.Nothing;
         this.mThunk = S.Nothing;
-        this.mStopInput = S.Nothing;
         disposeRenderer();
     }
 
@@ -111,7 +106,6 @@ export class Container extends React.Component<{section: string, scene:string}, 
             this.setState({isLoading: false});
             this.mThunk = mThunk;
             this.mTick = S.map(() => requestAnimationFrame(this.animateScene)) (mThunk);
-            this.mStopInput= S.map(() => startInput(this.canvasRef.current)) (mThunk);
         });
     }
 

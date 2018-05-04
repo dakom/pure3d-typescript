@@ -1,9 +1,9 @@
 import {GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
 import {ModelInfo, Model} from "./Gltf-Models";
-import {getInitialCamera} from "./Gltf-Camera-Controller";
-import {addInputListener} from "../../utils/Input";
+import {getInitialCamera} from "./Gltf-Camera";
 import {PointerEventStatus} from "input-senders";
-import {cameraUpdateStart, cameraUpdateMove, cameraUpdateEnd} from "./Gltf-Camera-Controller";
+import * as createControls from "orbit-controls";
+
 
 export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{modelPath:string, modelInfo:ModelInfo}) => 
     loadGltfBridge({
@@ -12,7 +12,8 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
         gltfPath: modelPath, 
         config: { }
     }).map(bridge => {
-        
+
+
         const animate = createGltfAnimator(bridge.data.animations.map(animation => ({
             animation,
             loop: true
@@ -40,10 +41,13 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
             (nodes)
         }
 
-        addInputListener(PointerEventStatus.START) (evt => scene = cameraUpdateStart(evt) (scene));
+        /*addInputListener(PointerEventStatus.START) (evt => scene = cameraUpdateStart(evt) (scene));
         addInputListener(PointerEventStatus.MOVE) (evt => scene = cameraUpdateMove(evt) (scene));
         addInputListener(PointerEventStatus.END) (evt => scene = cameraUpdateEnd (evt) (scene));
+        */
 
+        const controls = createControls();
+        
         return (frameTs:number) => {
             scene = Object.assign({}, scene, {
                 nodes: updateNodeListTransforms ({
@@ -57,6 +61,9 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
             })
 
                 
+            controls.update();
+           //copyInto?
+            //
             bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
             bridge.renderScene(scene);
         }
