@@ -132,7 +132,8 @@ export class GltfBridge {
                         node,
                         primitive,
                         lightList,
-                        ibl: scene.ibl
+                        ibl: scene.ibl,
+                        camera: scene.camera
                     }));
             })
         );

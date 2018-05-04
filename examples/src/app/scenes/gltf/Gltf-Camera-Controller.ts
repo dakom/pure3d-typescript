@@ -43,7 +43,6 @@ const _inputStatus: {
 export const cameraUpdateStart = (evt:PointerScreenEventData) => (scene:GltfScene):GltfScene => {
     const camera = scene.camera as OrbitCamera; 
 
-    console.log(camera.rQuatInverse);
 
     _inputStatus.active = true;
     _inputStatus.initial = evt;
@@ -53,7 +52,8 @@ export const cameraUpdateStart = (evt:PointerScreenEventData) => (scene:GltfScen
 export const cameraUpdateMove = (evt:PointerScreenEventData) => (scene:GltfScene):GltfScene => {
     if(_inputStatus.active) {
         _inputStatus.move = evt;
-       scene = Object.assign({}, scene, {camera: updateOrbitCamera(scene.camera as OrbitCamera)}); 
+        scene = Object.assign({}, scene, {camera: updateOrbitCamera(scene.camera as OrbitCamera)}); 
+
     }
     return scene;
 }

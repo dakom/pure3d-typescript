@@ -7,6 +7,7 @@ export * from "./types/gltf/Gltf-Materials-Types";
 export * from "./types/gltf/Gltf-Nodes-Types";
 export * from "./types/gltf/Gltf-Original-Types";
 export * from "./types/gltf/Gltf-Primitives-Types";
+export * from "./types/gltf/Gltf-Renderer-Types";
 export * from "./types/gltf/Gltf-Scene-Types";
 export * from "./types/gltf/Gltf-Shader-Types";
 export * from "./types/gltf/Gltf-Init-Types";

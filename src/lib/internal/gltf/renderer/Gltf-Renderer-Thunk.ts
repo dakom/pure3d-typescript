@@ -4,18 +4,10 @@ import { WebGlConstants, WebGlRenderer,  WebGlVertexArray, WebGlShader } from '.
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
 import {GltfBridge} from "../../../exports/gltf/Gltf-Bridge";
-import {GltfLight,GltfMeshNode, GltfLightNode, GltfLightKind, GltfTextureInfo,Camera,GltfIblLight, GltfDirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind, GltfEnvironmentKind} from "../../../Types";
-
-export interface GltfRendererThunk {
-    bridge: GltfBridge;
-    node: GltfMeshNode;
-    primitive: GltfPrimitive;
-    lightList: Array<GltfLightNode>;
-    ibl: GltfIblLight;
-}
+import {GltfRendererThunk, GltfLight,GltfMeshNode, GltfLightNode, GltfLightKind, GltfTextureInfo,Camera,GltfIblLight, GltfDirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind, GltfEnvironmentKind} from "../../../Types";
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
-    const {bridge, node, primitive, lightList, ibl} = thunk;
+    const {bridge, node, primitive, lightList, ibl, camera} = thunk;
     const {renderer, environment, data} = bridge;
 
     const { gl } = renderer;    
@@ -52,7 +44,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
       //this is actually just used in fragment shader (e.g. not for transforms), but it's required
    
-      uniform3fv("u_Camera")(ibl.cameraPosition);
+      uniform3fv("u_Camera")(camera.position);
 
       
       uniform4fv("u_ScaleDiffBaseMR")(ibl.scaleDiffBaseMR);

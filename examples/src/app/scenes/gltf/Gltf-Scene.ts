@@ -25,7 +25,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
 
         let camera = getInitialCamera (bridge) (modelInfo.model)
 
-        const ibl = getDefaultIblLight(camera.position);
+        const ibl = getDefaultIblLight();
 
         let scene:GltfScene = {
             ibl,

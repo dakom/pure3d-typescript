@@ -19,7 +19,6 @@ export interface GltfIblLight {
   scaleDiffBaseMR: NumberArray;
   scaleFGDSpec: NumberArray;
   scaleIBLAmbient: NumberArray;
-  cameraPosition: NumberArray;
 }
 
 

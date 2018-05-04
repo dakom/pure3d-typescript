@@ -4,6 +4,7 @@ export * from "./Types";
 export * from "./exports/common/array/Array";
 export * from "./exports/common/transform/Transform";
 export * from "./exports/common/math/Spherical";
+export * from "./exports/common/math/Clamp";
 export * from "./exports/common/camera/OrbitCamera";
 
 //exports/GLTF

@@ -1,7 +1,7 @@
 import {OrbitCamera, Spherical, PositionCamera} from "../../../Types";
-import {createSpherical} from "../math/Spherical";
+import {createSpherical, createSphericalFromVec3} from "../math/Spherical";
 import {createVec2, createVec3, createQuat, createVec4, createMat4} from "../array/Array";
-import {quat} from "gl-matrix";
+import {vec3, quat} from "gl-matrix";
 
 export enum ORBIT_CAMERA_STATE { 
     NONE = -1, 
@@ -101,7 +101,7 @@ export const createOrbitCamera = (camera:PositionCamera) => {
 	spherical: createSpherical(),
 	sphericalDelta: createSpherical(),
 
-        //internals
+        //-----------internals--------------
 	scale: 1,
 	panOffset: createVec3(), 
 	zoomChanged: false,
@@ -119,9 +119,10 @@ export const createOrbitCamera = (camera:PositionCamera) => {
 	dollyDelta: createVec2(),
 
 
-        //update
+        //-------For updates-----------
         offset: createVec3(),
-        //"quat" interferes with glmatrix, and the camera doesn't have a preset upvector, so it's [0,1,0]
+        
+        //note: camera doesn't have a preset upvector, so it's always [0,1,0] here
         rQuat: quat.rotationTo(createQuat(), Float64Array.from([0,1,0]), Float64Array.from([0,1,0])), 
 
         rQuatInverse: createQuat(),
@@ -132,38 +133,45 @@ export const createOrbitCamera = (camera:PositionCamera) => {
     return _c;
 }
 
+const _updateSphericalDelta = (fn:(camera:OrbitCamera) => Partial<Spherical>) => (camera:OrbitCamera):OrbitCamera => 
+    Object.assign({}, camera, {
+        sphericalDelta: Object.assign({}, camera.sphericalDelta, fn(camera))
+    });
+
+export const rotateOrbitCameraLeft = (angle:number) => _updateSphericalDelta((camera:OrbitCamera) => ({
+    theta: camera.sphericalDelta.theta - angle
+}));
+
+export const getOrbitCameraAutoRotationAngle = (camera:OrbitCamera):number =>
+    2 * Math.PI / 60 / 60 * camera.autoRotateSpeed;
+
+//https://github.com/mrdoob/three.js/blob/dev/examples/js/controls/OrbitControls.js#L136
 
 export const updateOrbitCamera = (camera:OrbitCamera):OrbitCamera => {
-    const offset = camera.offset.slice();
-    const position = camera.offset.slice();
-    const spherical = Object.assign({}, camera.spherical);
+    //get offset from camera position and target
+    const offset = vec3.sub(createVec3(), camera.position, camera.target);
 
+    //rotate to "y-axis-is-up" space (see note abouve about camera upvector though) 
+    vec3.transformQuat(offset, offset, camera.rQuat);
+
+    //angle from z-axis around y-axis
+    const spherical = createSphericalFromVec3(offset);  
+
+    if(camera.autoRotate && camera.state === ORBIT_CAMERA_STATE.NONE) {
+        camera = rotateOrbitCameraLeft(getOrbitCameraAutoRotationAngle(camera)) (camera) 
+    }
+
+    spherical.theta += camera.sphericalDelta.theta;
+    spherical.phi += camera.sphericalDelta.phi;
+
+    // restrict theta to be between desired limits
+    spherical.theta = Math.max( camera.minAzimuthAngle, Math.min( camera.maxAzimuthAngle, spherical.theta ) );
+
+    // restrict phi to be between desired limits
+    spherical.phi = Math.max( camera.minPolarAngle, Math.min( camera.maxPolarAngle, spherical.phi ) );
 
 /*
-			var position = scope.object.position;
 
-			offset.copy( position ).sub( scope.target );
-
-			// rotate offset to "y-axis-is-up" space
-			offset.applyQuaternion( quat );
-
-			// angle from z-axis around y-axis
-			spherical.setFromVector3( offset );
-
-			if ( scope.autoRotate && state === STATE.NONE ) {
-
-				rotateLeft( getAutoRotationAngle() );
-
-			}
-
-			spherical.theta += sphericalDelta.theta;
-			spherical.phi += sphericalDelta.phi;
-
-			// restrict theta to be between desired limits
-			spherical.theta = Math.max( scope.minAzimuthAngle, Math.min( scope.maxAzimuthAngle, spherical.theta ) );
-
-			// restrict phi to be between desired limits
-			spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
 
 			spherical.makeSafe();
 
@@ -224,5 +232,11 @@ export const updateOrbitCamera = (camera:OrbitCamera):OrbitCamera => {
 
 		};
     */
-    return camera;
+
+
+
+    return Object.assign({}, camera, {
+        offset, spherical
+    });
+
 }

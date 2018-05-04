@@ -1,11 +1,10 @@
 import {NumberArray, GltfIblLight} from "../../Types";
 
-export const getDefaultIblLight = (cameraPosition: NumberArray):GltfIblLight => {
+export const getDefaultIblLight = ():GltfIblLight => {
   return {
     scaleDiffBaseMR: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
     scaleFGDSpec: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
     scaleIBLAmbient: Float64Array.from([1.0, 1.0, 0.0, 0.0]),
-    cameraPosition: cameraPosition.slice() 
   } 
 }
 
