@@ -4,7 +4,6 @@ import {mat4, vec3} from "gl-matrix";
 import {getCameraLook} from "utils/Camera";
 import {ModelInfo, Model} from "./Gltf-Models";
 import {PointerEventStatus, PointerScreenEventData} from "input-senders";
-import {controls} from "orbit-controls";
 
 export const getInitialCamera = (bridge:GltfBridge) => (model:Model):PositionCamera => {
         if(model.cameraIndex !== undefined) {

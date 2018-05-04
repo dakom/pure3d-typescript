@@ -2,7 +2,6 @@ import {GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createG
 import {ModelInfo, Model} from "./Gltf-Models";
 import {getInitialCamera} from "./Gltf-Camera";
 import {PointerEventStatus} from "input-senders";
-import * as createControls from "orbit-controls";
 
 
 export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{modelPath:string, modelInfo:ModelInfo}) => 
@@ -46,7 +45,6 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
         addInputListener(PointerEventStatus.END) (evt => scene = cameraUpdateEnd (evt) (scene));
         */
 
-        const controls = createControls();
         
         return (frameTs:number) => {
             scene = Object.assign({}, scene, {
@@ -61,9 +59,6 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
             })
 
                 
-            controls.update();
-           //copyInto?
-            //
             bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
             bridge.renderScene(scene);
         }

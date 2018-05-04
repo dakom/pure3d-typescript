@@ -14,17 +14,22 @@ import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
 
-const _loadScene = ({renderer, section, scene}:{renderer:WebGlRenderer, scene:string, section:string}):Future<any,Maybe<(frameTs:number) => void>> => {
-    
+const _loadScene = ({renderer, section, scene}
+    :{renderer:WebGlRenderer, scene:string, section:string})
+    :Future<any,Maybe<[(frameTs:number) => void, () => void]>> => {
+   
+    const mapReturn = xf => 
+        Array.isArray(xf) ? S.Just(xf) : S.Just([xf, () => {}]);
+
     if(section === "basic") {
         const path = !isProduction ? WEBGL_DEV_ASSET_PATH : WEBGL_PRODUCTION_ASSET_PATH;
         switch(scene) {
-            case "BOX_BASIC": return startBox(renderer) ("basic").map(S.Just);
-            case "BOX_VAO": return startBox (renderer) ("vao").map(S.Just);
-            case "QUAD":    return startQuad (renderer) (path).map(S.Just); 
-            case "TEXTURES_COMBINED": return startCombinedTextures (renderer).map(S.Just);
-            case "SPRITESHEET": return startSpriteSheet (renderer) (path).map(S.Just);
-            case "VIDEO_QUAD": return startVideo (renderer) (path).map(S.Just); 
+            case "BOX_BASIC": return startBox(renderer) ("basic").map(mapReturn);
+            case "BOX_VAO": return startBox (renderer) ("vao").map(mapReturn);
+            case "QUAD":    return startQuad (renderer) (path).map(mapReturn); 
+            case "TEXTURES_COMBINED": return startCombinedTextures (renderer).map(mapReturn);
+            case "SPRITESHEET": return startSpriteSheet (renderer) (path).map(mapReturn);
+            case "VIDEO_QUAD": return startVideo (renderer) (path).map(mapReturn); 
         }
     } else {
         const path = !isProduction ? GLTF_DEV_ASSET_PATH : GLTF_PRODUCTION_ASSET_PATH;
@@ -33,7 +38,7 @@ const _loadScene = ({renderer, section, scene}:{renderer:WebGlRenderer, scene:st
             return startGltf(renderer) ({
                 modelPath: path + modelInfo.url,
                 modelInfo
-            }).map(S.Just);
+            }).map(mapReturn);
         }
     }
 
@@ -44,12 +49,14 @@ export class Container extends React.Component<{section: string, scene:string}, 
     private canvasRef:React.RefObject<HTMLCanvasElement>; 
     private mThunk:Maybe<(ts:number) => void>
     private mTick:Maybe<number>;
+    private mCleanup:Maybe<() => void>;
 
     constructor(props) {
         super(props);
         this.canvasRef = React.createRef();
         this.mThunk = S.Nothing;
         this.mTick = S.Nothing;
+        this.mCleanup = S.Nothing;
 
         this.animateScene = this.animateScene.bind(this);
         this.disposeScene = this.disposeScene.bind(this);
@@ -79,10 +86,12 @@ export class Container extends React.Component<{section: string, scene:string}, 
     }
 
     disposeScene() {
+        S.map(cleanup => cleanup()) (this.mCleanup);
         S.map(nTick => cancelAnimationFrame(nTick)) (this.mTick);
 
         this.mTick = S.Nothing;
         this.mThunk = S.Nothing;
+        this.mCleanup = S.Nothing;
         disposeRenderer();
     }
 
@@ -102,10 +111,11 @@ export class Container extends React.Component<{section: string, scene:string}, 
             renderer,
             section,
             scene
-        }).fork(console.error, mThunk => {
+        }).fork(console.error, (mFuncs) => {
             this.setState({isLoading: false});
-            this.mThunk = mThunk;
-            this.mTick = S.map(() => requestAnimationFrame(this.animateScene)) (mThunk);
+            this.mThunk = S.map(funcs => funcs[0]) (mFuncs);
+            this.mCleanup = S.map(funcs => funcs[1]) (mFuncs); 
+            this.mTick = S.map(() => requestAnimationFrame(this.animateScene)) (mFuncs);
         });
     }
 

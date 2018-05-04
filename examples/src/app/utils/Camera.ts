@@ -1,6 +1,7 @@
 import {mat4} from "gl-matrix";
 import {PositionCamera} from "lib/Lib";
 
+
 const getDefaultPerspectiveProjection = () => {
   return mat4.perspective(mat4.create(), 45.0 * Math.PI / 180.0, window.innerWidth / window.innerHeight, 0.01, 100.0);
 }
