@@ -1,8 +1,8 @@
-import {NumberArray, OrthographicCamera, PerspectiveCamera} from "../../../Types";
+import {CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
 import {createVec3, createMat4} from "../array/Array";
 import {mat4} from "gl-matrix";
 
-export const getOrthographicProjection = (cam:OrthographicCamera) => {
+const getOrthographicProjection = (cam:OrthographicCameraSettings) => {
     const values = createMat4(); 
     const r = cam.xmag;
     const t = cam.ymag;
@@ -18,7 +18,7 @@ export const getOrthographicProjection = (cam:OrthographicCamera) => {
     return values; 
 }
 
-export const getPerspectiveProjection = (cam:PerspectiveCamera) => {
+const getPerspectiveProjection = (cam:PerspectiveCameraSettings) => {
     const values = createMat4(); 
     const a = cam.aspectRatio;
     const y = cam.yfov;
@@ -35,10 +35,15 @@ export const getPerspectiveProjection = (cam:PerspectiveCamera) => {
     return values; 
 }
 
+export const getCameraProjection = (cam:CameraSettings) =>
+    cam.kind == CameraKind.ORTHOGRAPHIC
+    ?   getOrthographicProjection(cam)
+    :   getPerspectiveProjection(cam);
+
 export const getCameraView = (modelMatrix:NumberArray) => 
     mat4.invert(createMat4(),modelMatrix);
 
-//not really tested yet - only affects fragment shader
 export const getCameraPosition = (modelMatrix:NumberArray) =>
     mat4.getTranslation(createVec3(), modelMatrix) as NumberArray; 
- 
+
+

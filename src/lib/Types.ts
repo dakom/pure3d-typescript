@@ -1,8 +1,6 @@
 //GLTF
 export * from "./types/gltf/Gltf-Animation-Types";
 export * from "./types/gltf/Gltf-Data-Types";
-export * from "./types/gltf/Gltf-Environment-Types";
-export * from "./types/gltf/Gltf-Lighting-Types";
 export * from "./types/gltf/Gltf-Materials-Types";
 export * from "./types/gltf/Gltf-Nodes-Types";
 export * from "./types/gltf/Gltf-Original-Types";
@@ -11,11 +9,16 @@ export * from "./types/gltf/Gltf-Renderer-Types";
 export * from "./types/gltf/Gltf-Scene-Types";
 export * from "./types/gltf/Gltf-Shader-Types";
 export * from "./types/gltf/Gltf-Init-Types";
+export * from "./types/gltf/Gltf-Bridge";
+
+export * from "./types/gltf/extensions/ibl/Gltf-Extensions-Ibl-Types";
 
 //Common
 export * from "./types/common/transform/Transform-Types";
 export * from "./types/common/camera/Camera-Types";
 export * from "./types/common/array/Array-Types";
+export * from "./types/common/nodes/Nodes-Types";
+export * from "./types/common/lights/Lights-Types";
 
 //WebGL
 export * from "./types/webgl/WebGl-Attribute-Types";

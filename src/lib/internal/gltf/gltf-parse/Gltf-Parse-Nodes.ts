@@ -13,9 +13,10 @@ import {
     GltfNode ,
     GltfPrimitive,
     GltfMeshNode,
-    GltfLightNode,
-    GltfCameraNode,
+    LightNode,
+    CameraNode,
     GltfNodeKind,
+    NodeKind,
 } from '../../../Types';
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
 
@@ -28,8 +29,8 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, prim
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length
             ?   GltfNodeKind.MESH
             :   node.camera !== undefined
-            ?   GltfNodeKind.CAMERA
-            :   GltfNodeKind.UNKNOWN //could also be Light...
+            ?   NodeKind.CAMERA
+            :   undefined //could also be Light...
         } as GltfNode;
 
 
@@ -62,7 +63,7 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, prim
             }
         }
 
-        if(baseNode.kind === GltfNodeKind.CAMERA) {
+        if(baseNode.kind === NodeKind.CAMERA) {
             baseNode.camera = GLTF_PARSE_getCamera(gltf.cameras[node.camera]) (modelMatrix);
         }
 

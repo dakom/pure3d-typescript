@@ -2,12 +2,12 @@ import { Future, parallel } from 'fluture';
 import { fetchArrayBufferUrl, fetchImage, loadImageFromArrayBuffer } from 'fluture-loaders';
 import { WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
 
-import { GLTF_ORIGINAL, GltfData } from '../../../Types';
+import { GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
 import { prepWebGlRenderer } from '../init/Gltf-Init';
 import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
-
+import { GLTF_PARSE_hasIbl, GLTF_PARSE_loadIblAssets, GLTF_PARSE_createIblData} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
 
 
 //Pure data loaders
@@ -43,30 +43,43 @@ const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_
     )
 }
 
+
 //Tools for processing and loading data
 
-export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath:string, gltf:GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer>}) => 
+export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath:string, gltf:GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer>}):Future<any, GltfDataAssets> => 
     loadBuffers({basePath, gltf, glbBuffers})
         .chain((buffers: Array<ArrayBuffer>) => 
             loadImages({basePath, gltf, buffers})
             .map(imageElements => ({
-                buffers, imageElements
+                buffers, imageElements, extensions: {}
             }))
+            .chain(coreData => GLTF_PARSE_loadIblAssets({gltf, coreData}))
         );
 
-export const GLTF_PARSE_CreateData = ({ gltf, imageElements, renderer, buffers }: { gltf: GLTF_ORIGINAL, imageElements: Array<HTMLImageElement>, renderer: WebGlRenderer, buffers: Array<ArrayBuffer> }): GltfData => {
+export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_ORIGINAL, assets: GltfDataAssets, renderer: WebGlRenderer}): GltfData => {
     prepWebGlRenderer(renderer);
+
+    const {imageElements, buffers} = assets;
+
     const textures = GLTF_PARSE_createTextures({ renderer, gltf, imageElements });
     const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
     const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
     const shaders = new Map<number, WebGlShader>();
     const vaoIds = new Map<number, Symbol>();
-    return {
+
+    const data:GltfData = {
         original: gltf,
         animations,
         attributes,
         textures,
         shaders,
-        vaoIds
+        vaoIds,
+        extensions: {}
     }
+
+    if(assets.extensions.ibl) {
+        data.extensions.ibl = GLTF_PARSE_createIblData({gltf, assets, renderer});
+    }
+
+    return data;
 }

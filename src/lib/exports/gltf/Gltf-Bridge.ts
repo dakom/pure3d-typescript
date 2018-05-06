@@ -7,13 +7,28 @@ import {
     GLTF_PARSE_CreateData,
     GLTF_PARSE_LoadDataAssets
 } from '../../internal/gltf/gltf-parse/Gltf-Parse-Data';
-import {PositionCamera, GltfCameraNode, WebGlBufferInfo,WebGlBufferData, GltfLightNode, GltfMeshNode, GltfNodeKind, GLTF_ORIGINAL, GltfScene, Camera, GltfNode, GltfInitConfig, GltfData, GltfEnvironment, GltfEmptyEnvironment, GltfPbrEnvironment, GltfPbrEnvironmentCubeMap, GltfPbrEnvironmentData, GltfPbrEnvironmentTextures, TypedNumberArray } from '../../Types';
+import {CameraNode,
+    NodeKind,
+    WebGlBufferInfo,WebGlBufferData,
+    LightNode,
+    GltfMeshNode,
+    GltfNodeKind,
+    GLTF_ORIGINAL,
+    GltfScene,
+    Camera,
+    GltfNode,
+    GltfInitConfig,
+    GltfData,
+    TypedNumberArray,
+    GltfIblLight,
+    GltfBridge,
+    GltfDataAssets
+} from '../../Types';
 import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-parse/Gltf-Parse-File";
 import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
 import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
 import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
-import { loadGltfPbrEnvironmentImages, createGltfPbrEnvironment, createGltfEmptyEnvironment } from "../../internal/gltf/environment/Gltf-Environment-Internal";
 import {serializeScene, parseScene} from "./Gltf-Scene";
 import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
 
@@ -24,86 +39,84 @@ import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-
   Still, there are a few slightly different helpers to allow *loading* the world in a variety of ways
  */
 
-//The usual entry point
-export const loadGltfBridge = ({ renderer, environmentPath, gltfPath, config }: { renderer: WebGlRenderer, environmentPath?: string, gltfPath: string, config: GltfInitConfig }): Future<any, GltfBridge> => {
-    const bridge = new GltfBridge(renderer);
+//simple helper - the usual entry point
+export interface GltfLoaderOptions {
+    renderer: WebGlRenderer;
+    path: string;
+    config?: GltfInitConfig;
+    mapper?: (gltf:GLTF_ORIGINAL) => GLTF_ORIGINAL;
+}
 
-    return bridge.loadEnvironment(environmentPath)
-        .chain(() => bridge.loadGltf({ path: gltfPath, config }))
+export const loadGltf = ({ renderer, path, config, mapper }: GltfLoaderOptions) => {
+
+    const bridge = createGltfBridge(renderer);
+
+    return bridge
+        .loadFile(path)
+        .chain(({gltf, glbBuffers}) => {
+            gltf = mapper ? mapper(gltf) : gltf;
+
+            return bridge.loadAssets({gltf, glbBuffers, basePath: getBasePath(path)})
+                .map(assets => ({gltf, config, assets}));
+            
+        })
+        .map(bridge.start)
         .map(() => bridge);
 }
 
-//But environment/gltf can be loaded separately (untested so far)
-export class GltfBridge {
-    private _allNodes:Array<GltfNode>;
-    private _data: GltfData;
-    private _environment: GltfEnvironment;
+function createGltfBridge(renderer:WebGlRenderer) {
+    const exports = {} as GltfBridge;
 
-    constructor(private _renderer: WebGlRenderer) { }
+    let _allNodes:Array<GltfNode>;
+    let _data: GltfData;
 
-    private _loadData(path: string): Future<any, GltfData> {
-        return fetchArrayBufferUrl(path)
-        .map(GLTF_PARSE_getOriginalFromArrayBuffer)
-        .chain(([gltf, glbBuffers]) =>
-            GLTF_PARSE_LoadDataAssets({ basePath: getBasePath(path), gltf, glbBuffers })
-            .map(assets => [gltf, assets] as [GLTF_ORIGINAL, any])
-        )
-        .map(([gltf, assets]) =>
-            GLTF_PARSE_CreateData({
-                ...assets, gltf, renderer: this._renderer,
-            })
-        )
-        .map(data => this._data = data)
-    }
+    const _initNodes = (config: GltfInitConfig) => {
 
-    private _loadEnvironment(path: string): Future<any, GltfEnvironment> {
-        return path === undefined || path === null || path === ""
-        ? Future.of(createGltfEmptyEnvironment())
-        : (fetchJsonUrl(path) as Future<any, any>)
-        .chain((envData: GltfPbrEnvironmentData) =>
-            loadGltfPbrEnvironmentImages({ path, envData })
-            .map(imageMap => createGltfPbrEnvironment({ renderer: this._renderer, envData, imageMap }))
-        )
-        .map(environment => this._environment = environment);
-    }
-
-    private _initNodes(config: GltfInitConfig) {
-
-        const gltf = this._data.original;
+        const gltf = _data.original;
 
 
         const primitives = GLTF_PARSE_createPrimitives({
-            renderer: this.renderer, 
-            environment: this.environment, 
-            data: this._data, 
+            renderer, 
+            data: _data, 
             config
         });
 
 
-        this._allNodes = GLTF_PARSE_getNodes({gltf, primitives});
+        return GLTF_PARSE_getNodes({gltf, primitives});
 
     }
 
+    const loadFile = (path:string) => 
+        fetchArrayBufferUrl(path).map(GLTF_PARSE_getOriginalFromArrayBuffer)
 
-    public loadGltf({ path, config }: { path: string, config: GltfInitConfig }): Future<any, void> {
-        return this._loadData(path)
-        .map(() => this._initNodes(config));
+    const loadAssets = ({gltf, basePath, glbBuffers}:{gltf:GLTF_ORIGINAL, basePath?: string, glbBuffers:Array<ArrayBuffer>}) => 
+        GLTF_PARSE_LoadDataAssets({ basePath: basePath ? basePath : "", gltf, glbBuffers})
+
+    const start = ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets, config:GltfInitConfig}) => {
+
+        _data = GLTF_PARSE_CreateData({
+            gltf, 
+            renderer,
+            assets        
+        });
+
+
+        _allNodes = _initNodes(config);
     }
 
-    public loadEnvironment(path: string): Future<any, GltfEnvironment> {
-        return this._loadEnvironment(path);
-    }
 
-    public renderScene(scene:GltfScene) {
+
+    const renderScene = (scene:GltfScene) => {
+
         const renderThunks = new Map<number, Array<() => void>>();
         const meshList = new Array<GltfMeshNode>();
-        const lightList = new Array<GltfLightNode>();
+        const lightList = new Array<LightNode>();
         const addToRenderList = (list:Array<any>) => (pred:((n:GltfNode) => boolean)) => (node:GltfNode) => {
             if(pred(node)) {   
                 list.push(node);
             }
             if(node.children) {
-                node.children.forEach(node => addToRenderList (list) (pred) (node));
+                node.children.forEach((node:GltfNode) => addToRenderList (list) (pred) (node));
             }
         }
         scene.nodes.forEach(addToRenderList
@@ -115,7 +128,7 @@ export class GltfBridge {
         scene.nodes.forEach(addToRenderList
             (lightList) 
             (
-                node => node.kind === GltfNodeKind.LIGHT ? true : false
+                node => node.kind === NodeKind.LIGHT ? true : false
             )
         );
 
@@ -129,12 +142,12 @@ export class GltfBridge {
                 renderThunks
                     .get(primitive.shaderIdLookup)
                     .push(createRendererThunk({ 
-                        bridge: this,
+                        renderer,
+                        data: _data,
                         node,
                         primitive,
                         lightList,
-                        ibl: scene.ibl,
-                        camera: scene.camera
+                        scene
                     }));
             })
         );
@@ -142,37 +155,37 @@ export class GltfBridge {
         renderThunks.forEach(thunks => thunks.forEach(fn => fn()));
     }
 
-    public get allNodes() {
-        return this._allNodes;
+    const getOriginalSceneNodes = (sceneNumber:number) => {
+        const originalScene = _data.original.scenes[sceneNumber];
+
+        return _allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
     }
 
-    public getOriginalSceneNodes(sceneNumber:number) {
-        const originalScene = this.data.original.scenes[sceneNumber];
-
-        return this._allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
-    }
-
-    public getOriginalCameras():Array<PositionCamera> {
-       return this.allNodes
-            .filter(node => node.kind === GltfNodeKind.CAMERA)
-            .map((node:GltfCameraNode) => {
-                const camera:Partial<PositionCamera> = Object.assign({}, node.camera);
+    const getOriginalCameras = ():Array<Camera> => {
+       return _allNodes
+            .filter(node => node.kind === NodeKind.CAMERA)
+            .map((node:CameraNode) => {
+                const camera:Camera = Object.assign({}, node.camera);
                 camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
-                return camera as PositionCamera
+                return camera
             });
     }
 
-    public get renderer() {
-        return this._renderer;
-    }
+    const bridge:GltfBridge = {
+        renderer,
+        getAllNodes: () => _allNodes,
+        getData: () => _data,
+        getOriginalSceneNodes,
+        getOriginalCameras,
+        loadFile,
+        loadAssets,
+        start,
+        renderScene
+    };
 
-    public get data() {
-        return this._data;
-    }
+    Object.assign(exports, bridge);
 
-    public get environment() {
-        return this._environment;
-    }
+    return exports;
 }
 
 

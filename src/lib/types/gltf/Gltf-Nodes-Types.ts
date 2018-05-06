@@ -1,35 +1,18 @@
 
 import {NumberArray} from "../common/array/Array-Types";
-import {Transform, GltfPrimitive, Camera, GltfLight} from "../../Types";
+import {GltfPrimitive, CameraNode, LightNode, NodeKind, _Node} from "../../Types"; 
 
+//would be nice to extend but that's not really doable with enums
 export enum GltfNodeKind {
-    UNKNOWN = 0,
-    MESH = 1,
-    CAMERA = 2,
-    LIGHT = 3,
+    MESH = 3,
 }
 
 
-export type GltfNode = GltfMeshNode | GltfCameraNode | GltfLightNode;
+export type GltfNode = CameraNode | LightNode | GltfMeshNode;
 
-export interface _GltfNode {
-	transform: Transform;
-        children?: Array<GltfNode>;
-}
-
-export interface GltfMeshNode extends _GltfNode {
+export interface GltfMeshNode extends _Node {
         kind: GltfNodeKind.MESH;
 	primitives?: Array<GltfPrimitive>;
 	morphWeights?: NumberArray;
 }
 
-export interface GltfCameraNode extends _GltfNode {
-    kind: GltfNodeKind.CAMERA;
-    camera: Camera;
-}
-
-export interface GltfLightNode extends _GltfNode {
-    kind: GltfNodeKind.LIGHT;
-    light: GltfLight;
-
-}

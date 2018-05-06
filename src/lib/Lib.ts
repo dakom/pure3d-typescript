@@ -3,13 +3,14 @@ export * from "./Types";
 //common
 export * from "./exports/common/array/Array";
 export * from "./exports/common/transform/Transform";
+export * from "./exports/common/camera/Camera";
+export * from "./exports/common/nodes/Nodes";
+export * from "./exports/common/lights/Lights";
 
 //exports/GLTF
 export * from "./exports/gltf/Gltf-Animation";
 export * from "./exports/gltf/Gltf-Bridge";
-export * from "./exports/gltf/Gltf-Lighting";
 export * from "./exports/gltf/Gltf-Scene";
-export * from "./exports/gltf/Gltf-Nodes";
 
 
 //exports/WebGL

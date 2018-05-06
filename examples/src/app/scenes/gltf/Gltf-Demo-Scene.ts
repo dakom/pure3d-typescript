@@ -1,35 +1,40 @@
-import {GltfScene, updateNodeListTransforms, Camera, getDefaultIblLight, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
+import {GltfScene, GLTF_ORIGINAL, updateNodeListTransforms, Camera, GltfNode, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltf, WebGlConstants, WebGlRenderer} from "lib/Lib";
 import {ModelInfo, Model} from "./Gltf-Models";
-import {updateCamera, getInitialCamera} from "./Gltf-Camera";
+import {updateCamera, getInitialGltfCamera} from "../../utils/Camera";
 import {PointerEventStatus} from "input-senders";
 
+const addEnvironment = (gltf:GLTF_ORIGINAL) => {
+    //Todo - add in PBR / IBL settings
+    return gltf;
+}
+
 export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{modelPath:string, modelInfo:ModelInfo}) => 
-    loadGltfBridge({
+    loadGltf({
         renderer, 
-        environmentPath: "static/world/world.json", 
-        gltfPath: modelPath, 
-        config: { }
-    }).map(bridge => {
+        path: modelPath, 
+        config: { },
+        mapper: modelInfo.model.addEnvironment ? addEnvironment : g => g
+    })
+    //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
+    .map(bridge => {
 
 
-        const animate = createGltfAnimator(bridge.data.animations.map(animation => ({
+        const animate = createGltfAnimator(bridge.getData().animations.map(animation => ({
             animation,
             loop: true
         })));
 
 
-        const nodes = bridge.data.original.scene !== undefined
+        const nodes = bridge.getData().original.scene !== undefined
             ?   bridge.getOriginalSceneNodes(0)
-            :   bridge.allNodes;
+            :   bridge.getAllNodes();
 
-        const {camera, controls} = getInitialCamera (bridge) (modelInfo.model)
+        const {camera, controls} = getInitialGltfCamera (bridge) (modelInfo.model)
 
-        const ibl = getDefaultIblLight();
 
         let scene:GltfScene = {
-            ibl,
             camera,
-            nodes: updateNodeListTransforms ({
+            nodes: updateNodeListTransforms <GltfNode>({
                 updateLocal: true,
                 updateModel: true,
                 updateView: true,

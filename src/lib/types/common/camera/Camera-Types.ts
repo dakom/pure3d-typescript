@@ -1,21 +1,22 @@
 import {NumberArray} from "../array/Array-Types";
 
+export type Camera = OrthographicCamera | PerspectiveCamera;
+export type CameraSettings = OrthographicCameraSettings | PerspectiveCameraSettings;
+export type PerspectiveCamera = BaseCamera & PerspectiveCameraSettings 
+export type OrthographicCamera = BaseCamera & OrthographicCameraSettings 
+
 export enum CameraKind {
     PERSPECTIVE,
     ORTHOGRAPHIC
 }
 
-export interface Camera {
-  kind: CameraKind;
-  view: NumberArray; 
-  projection: NumberArray;
+export interface BaseCamera {
+    position?: NumberArray;
+    view: NumberArray; 
+    projection: NumberArray;
 }
 
-export interface PositionCamera extends Camera {
-    position: NumberArray;
-}
-
-export interface OrthographicCamera extends PositionCamera {
+export interface OrthographicCameraSettings {
     kind: CameraKind.ORTHOGRAPHIC
     xmag: number;
     ymag: number;
@@ -23,10 +24,12 @@ export interface OrthographicCamera extends PositionCamera {
     zfar : number;
 }
 
-export interface PerspectiveCamera extends PositionCamera {
+
+export interface PerspectiveCameraSettings {
     kind: CameraKind.PERSPECTIVE
     aspectRatio: number;
     yfov: number;
     znear: number;
     zfar: number;
 }
+

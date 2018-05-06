@@ -1,12 +1,11 @@
-import {GltfMeshNode, GltfPrimitive, GltfLightNode, GltfIblLight, PositionCamera} from "../../Types";
-import {GltfBridge} from "../../exports/gltf/Gltf-Bridge";
+import {WebGlRenderer, GltfData, GltfMeshNode, GltfScene, GltfPrimitive, LightNode, GltfIblLight, Camera} from "../../Types";
 
 export interface GltfRendererThunk {
-    bridge: GltfBridge;
+    renderer: WebGlRenderer;
+    data: GltfData;
     node: GltfMeshNode;
     primitive: GltfPrimitive;
-    lightList: Array<GltfLightNode>;
-    ibl: GltfIblLight;
-    camera: PositionCamera;
+    lightList: Array<LightNode>;
+    scene: GltfScene;
 }
 

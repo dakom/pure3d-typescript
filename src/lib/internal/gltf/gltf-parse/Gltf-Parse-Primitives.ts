@@ -1,7 +1,7 @@
 import {WebGlBufferData, WebGlBufferInfo, WebGlRenderer, WebGlShader } from '../../../Types';
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 
-import { GltfData, GltfEnvironment, GltfPrimitive, GltfInitConfig } from '../../../Types';
+import { GltfData, GltfPrimitive, GltfInitConfig } from '../../../Types';
 import { GLTF_PARSE_createPrimitiveAttributes } from './Gltf-Parse-Primitive-Attributes';
 import { GLTF_PARSE_getPrimitiveDrawing } from './Gltf-Parse-Primitive-Drawing';
 import { GLTF_PARSE_createMaterialForPrimitive } from './Gltf-Parse-Primitive-Material';
@@ -10,7 +10,7 @@ import { GLTF_PARSE_getPrimitiveShaderSources } from './Gltf-Parse-Primitive-Sha
 
 let _shaderIdCounter = 0;
 
-export const GLTF_PARSE_createPrimitives = ({ renderer, environment, data, config }: { renderer: WebGlRenderer, environment: GltfEnvironment, data: GltfData, config: GltfInitConfig }): Map<number, Array<GltfPrimitive>> => {
+export const GLTF_PARSE_createPrimitives = ({ renderer, data, config }: { renderer: WebGlRenderer, data: GltfData, config: GltfInitConfig }): Map<number, Array<GltfPrimitive>> => {
     const gltf = data.original;
     const _shaderLookup = new Map<string, number>();
     const meshPrimitives = new Map<number, Array<GltfPrimitive>>();
@@ -24,7 +24,7 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, environment, data, confi
             meshPrimitives.set(node.mesh, gltf.meshes[node.mesh].primitives.map((originalPrimitive) => {
                 const mesh = gltf.meshes[node.mesh];
 
-                const { vertex, fragment, shaderKind } = GLTF_PARSE_getPrimitiveShaderSources({ config, environment, gltf, originalPrimitive });
+                const { vertex, fragment, shaderKind } = GLTF_PARSE_getPrimitiveShaderSources({ config, gltf, data, originalPrimitive });
                 const shaderSource = vertex + fragment;
 
 
@@ -38,7 +38,7 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, environment, data, confi
                     data.shaders.set(_shaderIdCounter, shader);
                     _shaderLookup.set(shaderSource, _shaderIdCounter);
                     _shaderIdCounter++;
-                    //console.log(`new shader compiled`);
+                    console.log(`new shader compiled`);
                 } else {
                     console.log(`nice! re-using existing shader`);
                 }

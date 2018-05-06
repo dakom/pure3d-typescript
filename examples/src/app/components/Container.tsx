@@ -6,7 +6,7 @@ import {startQuad} from "../scenes/basic/quad/Quad-Demo";
 import {startCombinedTextures} from "../scenes/basic/combined-textures/CombinedTextures-Demo";
 import {startSpriteSheet} from "../scenes/basic/spritesheet/Spritesheet-Demo";
 import {startVideo} from "../scenes/basic/video/Video-Demo";
-import {startGltf} from "../scenes/gltf/Gltf-Scene";
+import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
 import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";

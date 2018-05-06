@@ -36,7 +36,7 @@ const getChunk = (offset:number) => (aBuffer:ArrayBuffer): [GLTF_ORIGINAL | Arra
   return result;
 }
 
-const asGlb = (aBuffer:ArrayBuffer):[GLTF_ORIGINAL, Array<ArrayBuffer>] => {
+const asGlb = (aBuffer:ArrayBuffer) => {
   
 
   const [gltf, gltfEndOffset] = getChunk(12) (aBuffer) as [GLTF_ORIGINAL, number];
@@ -54,7 +54,7 @@ const asGlb = (aBuffer:ArrayBuffer):[GLTF_ORIGINAL, Array<ArrayBuffer>] => {
   }
 
 
-  return [gltf, buffers];
+  return {gltf, glbBuffers: buffers};
 }
 
 
@@ -62,8 +62,8 @@ const asGlb = (aBuffer:ArrayBuffer):[GLTF_ORIGINAL, Array<ArrayBuffer>] => {
 const GLTF_PARSE_isBinaryFile = (aBuffer:ArrayBuffer):boolean => 
   getHeader(aBuffer).magic === 0x46546C67;
   
-export const GLTF_PARSE_getOriginalFromArrayBuffer = (aBuffer:ArrayBuffer):[GLTF_ORIGINAL, Array<ArrayBuffer>] => 
+export const GLTF_PARSE_getOriginalFromArrayBuffer = (aBuffer:ArrayBuffer) => 
   GLTF_PARSE_isBinaryFile (aBuffer)
     ?   asGlb(aBuffer)
-    :   [getJsonFromArrayBuffer(aBuffer), []];
+    :   {gltf: getJsonFromArrayBuffer(aBuffer), glbBuffers: []};
 

@@ -9,6 +9,7 @@ export interface Model {
     cameraPosition?: Float64Array;
     cameraLookAt?: Float64Array;
     cameraIndex?: number;
+    addEnvironment?:boolean;
 }
 
 export interface ModelInfo {

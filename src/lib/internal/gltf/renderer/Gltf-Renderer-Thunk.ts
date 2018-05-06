@@ -1,17 +1,18 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
-import { WebGlConstants, WebGlRenderer,  WebGlVertexArray, WebGlShader } from '../../../Types';
+import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlVertexArray, WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
-import {GltfBridge} from "../../../exports/gltf/Gltf-Bridge";
-import {GltfRendererThunk, GltfLight,GltfMeshNode, GltfLightNode, GltfLightKind, GltfTextureInfo,Camera,GltfIblLight, GltfDirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind, GltfEnvironmentKind} from "../../../Types";
+import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIblLight, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
-    const {bridge, node, primitive, lightList, ibl, camera} = thunk;
-    const {renderer, environment, data} = bridge;
-
-    const { gl } = renderer;    
+    const {renderer, data, node, primitive, lightList, scene} = thunk;
+    const {camera} = scene;
     
+    const { gl } = renderer;    
+  
+    const {ibl} = data.extensions;
+
     const gltf = data.original;
 
     const {material, drawMode, shaderKind} = primitive;
@@ -25,20 +26,20 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     activateShader(shaderId);
 
     /*
-        Set the environment uniforms
+        Set the IBL uniforms
     */
 
-    if(environment.kind === GltfEnvironmentKind.PBR_IBL && ibl) {
-      renderer.switchTexture(samplerIndex)(environment.textures.brdf);
+    if(shaderKind === GltfShaderKind.PBR && ibl) {
+      renderer.switchTexture(samplerIndex)(ibl.textures.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   
-      if (environment.textures.cubeMaps.diffuse) {
-        renderer.switchCubeTexture(samplerIndex)(environment.textures.cubeMaps.diffuse);
+      if (ibl.textures.cubeMaps.diffuse) {
+        renderer.switchCubeTexture(samplerIndex)(ibl.textures.cubeMaps.diffuse);
         uniform1i("u_DiffuseEnvSampler")(samplerIndex++);
       }
   
-      if (environment.textures.cubeMaps.specular) {
-        renderer.switchCubeTexture(samplerIndex)(environment.textures.cubeMaps.specular);
+      if (ibl.textures.cubeMaps.specular) {
+        renderer.switchCubeTexture(samplerIndex)(ibl.textures.cubeMaps.specular);
         uniform1i("u_SpecularEnvSampler")(samplerIndex++);
       }
 
@@ -47,16 +48,20 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
       uniform3fv("u_Camera")(camera.position);
 
       
-      uniform4fv("u_ScaleDiffBaseMR")(ibl.scaleDiffBaseMR);
-      uniform4fv("u_ScaleFGDSpec")(ibl.scaleFGDSpec);
-      uniform4fv("u_ScaleIBLAmbient")(ibl.scaleIBLAmbient);
+      uniform4fv("u_ScaleDiffBaseMR")(ibl.light.scaleDiffBaseMR);
+      uniform4fv("u_ScaleFGDSpec")(ibl.light.scaleFGDSpec);
+      uniform4fv("u_ScaleIBLAmbient")(ibl.light.scaleIBLAmbient);
 
     }
+
+    /* 
+     * Set the generic lighting uniforms
+    */
 
     lightList.forEach(lightNode => {
         const {light} = lightNode;
         //TODO - allow multiple lights, point lights, etc.
-        if(light.kind === GltfLightKind.DIRECTIONAL) {
+        if(light.kind === LightKind.DIRECTIONAL) {
 
             uniform3fv("u_LightDirection")(light.direction);
             uniform3fv("u_LightColor")(light.color);
@@ -106,7 +111,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     renderer.glToggle(WebGlConstants.CULL_FACE)((material === undefined || material.doubleSided === undefined) ? true : false);
 
-    if (material && environment.kind === GltfEnvironmentKind.PBR_IBL) {
+    if (material) {
       uniform2fv("u_MetallicRoughnessValues")(material.metallicRoughnessValues);
       uniform4fv("u_BaseColorFactor")(material.baseColorFactor);
 

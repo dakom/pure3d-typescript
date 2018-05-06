@@ -1,5 +1,4 @@
 export enum GltfShaderKind {
-  PBR,
-  EMPTY,
-  BLINN_PHONG //todo
+    PBR,
+    PBR_UNLIT
 }
