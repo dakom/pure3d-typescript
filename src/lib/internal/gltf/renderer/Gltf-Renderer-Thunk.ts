@@ -3,7 +3,7 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlVertexArray, WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
-import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIblLight, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
+import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIbl, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     const {renderer, data, node, primitive, lightList, scene} = thunk;
@@ -11,7 +11,6 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     
     const { gl } = renderer;    
   
-    const {ibl} = data.extensions;
 
     const gltf = data.original;
 
@@ -29,17 +28,17 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Set the IBL uniforms
     */
 
-    if(shaderKind === GltfShaderKind.PBR && ibl) {
-      renderer.switchTexture(samplerIndex)(ibl.textures.brdf);
+    if(shaderKind === GltfShaderKind.PBR && scene.extensions.ibl) {
+      renderer.switchTexture(samplerIndex)(data.extensions.ibl.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   
-      if (ibl.textures.cubeMaps.diffuse) {
-        renderer.switchCubeTexture(samplerIndex)(ibl.textures.cubeMaps.diffuse);
+      if (data.extensions.ibl.cubeMaps.diffuse) {
+        renderer.switchCubeTexture(samplerIndex)(data.extensions.ibl.cubeMaps.diffuse);
         uniform1i("u_DiffuseEnvSampler")(samplerIndex++);
       }
   
-      if (ibl.textures.cubeMaps.specular) {
-        renderer.switchCubeTexture(samplerIndex)(ibl.textures.cubeMaps.specular);
+      if (data.extensions.ibl.cubeMaps.specular) {
+        renderer.switchCubeTexture(samplerIndex)(data.extensions.ibl.cubeMaps.specular);
         uniform1i("u_SpecularEnvSampler")(samplerIndex++);
       }
 
@@ -48,9 +47,9 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
       uniform3fv("u_Camera")(camera.position);
 
       
-      uniform4fv("u_ScaleDiffBaseMR")(ibl.light.scaleDiffBaseMR);
-      uniform4fv("u_ScaleFGDSpec")(ibl.light.scaleFGDSpec);
-      uniform4fv("u_ScaleIBLAmbient")(ibl.light.scaleIBLAmbient);
+      uniform4fv("u_ScaleDiffBaseMR")(scene.extensions.ibl.scaleDiffBaseMR);
+      uniform4fv("u_ScaleFGDSpec")(scene.extensions.ibl.scaleFGDSpec);
+      uniform4fv("u_ScaleIBLAmbient")(scene.extensions.ibl.scaleIBLAmbient);
 
     }
 

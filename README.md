@@ -25,11 +25,10 @@ See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 ## What it is: 
 
 * An abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
-* Automatically optimize and skip unnecessary low-level webgl calls, as well as batch GLTF things.
-* Pure separation of data and rendering to make interop with functional frameworks, workers, and wasm a bit more organic.
-* Multi-layered approach for writing bare-metal renderers or batteries-included GLTF 
-* Very simple API surface (e.g. "load, animate, transform, render")
-* Some pure helpers to drive transform updates and animations (not forced into render pipeline)
+* Automatically optimize and skip unnecessary low-level webgl calls.
+* Complete implementation of GLTF renderer with super easy API surface.
+* Separation of concerns to make interop with functional frameworks, workers, and wasm a bit more organic.
+* Some helpers to drive transform updates and animations (not forced into render pipeline)
 * Fully exported Typescript definitions
 
 ## What it probably won't be:
@@ -41,8 +40,13 @@ See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 ## What it hopes to be later:
 
 * WebGL 2 added functionality / speed gains
-* Supporting more GLTF extensions (esp the official ones: lights, webgl-shader, etc.)
+* Ported with same separation to OpenGL (for allowing Rust multi-target)
+* Supporting more GLTF extensions 
 * Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes, drawInstanced, etc.)
+
+## Story behind it
+
+It's a rite of passage to make your own WebGL renderer while learning it. This is my attempt :D
 
 ## Peer-Dependencies
 

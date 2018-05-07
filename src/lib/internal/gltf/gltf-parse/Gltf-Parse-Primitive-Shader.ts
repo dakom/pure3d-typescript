@@ -56,6 +56,7 @@ const getDefines = ({ config, shaderKind, gltf, originalPrimitive, data }: { glt
             : false;
 
 
+    
     return PbrDefines.filter(str => {
         switch (str) {
                 //vertex
@@ -65,7 +66,7 @@ const getDefines = ({ config, shaderKind, gltf, originalPrimitive, data }: { glt
 
                 //fragment
 
-            case "USE_IBL": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.data.brdf !== undefined;
+            case "USE_IBL": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.brdf !== undefined;
             case "HAS_COLOR": return hasAttribute(gltf) ("COLOR_0");
             case "HAS_BASECOLORMAP": return hasMaterial(material => material.pbrMetallicRoughness !== undefined && material.pbrMetallicRoughness.baseColorTexture !== undefined);
             case "HAS_NORMALMAP": return hasMaterial(material => material.normalTexture !== undefined);
@@ -74,7 +75,11 @@ const getDefines = ({ config, shaderKind, gltf, originalPrimitive, data }: { glt
             case "HAS_OCCLUSIONMAP": return hasMaterial(material => material.occlusionTexture !== undefined);
             case "MANUAL_SRGB": return config.manualSRGB === true;
             case "SRGB_FAST_APPROXIMATION": return config.fastSRGB === true;
-            case "USE_TEX_LOD": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.data.cubeMaps.length && data.extensions.ibl.data.cubeMaps.findIndex(maps => maps.urls.length > 1) !== -1;
+            case "USE_TEX_LOD": return (
+                    shaderKind !== GltfShaderKind.PBR_UNLIT 
+                    && data.extensions.ibl 
+                    && data.extensions.ibl.useLod 
+            );
 
             default: return false;
         }

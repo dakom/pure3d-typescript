@@ -5,9 +5,8 @@ import {
     WebGlBufferInfo,
     GltfIbl,
     GltfIblDataAssets,
-    GltfIblCubeMap,
+    GltfIblJson,
     GltfIblData,
-    GltfIblTextures,
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_MeshPrimitive,
     GltfDataAssets
@@ -19,32 +18,36 @@ import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../..
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
 
-export const GLTF_PARSE_hasIbl = (gltf:GLTF_ORIGINAL):boolean => {
+const hasIbl = (gltf:GLTF_ORIGINAL):boolean => {
     
     //TODO inspect gltf itself
     return true; 
 }
 
 export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => {
-    if(!GLTF_PARSE_hasIbl(gltf)) {
+    if(!hasIbl(gltf)) {
         return Future.of(coreData);
     }
 
     const path = "static/world/world.json"; //TODO - inspect gltf itself
     
     
-    return (fetchJsonUrl(path) as Future<any, GltfIblData>)
-        .chain(envData => {
+    return (fetchJsonUrl(path) as Future<any, GltfIblJson>)
+        .chain(jsonData => {
                 const basePath = getBasePath(path);
 
                 const imageUrls  = Array<string>();
 
-                imageUrls.push(envData.brdf.url);
+                imageUrls.push(jsonData.brdf.url);
 
-                envData.cubeMaps.forEach(cubeMap => {
+                const cubeMapNames = Object.keys(jsonData.cubeMaps);
+
+                cubeMapNames.forEach(cubeMapName => {
+                    const cubeMap = jsonData.cubeMaps[cubeMapName];
+
                     cubeMap.urls.forEach(list => {
                         list.forEach(url => {
-                            imageUrls.push(cubeMap.name + "/" + url);
+                            imageUrls.push(cubeMapName + "/" + url);
                         })
                     })
                 })
@@ -61,25 +64,25 @@ export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, c
 
                         return m;
                     })
-                    .map(imageMap => ({envData, imageMap}))
+                    .map(imageMap => ({jsonData, imageMap}))
         })
         .map(ibl => Object.assign({}, coreData, {extensions:
                 Object.assign({}, coreData.extensions, {ibl})
         }));
 }
 
-export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}): GltfIbl => {
+export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}): GltfIblData => {
     prepWebGlRenderer(renderer);
 
     const gl = renderer.gl;
-    const {envData, imageMap} = assets.extensions.ibl;
+    const {jsonData, imageMap} = assets.extensions.ibl;
 
 
     const makeBrdfTexture =
         createTextureFromTarget
     ({
         gl,
-        format: envData.brdf.colorSpace,
+        format: jsonData.brdf.colorSpace,
 
         setParameters: () => {
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -90,16 +93,16 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
         }
     })
 
-    const makeCubeMapTexture = (images: Map<string, HTMLImageElement>) => (cubeMap: GltfIblCubeMap): WebGLTexture => {
+    const makeCubeMapTexture = (images: Map<string, HTMLImageElement>) => (cubeMapName:string) => ({colorSpace, urls}:{colorSpace:number, urls: Array<Array<string>>}): WebGLTexture => {
         const faces = ["posX", "negX", "posY", "negY", "posZ", "negZ"];
 
 
         let mipLevels = [];
-        cubeMap.urls.forEach(list => {
+        urls.forEach(list => {
             const mipLevel = {};
 
             list.forEach((url, faceIndex) => {
-                const img = images.get(cubeMap.name + "/" + url);
+                const img = images.get(cubeMapName + "/" + url);
                 mipLevel[faces[faceIndex]] = img;
             })
 
@@ -108,13 +111,12 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
 
         return createCubeTextureFromTarget({
             gl,
-            format: cubeMap.colorSpace, //SEEMS TO BE BUGGY!
-            //format: WebGlConstants.RGBA,
+            format: colorSpace, 
             setParameters: opts => {
                 gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                if (cubeMap.urls.length > 1) {
+                if (urls.length > 1) {
                     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
                     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 } else {
@@ -126,23 +128,31 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
         (mipLevels);
     }
 
-    const textures = {
-        brdf: makeBrdfTexture(imageMap.get(envData.brdf.url)),
-        cubeMaps: {}
-    } as GltfIblTextures
+    const data = {
+        brdf: makeBrdfTexture(imageMap.get(jsonData.brdf.url)),
+        cubeMaps: {} as any,
+        useLod: false
+    }
 
-    envData.cubeMaps.forEach(cubeMap => {
-        textures.cubeMaps[cubeMap.name] = makeCubeMapTexture(imageMap)(cubeMap)
+    Object.keys(jsonData.cubeMaps).forEach(cubeMapName => {
+        const cubeMap = jsonData.cubeMaps[cubeMapName];
+        if(cubeMap.urls.length > 1) {
+            data.useLod = true;
+        }
+        data.cubeMaps[cubeMapName] = makeCubeMapTexture(imageMap) (cubeMapName) (jsonData.cubeMaps[cubeMapName]);
     })
 
 
+    return data 
+}
+
+
+export const GLTF_PARSE_createIblScene = (gltf:GLTF_ORIGINAL):GltfIbl =>  {
     //TODO, get from GLTF
-    const light = {
+    
+    return {
         scaleDiffBaseMR: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
         scaleFGDSpec: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
         scaleIBLAmbient: Float64Array.from([1.0, 1.0, 0.0, 0.0]),
     }
-
-    return {data: envData, textures, light };
 }
-

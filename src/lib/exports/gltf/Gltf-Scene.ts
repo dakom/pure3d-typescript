@@ -1,4 +1,4 @@
-import {GltfScene, Camera, LightKind, GltfNodeKind, LightNode, GltfMeshNode, CameraNode, GltfIblLight} from "../../Types";
+import {GltfScene, Camera, LightKind, GltfNodeKind, LightNode, GltfMeshNode, CameraNode, GltfIbl} from "../../Types";
 
 //TODO - implement with Flatbuffers
 

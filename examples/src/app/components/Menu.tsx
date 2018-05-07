@@ -84,7 +84,7 @@ const PopupMenuButton = (props) => {
     )
 }
 
-const _NavBar = (props) => {
+const _TopNavBar = (props:any) => {
     const {classes, buttons, alertMessage, onHome} = props;
     return ( 
                     <AppBar position="static" className={classes.appBar}>
@@ -122,7 +122,7 @@ const _NavBar = (props) => {
                 )
 }
 
-const NavBar = withStyles(topStyles) (_NavBar);
+const TopNavBar = withStyles(topStyles) (_TopNavBar) as any;
 
 
 export class _TopMenu extends React.Component<{history, basePage, buttons, alertMessage}, any> {
@@ -160,7 +160,7 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
                     onOpen={() => this.setState({drawer: true})}
                 >
 
-                    <NavBar
+                    <TopNavBar
                         onHome={() => this.props.history.push('/')}
                         buttons={this.props.buttons}
                         alertMessage={this.props.alertMessage}

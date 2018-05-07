@@ -7,7 +7,7 @@ import { prepWebGlRenderer } from '../init/Gltf-Init';
 import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
-import { GLTF_PARSE_hasIbl, GLTF_PARSE_loadIblAssets, GLTF_PARSE_createIblData} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
+import { GLTF_PARSE_loadIblAssets, GLTF_PARSE_createIblData} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
 
 
 //Pure data loaders

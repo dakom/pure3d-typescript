@@ -1,4 +1,5 @@
-import {WebGlRenderer, GltfData, GltfMeshNode, GltfScene, GltfPrimitive, LightNode, GltfIblLight, Camera} from "../../Types";
+import {WebGlRenderer, GltfData, GltfMeshNode, GltfScene, GltfPrimitive, LightNode, GltfIbl, Camera} from "../../Types";
+
 
 export interface GltfRendererThunk {
     renderer: WebGlRenderer;

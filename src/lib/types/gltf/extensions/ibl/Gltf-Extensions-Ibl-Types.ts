@@ -1,42 +1,40 @@
 import {NumberArray} from "../../../common/array/Array-Types";
 
+export type GltfIblCubeMapNames = "diffuse" | "specular";
+
+//Assets
 export interface GltfIblDataAssets {
-    envData:GltfIblData; 
+    jsonData:GltfIblJson;
     imageMap:Map<string, HTMLImageElement>;
 }
 
-export interface GltfIbl {
-  data: GltfIblData;
-  textures: GltfIblTextures;
-    light: GltfIblLight;
+export interface GltfIblJson {
+    brdf: {
+        url: string;
+        colorSpace: number;
+    }
+    cubeMaps: {
+        [K in GltfIblCubeMapNames]: {
+            colorSpace: number;
+            urls: Array<Array<string>>;
+        }
+    }
+    
 }
 
-export type GltfIblCubeMapNames = "environment" | "specular" | "diffuse";
-export type GltfIblCubeMapUrls = Array<[string, string, string, string, string, string]>
 
-export interface GltfIblCubeMap {
-  name: GltfIblCubeMapNames;
-  colorSpace:number;
-  urls: GltfIblCubeMapUrls
-}
-
+//Data
 export interface GltfIblData {
-  brdf: {
-    url: string;
-    colorSpace: number;
-  };
-  cubeMaps: Array<GltfIblCubeMap>
-}
-
-
-export interface GltfIblTextures {
-  brdf: WebGLTexture;
+  brdf: WebGLTexture 
   cubeMaps: {
     [K in GltfIblCubeMapNames]: WebGLTexture;
   }
+  useLod: boolean;
 }
 
-export interface GltfIblLight {
+
+//Scene
+export interface GltfIbl {
   scaleDiffBaseMR: NumberArray;
   scaleFGDSpec: NumberArray;
   scaleIBLAmbient: NumberArray;

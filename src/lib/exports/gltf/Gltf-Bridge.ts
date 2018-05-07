@@ -1,6 +1,6 @@
 import { Future, parallel } from 'fluture';
 import { fetchJsonUrl, fetchArrayBuffer, fetchImage, fetchArrayBufferUrl } from 'fluture-loaders';
-import { createVec3, WebGlRenderer, createCubeTextureFromTarget, createTextureFromTarget, WebGlConstants } from "../../Lib"; 
+import { createVec3, updateNodeListTransforms, WebGlRenderer, createCubeTextureFromTarget, createTextureFromTarget, WebGlConstants } from "../../Lib"; 
 import {mat4} from "gl-matrix";
 
 import {
@@ -20,9 +20,9 @@ import {CameraNode,
     GltfInitConfig,
     GltfData,
     TypedNumberArray,
-    GltfIblLight,
+    GltfIbl,
     GltfBridge,
-    GltfDataAssets
+    GltfDataAssets,
 } from '../../Types';
 import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-parse/Gltf-Parse-File";
 import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
@@ -31,6 +31,7 @@ import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
 import {serializeScene, parseScene} from "./Gltf-Scene";
 import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
+import {GLTF_PARSE_createIblScene} from "../../internal/gltf/gltf-parse/extensions/ibl/Gltf-Parse-Extensions-Ibl";
 
 /*
   Generally speaking, users create a world and then copy/modify the resulting scene
@@ -70,22 +71,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
     let _allNodes:Array<GltfNode>;
     let _data: GltfData;
 
-    const _initNodes = (config: GltfInitConfig) => {
-
-        const gltf = _data.original;
-
-
-        const primitives = GLTF_PARSE_createPrimitives({
-            renderer, 
-            data: _data, 
-            config
-        });
-
-
-        return GLTF_PARSE_getNodes({gltf, primitives});
-
-    }
-
     const loadFile = (path:string) => 
         fetchArrayBufferUrl(path).map(GLTF_PARSE_getOriginalFromArrayBuffer)
 
@@ -94,14 +79,20 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     const start = ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets, config:GltfInitConfig}) => {
 
-        _data = GLTF_PARSE_CreateData({
+        const data = GLTF_PARSE_CreateData({
             gltf, 
             renderer,
             assets        
         });
 
+        const primitives = GLTF_PARSE_createPrimitives({
+            renderer, 
+            data,
+            config
+        });
 
-        _allNodes = _initNodes(config);
+        _data = data;
+        _allNodes = GLTF_PARSE_getNodes({gltf, primitives, data});
     }
 
 
@@ -155,10 +146,31 @@ function createGltfBridge(renderer:WebGlRenderer) {
         renderThunks.forEach(thunks => thunks.forEach(fn => fn()));
     }
 
-    const getOriginalSceneNodes = (sceneNumber:number) => {
-        const originalScene = _data.original.scenes[sceneNumber];
+    const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {
+        const nodes = sceneNumber === -1 || !_data.original.scenes[sceneNumber]
+            ? _allNodes.slice()
+            : _allNodes.filter((node, idx) => _data.original.scenes[sceneNumber].nodes.indexOf(idx) !== -1);
 
-        return _allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
+        const extensions = {} as any;
+
+        if(_data.extensions.ibl) {
+            extensions.ibl = GLTF_PARSE_createIblScene(_data.original);
+        }
+
+        const scene:GltfScene = {
+            camera,
+            extensions,
+            nodes: updateNodeListTransforms <GltfNode>({
+                updateLocal: true,
+                updateModel: true,
+                updateView: true,
+                camera,
+            })
+            (null)
+            (nodes)
+        }
+
+        return scene;
     }
 
     const getOriginalCameras = ():Array<Camera> => {
@@ -175,7 +187,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         renderer,
         getAllNodes: () => _allNodes,
         getData: () => _data,
-        getOriginalSceneNodes,
+        getOriginalScene,
         getOriginalCameras,
         loadFile,
         loadAssets,

@@ -25,25 +25,9 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo}:{mo
         })));
 
 
-        const nodes = bridge.getData().original.scene !== undefined
-            ?   bridge.getOriginalSceneNodes(0)
-            :   bridge.getAllNodes();
-
         const {camera, controls} = getInitialGltfCamera (bridge) (modelInfo.model)
 
-
-        let scene:GltfScene = {
-            camera,
-            nodes: updateNodeListTransforms <GltfNode>({
-                updateLocal: true,
-                updateModel: true,
-                updateView: true,
-                camera
-            })
-            (null)
-            (nodes)
-        }
-
+        let scene = bridge.getOriginalScene(camera) (0);
 
         controls.enable();
         

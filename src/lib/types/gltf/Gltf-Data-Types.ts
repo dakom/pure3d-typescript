@@ -1,4 +1,4 @@
-import {WebGlAttributeActivateOptions, GltfIbl, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
+import {WebGlAttributeActivateOptions, GltfIblData, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
 
 export interface GltfDataAssets {
     buffers: Array<ArrayBuffer>
@@ -16,7 +16,7 @@ export interface GltfData {
     shaders: Map<number, WebGlShader>;
     vaoIds: Map<number, Symbol>;
     extensions: {
-        ibl?: GltfIbl;
+        ibl?: GltfIblData;
     }
 }
 

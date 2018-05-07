@@ -21,7 +21,7 @@ import {
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
 
 //could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
-export const GLTF_PARSE_getNodes = ({gltf, primitives}:{gltf:GLTF_ORIGINAL, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
+export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
     const getNodeTransform = (parentModelMatrix: NumberArray) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
 
