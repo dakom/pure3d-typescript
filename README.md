@@ -22,6 +22,7 @@
 
 See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
+
 ## What it is: 
 
 * An abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
@@ -51,3 +52,7 @@ It's a rite of passage to make your own WebGL renderer while learning it. This i
 ## Peer-Dependencies
 
 * Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
+
+## More info
+
+See [Wiki](https://github.com/dakom/pure3d/wiki)
