@@ -60,10 +60,10 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     lightList.forEach(lightNode => {
         const {light} = lightNode;
         //TODO - allow multiple lights, point lights, etc.
-        if(light.kind === LightKind.DIRECTIONAL) {
+        if(light.kind === LightKind.Directional) {
 
-            uniform3fv("u_LightDirection")(light.direction);
-            uniform3fv("u_LightColor")(light.color);
+            //uniform3fv("u_LightDirection")(light.);
+            //uniform3fv("u_LightColor")(light.color);
         }
     })
 

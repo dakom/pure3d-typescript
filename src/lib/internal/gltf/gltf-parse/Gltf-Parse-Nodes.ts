@@ -19,9 +19,8 @@ import {
     NodeKind,
 } from '../../../Types';
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
+import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
 
-import {GLTF_PARSE_createIblNode} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
-import {GLTF_PARSE_createLightsNode} from "./extensions/lights/Gltf-Parse-Extensions-Lights";
 //could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
 export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
@@ -69,10 +68,12 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
             baseNode.camera = GLTF_PARSE_getCamera(gltf.cameras[node.camera]) (modelMatrix);
         }
 
-        const finalNode = ([
-            GLTF_PARSE_createIblNode (gltf),
-            GLTF_PARSE_createLightsNode (gltf)
-        ] as Array<(originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode) => GltfNode>).reduce((acc, val) => acc = val (node) (acc), baseNode)
+        const finalNode = GltfExtensions
+            .map(ext => ext.createNode)
+            .reduce((acc, val) => 
+                (acc = val (gltf) (node) (acc), acc), 
+                baseNode
+            )
 
         return !node.children
             ? finalNode

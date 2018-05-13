@@ -1,13 +1,25 @@
 import { Future, parallel } from 'fluture';
 import { fetchJsonUrl, fetchArrayBuffer, fetchImage, fetchArrayBufferUrl } from 'fluture-loaders';
-import { createVec3, updateNodeListTransforms, WebGlRenderer, createCubeTextureFromTarget, createTextureFromTarget, WebGlConstants } from "../../Lib"; 
 import {mat4} from "gl-matrix";
 
 import {
     GLTF_PARSE_CreateData,
     GLTF_PARSE_LoadDataAssets
 } from '../../internal/gltf/gltf-parse/Gltf-Parse-Data';
-import {CameraNode,
+import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-parse/Gltf-Parse-File";
+import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
+import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
+import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
+import { getBasePath } from "../../internal/common/Basepath";
+import {serializeScene, parseScene} from "./Gltf-Scene";
+import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
+import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
+import {createVec3} from "../common/array/Array";
+import {updateNodeListTransforms} from "../common/nodes/Nodes";
+
+import {
+WebGlRenderer,
+    CameraNode,
     NodeKind,
     WebGlBufferInfo,WebGlBufferData,
     LightNode,
@@ -25,15 +37,6 @@ import {CameraNode,
     GltfBridge,
     GltfDataAssets,
 } from '../../Types';
-import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-parse/Gltf-Parse-File";
-import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
-import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
-import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
-import { getBasePath } from "../../internal/common/Basepath";
-import {serializeScene, parseScene} from "./Gltf-Scene";
-import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
-import {GLTF_PARSE_createIblScene} from "../../internal/gltf/gltf-parse/extensions/ibl/Gltf-Parse-Extensions-Ibl";
-import {GLTF_PARSE_createLightsScene} from "../../internal/gltf/gltf-parse/extensions/lights/Gltf-Parse-Extensions-Lights";
 /*
   Generally speaking, users create a world and then copy/modify the resulting scene
   This is because the original scene is created at the same time as setting the cache
@@ -159,12 +162,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
 
     
-        return (
-            [
-                GLTF_PARSE_createIblScene (_data),
-                GLTF_PARSE_createLightsScene (_data)
-            ] as Array<(originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene) => GltfScene>
-        ).reduce((acc, val) => acc = val (originalScene) (acc),
+        return GltfExtensions.map(ext => ext.createScene).reduce((acc, val) => acc = val (_data.original) (originalScene) (acc),
             {
                 camera,
                 extensions: {},

@@ -7,8 +7,7 @@ import { prepWebGlRenderer } from '../init/Gltf-Init';
 import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
-import { GLTF_PARSE_loadIblAssets, GLTF_PARSE_createIblData} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
-import { GLTF_PARSE_loadLightsAssets, GLTF_PARSE_createLightsData} from "./extensions/lights/Gltf-Parse-Extensions-Lights";
+import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
 
 //Pure data loaders
 
@@ -47,15 +46,16 @@ const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_
 //Tools for processing and loading data
 
 export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath:string, gltf:GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer>}):Future<any, GltfDataAssets> => 
-    loadBuffers({basePath, gltf, glbBuffers})
-        .chain((buffers: Array<ArrayBuffer>) => 
-            loadImages({basePath, gltf, buffers})
-            .map(imageElements => ({
-                buffers, imageElements, extensions: {}
-            }))
-            .chain(coreData => GLTF_PARSE_loadIblAssets({gltf, coreData}))
-            .chain(coreData => GLTF_PARSE_loadLightsAssets({gltf, coreData}))
-
+    GltfExtensions
+        .map(ext => ext.loadAssets)
+        .reduce((acc, fn) => (acc = acc.chain(coreData => fn({gltf, coreData})), acc),
+            loadBuffers({basePath, gltf, glbBuffers})
+                .chain((buffers: Array<ArrayBuffer>) => 
+                    loadImages({basePath, gltf, buffers})
+                        .map(imageElements => ({
+                            buffers, imageElements, extensions: {}
+                        }))
+                )
         );
 
 export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_ORIGINAL, assets: GltfDataAssets, renderer: WebGlRenderer}): GltfData => {
@@ -69,12 +69,9 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_O
     const shaders = new Map<number, WebGlShader>();
     const vaoIds = new Map<number, Symbol>();
 
-    return (
-        [
-            GLTF_PARSE_createIblData({gltf, assets, renderer}),
-            GLTF_PARSE_createLightsData({gltf, assets, renderer})
-        ] as Array<(data:GltfData) => GltfData>
-    ).reduce((acc, val) => acc = val(acc), 
+    return GltfExtensions
+        .map(ext => ext.createData)
+        .reduce((acc, val) => (acc = val ({gltf, assets, renderer}) (acc), acc), 
         {
             original: gltf,
             animations,

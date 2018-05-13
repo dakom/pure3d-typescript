@@ -25,7 +25,8 @@ import {
     DirectionalLight,
     PointLight,
     SpotLight,
-    BaseCamera
+    BaseCamera,
+    GLTF_PARSE_Extension
 } from "../../../../../Types"; 
 
 import { Future, parallel } from 'fluture';
@@ -43,7 +44,7 @@ const getIblConfig = (gltf:GLTF_ORIGINAL) => {
 }
 
 
-export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => {
+const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => {
     const config = getIblConfig(gltf);
     const path = config ? config.path : "";
 
@@ -92,7 +93,7 @@ export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, c
         }));
 }
 
-export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => {
+const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => {
     if(!assets.extensions.ibl) {
         return data
     }
@@ -174,9 +175,9 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
 }
 
 
-export const GLTF_PARSE_createIblScene = (data:GltfData) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
+const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
     
-    const config = getIblConfig(data.original);
+    const config = getIblConfig(gltf);
     const settings = config ? config.settings : undefined;
 
     if(!settings) {
@@ -189,6 +190,13 @@ export const GLTF_PARSE_createIblScene = (data:GltfData) => (originalScene:GLTF_
 
 }
 
-export const GLTF_PARSE_createIblNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
+const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
     return node;
+}
+
+export const GLTF_PARSE_Extension_Ibl:GLTF_PARSE_Extension = {
+    loadAssets,
+    createData,
+    createScene,
+    createNode
 }

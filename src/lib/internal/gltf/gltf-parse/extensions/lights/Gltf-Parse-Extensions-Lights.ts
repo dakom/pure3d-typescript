@@ -22,6 +22,7 @@ import {
     DirectionalLight,
     PointLight,
     SpotLight,
+    GLTF_PARSE_Extension,
 } from "../../../../../Types"; 
 
 import { Future, parallel } from 'fluture';
@@ -40,16 +41,16 @@ const getConfig = (gltf:GLTF_ORIGINAL) => {
 }
 
 
-export const GLTF_PARSE_loadLightsAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => 
+const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => 
         Future.of(coreData);
 
-export const GLTF_PARSE_createLightsData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => 
+const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => 
        data
 
 
-export const GLTF_PARSE_createLightsScene = (data:GltfData) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
+const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
     
-    const config = getConfig(data.original);
+    const config = getConfig(gltf);
     const sceneConfig = originalScene.extensions && originalScene.extensions.hasOwnProperty(GltfLightsExtensionName)
         ?   originalScene.extensions[GltfLightsExtensionName]
         :   undefined; 
@@ -74,7 +75,7 @@ export const GLTF_PARSE_createLightsScene = (data:GltfData) => (originalScene:GL
 }
 
 
-export const GLTF_PARSE_createLightsNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
+const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
 
     const config = getConfig(gltf);
   
@@ -91,3 +92,10 @@ export const GLTF_PARSE_createLightsNode = (gltf:GLTF_ORIGINAL) => (originalNode
 
     return node;
 }
+
+export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
+    loadAssets,
+    createData,
+    createScene,
+    createNode
+};
