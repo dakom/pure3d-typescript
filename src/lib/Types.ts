@@ -12,6 +12,7 @@ export * from "./types/gltf/Gltf-Init-Types";
 export * from "./types/gltf/Gltf-Bridge";
 
 export * from "./types/gltf/extensions/ibl/Gltf-Extensions-Ibl-Types";
+export * from "./types/gltf/extensions/lights/Gltf-Extensions-Lights-Types";
 
 //Common
 export * from "./types/common/transform/Transform-Types";

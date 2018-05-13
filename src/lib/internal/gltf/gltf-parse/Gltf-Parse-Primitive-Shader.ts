@@ -132,6 +132,7 @@ export const GLTF_PARSE_getPrimitiveShaderSources = ({config, gltf, data, origin
 
     const definesList = getDefines({config, data, shaderKind, gltf, originalPrimitive})
 
+
     const vertexShaderSource = vertexShader; 
 
     const fragmentShaderSource = shaderKind === GltfShaderKind.PBR

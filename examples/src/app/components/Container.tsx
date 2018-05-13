@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import {S, Maybe} from "utils/Sanctuary";
 import {startBox} from "../scenes/basic/box/Box-Demo";
@@ -14,8 +13,8 @@ import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
 
-const _loadScene = ({renderer, section, scene}
-    :{renderer:WebGlRenderer, scene:string, section:string})
+const _loadScene = ({renderer, section, scene, menuOptions}
+    :{renderer:WebGlRenderer, scene:string, section:string, menuOptions: any})
     :Future<any,Maybe<[(frameTs:number) => void, () => void]>> => {
    
     const mapReturn = xf => 
@@ -37,7 +36,8 @@ const _loadScene = ({renderer, section, scene}
         if(modelInfo) {
             return startGltf(renderer) ({
                 modelPath: path + modelInfo.url,
-                modelInfo
+                modelInfo,
+                menuOptions
             }).map(mapReturn);
         }
     }
@@ -45,7 +45,7 @@ const _loadScene = ({renderer, section, scene}
     return Future.of(S.Nothing);
 }
 
-export class Container extends React.Component<{section: string, scene:string}, {isLoading: boolean}> {
+export class Container extends React.Component<{section: string, scene:string, menuOptions:any}, {isLoading: boolean}> {
     private canvasRef:React.RefObject<HTMLCanvasElement>; 
     private mThunk:Maybe<(ts:number) => void>
     private mTick:Maybe<number>;
@@ -66,8 +66,21 @@ export class Container extends React.Component<{section: string, scene:string}, 
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.props.scene !== prevProps.scene || this.props.section !== prevProps.section) {
-            this.loadScene();
+        const objEquals = a => b => {
+            const kA = Object.keys(a);
+            const kB = Object.keys(b);
+
+            if(kA.length !== kB.length) {
+                return false;
+            }
+
+            return kA.every(value => (kB.indexOf(value) !== -1 && a[value] === b[value]) ? true : false);
+        }
+        if( this.props.scene !== prevProps.scene 
+            || this.props.section !== prevProps.section
+            || !objEquals(this.props.menuOptions) (prevProps.menuOptions)
+        ) {
+          this.loadScene();
         }
     }
     componentDidMount() {
@@ -106,11 +119,12 @@ export class Container extends React.Component<{section: string, scene:string}, 
             version: 1
         });
     
-        const {scene, section} = this.props;
+        const {scene, section, menuOptions} = this.props;
         _loadScene({
             renderer,
             section,
-            scene
+            scene,
+            menuOptions
         }).fork(console.error, (mFuncs) => {
             this.setState({isLoading: false});
             this.mThunk = S.map(funcs => funcs[0]) (mFuncs);

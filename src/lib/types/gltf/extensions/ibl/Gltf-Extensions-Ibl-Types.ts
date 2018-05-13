@@ -1,5 +1,7 @@
 import {NumberArray} from "../../../common/array/Array-Types";
 
+export const GltfIblExtensionName = "PURE3D_IBL";
+
 export type GltfIblCubeMapNames = "diffuse" | "specular";
 
 //Assets

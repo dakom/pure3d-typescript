@@ -8,7 +8,7 @@ import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 import { GLTF_PARSE_loadIblAssets, GLTF_PARSE_createIblData} from "./extensions/ibl/Gltf-Parse-Extensions-Ibl";
-
+import { GLTF_PARSE_loadLightsAssets, GLTF_PARSE_createLightsData} from "./extensions/lights/Gltf-Parse-Extensions-Lights";
 
 //Pure data loaders
 
@@ -54,6 +54,8 @@ export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath
                 buffers, imageElements, extensions: {}
             }))
             .chain(coreData => GLTF_PARSE_loadIblAssets({gltf, coreData}))
+            .chain(coreData => GLTF_PARSE_loadLightsAssets({gltf, coreData}))
+
         );
 
 export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_ORIGINAL, assets: GltfDataAssets, renderer: WebGlRenderer}): GltfData => {
@@ -67,19 +69,21 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_O
     const shaders = new Map<number, WebGlShader>();
     const vaoIds = new Map<number, Symbol>();
 
-    const data:GltfData = {
-        original: gltf,
-        animations,
-        attributes,
-        textures,
-        shaders,
-        vaoIds,
-        extensions: {}
-    }
+    return (
+        [
+            GLTF_PARSE_createIblData({gltf, assets, renderer}),
+            GLTF_PARSE_createLightsData({gltf, assets, renderer})
+        ] as Array<(data:GltfData) => GltfData>
+    ).reduce((acc, val) => acc = val(acc), 
+        {
+            original: gltf,
+            animations,
+            attributes,
+            textures,
+            shaders,
+            vaoIds,
+            extensions: {}
+        }
+    );
 
-    if(assets.extensions.ibl) {
-        data.extensions.ibl = GLTF_PARSE_createIblData({gltf, assets, renderer});
-    }
-
-    return data;
 }

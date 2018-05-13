@@ -14,6 +14,7 @@ import {CameraNode,
     GltfMeshNode,
     GltfNodeKind,
     GLTF_ORIGINAL,
+    GLTF_ORIGINAL_Scene,
     GltfScene,
     Camera,
     GltfNode,
@@ -32,7 +33,7 @@ import { getBasePath } from "../../internal/common/Basepath";
 import {serializeScene, parseScene} from "./Gltf-Scene";
 import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
 import {GLTF_PARSE_createIblScene} from "../../internal/gltf/gltf-parse/extensions/ibl/Gltf-Parse-Extensions-Ibl";
-
+import {GLTF_PARSE_createLightsScene} from "../../internal/gltf/gltf-parse/extensions/lights/Gltf-Parse-Extensions-Lights";
 /*
   Generally speaking, users create a world and then copy/modify the resulting scene
   This is because the original scene is created at the same time as setting the cache
@@ -147,30 +148,37 @@ function createGltfBridge(renderer:WebGlRenderer) {
     }
 
     const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {
-        const nodes = sceneNumber === -1 || !_data.original.scenes[sceneNumber]
-            ? _allNodes.slice()
-            : _allNodes.filter((node, idx) => _data.original.scenes[sceneNumber].nodes.indexOf(idx) !== -1);
 
-        const extensions = {} as any;
+        
+        const originalScene = sceneNumber >= 0 
+            ?   _data.original.scenes[sceneNumber]
+            :   {
+                    nodes: _allNodes.map((node, idx) => idx)
+                }
+            
+        const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
 
-        if(_data.extensions.ibl) {
-            extensions.ibl = GLTF_PARSE_createIblScene(_data.original);
-        }
-
-        const scene:GltfScene = {
-            camera,
-            extensions,
-            nodes: updateNodeListTransforms <GltfNode>({
-                updateLocal: true,
-                updateModel: true,
-                updateView: true,
+    
+        return (
+            [
+                GLTF_PARSE_createIblScene (_data),
+                GLTF_PARSE_createLightsScene (_data)
+            ] as Array<(originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene) => GltfScene>
+        ).reduce((acc, val) => acc = val (originalScene) (acc),
+            {
                 camera,
-            })
-            (null)
-            (nodes)
-        }
+                extensions: {},
+                nodes: updateNodeListTransforms <GltfNode>({
+                    updateLocal: true,
+                    updateModel: true,
+                    updateView: true,
+                    camera,
+                })
+                (null)
+                (nodes)
+            } as GltfScene
+        );
 
-        return scene;
     }
 
     const getOriginalCameras = ():Array<Camera> => {

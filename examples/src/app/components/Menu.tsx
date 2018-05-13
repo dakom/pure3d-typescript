@@ -13,6 +13,10 @@ import MenuIcon from '@material-ui/icons/Menu';
 import {withRouter} from "react-router-dom";
 import HomeIcon from '@material-ui/icons/Home';
 import blue from 'material-ui/colors/blue';
+import { FormGroup, FormControlLabel } from 'material-ui/Form';
+import Checkbox from 'material-ui/Checkbox';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
 
 const topStyles = {
     appBar: {
@@ -125,7 +129,7 @@ const _TopNavBar = (props:any) => {
 const TopNavBar = withStyles(topStyles) (_TopNavBar) as any;
 
 
-export class _TopMenu extends React.Component<{history, basePage, buttons, alertMessage}, any> {
+export class _TopMenu extends React.Component<{history, basePage, buttons, alertMessage, menuOptions, onOptions}, any> {
     constructor(props) {
         super(props);
        
@@ -138,6 +142,7 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
     
     render() {
 
+        const {basePage, onOptions} = this.props;
         const openButton = !this.state.drawer 
             ? <div style={{marginLeft: "10px", marginTop: "10px"}}>
                 <Button color="inherit" variant="fab" 
@@ -173,6 +178,10 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
                             this.setState({selectedMenu: null, drawer: false});
                         }}
                     />
+
+                {basePage === "gltf" &&
+                    <GltfMenu menuOptions={this.props.menuOptions} onOptions={this.props.onOptions} />
+                }
                 </SwipeableDrawer>
             </div>
        ) 
@@ -180,3 +189,49 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
 }
 
 export const TopMenu = withRouter(_TopMenu);
+
+
+const _GltfMenu = ({menuOptions, classes, onOptions}:{menuOptions: any, classes: any, onOptions: (options:any) => void}) => {
+
+    const handleChange = name => event => onOptions(Object.assign({}, menuOptions, {
+        [name]: event.target.checked
+    }));
+
+        return (
+<Toolbar>
+            <Typography variant="title" color="inherit" classes={{title: classes.title}} >                        
+                Gltf Options:
+            </Typography>
+            
+        <FormGroup row>
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={menuOptions.ibl}
+              onChange={handleChange("ibl")}
+              />
+          }
+          label="IBL"
+            />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={menuOptions.lights}
+              onChange={handleChange('lights')}
+              color="primary"
+            />
+          }
+          label="Lights"
+        />
+            </FormGroup>
+            </Toolbar>
+        )
+    }
+
+
+export const GltfMenu = withStyles({
+    title: {
+        marginRight: "10px"
+    }
+}) (_GltfMenu) as any

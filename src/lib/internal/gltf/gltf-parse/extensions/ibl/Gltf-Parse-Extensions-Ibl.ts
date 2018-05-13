@@ -3,13 +3,29 @@ import {
     WebGlRenderer,
     WebGlBufferData,
     WebGlBufferInfo,
+    GltfData,
+    CameraNode,
+    GltfMeshNode,
+    GltfNode,
+    GltfScene,
+    GltfIblExtensionName,
     GltfIbl,
     GltfIblDataAssets,
     GltfIblJson,
     GltfIblData,
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_MeshPrimitive,
-    GltfDataAssets
+    GLTF_ORIGINAL_Node,
+    GLTF_ORIGINAL_Scene,
+    GltfDataAssets,
+    PerspectiveCameraSettings,
+    OrthographicCameraSettings,
+    LightNode,
+    AmbientLight,
+    DirectionalLight,
+    PointLight,
+    SpotLight,
+    BaseCamera
 } from "../../../../../Types"; 
 
 import { Future, parallel } from 'fluture';
@@ -18,18 +34,23 @@ import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../..
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
 
-const hasIbl = (gltf:GLTF_ORIGINAL):boolean => {
-    
-    //TODO inspect gltf itself
-    return true; 
+
+const getIblConfig = (gltf:GLTF_ORIGINAL) => {
+    if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfIblExtensionName) !== -1) {
+        return gltf.extensions[GltfIblExtensionName]
+    }
+    return null; 
 }
 
+
 export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => {
-    if(!hasIbl(gltf)) {
+    const config = getIblConfig(gltf);
+    const path = config ? config.path : "";
+
+    if(path === "") {
         return Future.of(coreData);
     }
 
-    const path = "static/world/world.json"; //TODO - inspect gltf itself
     
     
     return (fetchJsonUrl(path) as Future<any, GltfIblJson>)
@@ -71,7 +92,11 @@ export const GLTF_PARSE_loadIblAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, c
         }));
 }
 
-export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}): GltfIblData => {
+export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => {
+    if(!assets.extensions.ibl) {
+        return data
+    }
+
     prepWebGlRenderer(renderer);
 
     const gl = renderer.gl;
@@ -128,7 +153,7 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
         (mipLevels);
     }
 
-    const data = {
+    const ibl = {
         brdf: makeBrdfTexture(imageMap.get(jsonData.brdf.url)),
         cubeMaps: {} as any,
         useLod: false
@@ -137,22 +162,33 @@ export const GLTF_PARSE_createIblData = ({gltf, assets, renderer}:{renderer:WebG
     Object.keys(jsonData.cubeMaps).forEach(cubeMapName => {
         const cubeMap = jsonData.cubeMaps[cubeMapName];
         if(cubeMap.urls.length > 1) {
-            data.useLod = true;
+           ibl.useLod = true;
         }
-        data.cubeMaps[cubeMapName] = makeCubeMapTexture(imageMap) (cubeMapName) (jsonData.cubeMaps[cubeMapName]);
+        ibl.cubeMaps[cubeMapName] = makeCubeMapTexture(imageMap) (cubeMapName) (jsonData.cubeMaps[cubeMapName]);
     })
 
 
-    return data 
+    return Object.assign({}, data, {extensions: 
+        Object.assign({}, data.extensions, {ibl})
+    });
 }
 
 
-export const GLTF_PARSE_createIblScene = (gltf:GLTF_ORIGINAL):GltfIbl =>  {
-    //TODO, get from GLTF
+export const GLTF_PARSE_createIblScene = (data:GltfData) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
     
-    return {
-        scaleDiffBaseMR: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
-        scaleFGDSpec: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
-        scaleIBLAmbient: Float64Array.from([1.0, 1.0, 0.0, 0.0]),
+    const config = getIblConfig(data.original);
+    const settings = config ? config.settings : undefined;
+
+    if(!settings) {
+        return scene;
     }
+
+    return Object.assign({}, scene, {extensions:
+        Object.assign({}, scene.extensions, {ibl: settings})
+    });
+
+}
+
+export const GLTF_PARSE_createIblNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
+    return node;
 }
