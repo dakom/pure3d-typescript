@@ -57,8 +57,10 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
      * Set the generic lighting uniforms
     */
 
+
     lightList.forEach(lightNode => {
         const {light} = lightNode;
+
         //TODO - allow multiple lights, point lights, etc.
         if(light.kind === LightKind.Directional) {
 

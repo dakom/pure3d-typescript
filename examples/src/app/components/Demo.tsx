@@ -25,16 +25,13 @@ const alertMessage = {
 }
 
 
-export class Demo extends React.Component<{match: any}, {menuOptions: any}> {
+export class Demo extends React.Component<{match: any, menuOptions: any}, {menuOptions: any}> {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            menuOptions: {
-                ibl: true,
-                lights: true
-            }
+            menuOptions: this.props.menuOptions
         }
     }
     render() {

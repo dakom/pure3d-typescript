@@ -49,13 +49,14 @@ const addExtensions = ({model, menuOptions}: {model:Model, menuOptions}) => {
 
         const meta = {
             lights: [
+
                 {
                     "color": [
                         1.0,
                         1.0,
                         1.0
                     ],
-                    "type": "directional"
+                    "type": "ambient"
                 },
                 {
                     "spot": {

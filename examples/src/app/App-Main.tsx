@@ -12,13 +12,24 @@ export const AppContext = React.createContext({buildMode, buildVersion, isProduc
 
 console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
 
+const _Demo = props => (
+    <Demo 
+        menuOptions={{
+                ibl: true,
+                lights: true
+        }}
+       
+        {...props}
+    />
+)
+
 const App = () => {
     return (
         <AppContext.Provider value={{buildMode, buildVersion, isProduction}}>
 	<Router>
 		<Switch>
                        <Route exact path="/" component={Home} /> 
-			<Route path="/:section/:scene?" component={Demo} />
+			<Route path="/:section/:scene?" component={_Demo} />
 		</Switch>
 	</Router>
         </AppContext.Provider>
