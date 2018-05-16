@@ -2,7 +2,8 @@ import {
     WebGlConstants,
     WebGlRenderer,
     createShader,
-    activateShader
+    activateShader,
+    createVertexArraysForShader,
 } from 'lib/Lib';
 import { mat4 } from 'gl-matrix';
 import {BoxElement} from "../Box-Element";
@@ -20,11 +21,14 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
     const sizeMatrix = mat4.create();
 
     const {gl, buffers} = renderer;
-    const {shaderId, uniforms, vertexArrays} = createShader({renderer, shaderId: SHADER_ID, source: {
+    const shader = createShader({renderer, shaderId: SHADER_ID, source: {
         vertex: vertexShader,
         fragment: fragmentShader
     }});
 
+    const {shaderId, uniforms } = shader;
+
+    const vertexArrays = createVertexArraysForShader({renderer, shader});
 
     activateShader(shaderId);
 

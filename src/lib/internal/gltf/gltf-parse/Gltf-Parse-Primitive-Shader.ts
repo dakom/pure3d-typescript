@@ -4,10 +4,16 @@ import {
     GLTF_ORIGINAL_MeshPrimitive,
     GltfData,
     GltfInitConfig,
-    GltfShaderKind
+    GltfShaderKind,
+    WebGlRenderer,
+    WebGlBufferInfo,
+    WebGlBufferData
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from './Gltf-Parse-Primitive-Attributes';
 import {GLTF_PARSE_primitiveIsUnlit} from "./extensions/unlit/Gltf-Parse-Extensions-Unlit";
+
+import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "./Gltf-Parse-Data-Attributes";
+import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 
 import vertexShader from "../shaders/Gltf-Shader-Vertex.glsl";
 import pbrFragmentShader from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
@@ -122,7 +128,17 @@ const getDynamicVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) =
     return vs.replace("%MORPH_VARS%", MORPH_VARS).replace("%MORPH_FUNCS%", MORPH_FUNCS);
 }
 
-export const GLTF_PARSE_getPrimitiveShaderSources = ({config, gltf, data, originalPrimitive }: { gltf: GLTF_ORIGINAL, data:GltfData, config: GltfInitConfig, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive }) => {
+const setAttributeLocations = gl => program => {
+        GLTF_PARSE_attributeNames.forEach(aName => {
+            const location = GLTF_PARSE_getAttributeLocation(aName);
+            gl.bindAttribLocation(program, location, aName);
+        });
+    }
+
+let _shaderIdCounter = 0;
+const _shaderLookup = new Map<string, number>();
+
+export const GLTF_PARSE_getPrimitiveShaderId = ({renderer, config, gltf, data, originalPrimitive }: { gltf: GLTF_ORIGINAL, data:GltfData, config: GltfInitConfig, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, renderer: WebGlRenderer }) => {
 
     const shaderKind:GltfShaderKind = 
         GLTF_PARSE_primitiveIsUnlit({gltf, originalPrimitive})
@@ -145,5 +161,26 @@ export const GLTF_PARSE_getPrimitiveShaderSources = ({config, gltf, data, origin
     const vertex = defines + getDynamicVertexShader(originalPrimitive) (vertexShaderSource);
     const fragment = defines + fragmentShaderSource;
 
-    return {vertex, fragment, shaderKind};
+    const shaderSource = vertex + fragment;
+
+
+    if (!_shaderLookup.has(shaderSource)) {
+                    const shader = createShader({
+                        shaderId: Symbol(),
+                        renderer,
+                        interruptHandler: setAttributeLocations,
+                        source: { vertex, fragment }
+                    });
+
+                    data.shaders.set(_shaderIdCounter, shader);
+                    _shaderLookup.set(shaderSource, _shaderIdCounter);
+                    _shaderIdCounter++;
+                    console.log(`new shader compiled`);
+                } else {
+                    console.log(`nice! re-using existing shader`);
+                }
+
+     const shaderId = _shaderLookup.get(shaderSource);
+
+    return {shaderId, shaderKind};
 }

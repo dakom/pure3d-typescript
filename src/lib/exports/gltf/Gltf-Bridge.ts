@@ -130,12 +130,12 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
         meshList.forEach(node => 
             node.primitives.forEach(primitive => {
-                if (!renderThunks.has(primitive.shaderIdLookup)) {
-                    renderThunks.set(primitive.shaderIdLookup, []);
+                if (!renderThunks.has(primitive.shaderId)) {
+                    renderThunks.set(primitive.shaderId, []);
                 }
 
                 renderThunks
-                    .get(primitive.shaderIdLookup)
+                    .get(primitive.shaderId)
                     .push(createRendererThunk({ 
                         renderer,
                         data: _data,

@@ -1,5 +1,7 @@
+import {createVertexArrays} from "../../exports/webgl/WebGl-VertexArrays";
 
-export interface WebGlVertexArray {
+export type WebGlVertexArrays = ReturnType<typeof createVertexArrays>
+export interface WebGlVertexArrayData {
   elementBufferId?: Symbol,
 
   data: Array<{

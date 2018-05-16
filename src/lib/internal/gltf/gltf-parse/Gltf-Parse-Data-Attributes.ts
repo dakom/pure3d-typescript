@@ -1,9 +1,39 @@
 import { WebGlAttributeActivateOptions, WebGlConstants, WebGlRenderer, WebGlBufferData, WebGlBufferInfo } from '../../../Types';
 
-import { GLTF_ORIGINAL, GltfAccessorDataInfo, GltfAttributeData, TypedNumberArray, GLTF_ORIGINAL_Accessor, GLTF_ORIGINAL_AccessorSparse, GLTF_ORIGINAL_BufferView } from '../../../Types';
+import { GLTF_ORIGINAL, GltfAttributes, GltfAccessorDataInfo, TypedNumberArray, GLTF_ORIGINAL_Accessor, GLTF_ORIGINAL_AccessorSparse, GLTF_ORIGINAL_BufferView } from '../../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE, GLTF_PARSE_COMPONENT_BYTE_SIZE } from './Gltf-Parse-Data-Constants';
 import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
 import {GLTF_PARSE_getAccessorDataInfo} from "./Gltf-Parse-Data-Info";
+import {createVertexArrays} from "../../../exports/webgl/WebGl-VertexArrays";
+
+export const GLTF_PARSE_attributeNames = [
+    "a_Position",
+    "a_Normal",
+    "a_Tangent",
+    "a_UV",
+    "a_Color",
+    "a_Morph_0",
+    "a_Morph_1",
+    "a_Morph_2",
+    "a_Morph_3",
+    "a_Morph_4",
+    "a_Morph_5",
+    "a_Morph_6",
+    "a_Morph_7"
+]
+
+const GLTF_PARSE_attributeLocationLookup = new Map<string, number>();
+GLTF_PARSE_attributeNames.forEach((aName, idx) => {
+    GLTF_PARSE_attributeLocationLookup.set(aName, idx);
+});
+
+export const GLTF_PARSE_getAttributeLocation = (aName:string):number => {
+    if(!GLTF_PARSE_attributeLocationLookup.has(aName)) {
+        throw new Error("unknown attribute " + aName);
+    }
+
+    return GLTF_PARSE_attributeLocationLookup.get(aName);
+}
 
 const getAccessorStrategy =({ gltf, accessor, info}: { gltf: GLTF_ORIGINAL, accessor:GLTF_ORIGINAL_Accessor, info: GltfAccessorDataInfo}) => {
     const typeCount = GLTF_PARSE_ACCESSOR_TYPE_SIZE[accessor.type];
@@ -45,11 +75,11 @@ const isAttribute = ({gltf, accessorId}:{gltf:GLTF_ORIGINAL, accessorId:number})
     );
 }
 
-export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, renderer: WebGlRenderer }): GltfAttributeData => {
+export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, renderer: WebGlRenderer }): GltfAttributes => {
 
     const bufferViewInfo = new Map<number, {rendererBufferId: Symbol, buffer: ArrayBuffer}>();
 
-    const attributeData = new Map<number, { 
+    const accessorLookup = new Map<number, { 
         strategy: WebGlAttributeActivateOptions; 
         rendererBufferId: Symbol 
     }>();
@@ -107,8 +137,10 @@ export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf:
                 data: buffer
             });
 
-            attributeData.set(accessorId, { strategy, rendererBufferId });
+            accessorLookup.set(accessorId, { strategy, rendererBufferId });
         });
 
-    return attributeData;
+    const vaoIdLookup = new Map<number, Symbol>();
+    const vertexArrays = createVertexArrays({ renderer, getAttributeLocation: GLTF_PARSE_getAttributeLocation });
+    return { accessorLookup, vertexArrays, vaoIdLookup}
 }

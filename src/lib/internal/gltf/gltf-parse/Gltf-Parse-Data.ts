@@ -8,6 +8,7 @@ import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
+import {createVertexArrays} from "../../../exports/webgl/WebGl-VertexArrays";
 
 //Pure data loaders
 
@@ -58,6 +59,7 @@ export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath
                 )
         );
 
+
 export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_ORIGINAL, assets: GltfDataAssets, renderer: WebGlRenderer}): GltfData => {
     prepWebGlRenderer(renderer);
 
@@ -67,7 +69,6 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_O
     const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
     const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
     const shaders = new Map<number, WebGlShader>();
-    const vaoIds = new Map<number, Symbol>();
 
     return GltfExtensions
         .map(ext => ext.createData)
@@ -78,7 +79,6 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer }: { gltf: GLTF_O
             attributes,
             textures,
             shaders,
-            vaoIds,
             extensions: {}
         }
     );

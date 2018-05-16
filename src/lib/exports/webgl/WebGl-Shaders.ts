@@ -1,4 +1,4 @@
-import {WebGlVertexArray, WebGlAttributeActivateOptions, WebGlBufferData, WebGlRenderer, WebGlShader, WebGlBufferInfo, WebGlShaderSource} from "../../Types";
+import {WebGlAttributeActivateOptions, WebGlBufferData, WebGlRenderer, WebGlShader, WebGlBufferInfo, WebGlShaderSource, WebGlShaderInterruptHandler} from "../../Types";
 import { createUniforms } from "./WebGl-Uniforms";
 import {createVertexArrays} from "./WebGl-VertexArrays";
 import {createAttributes} from "./WebGl-Attributes";
@@ -7,7 +7,7 @@ import {createAttributes} from "./WebGl-Attributes";
 let current: any; 
 const shaders = new Map<Symbol, WebGlShader>();
 
-const _compileShader = (gl: WebGLRenderingContext) => (source: WebGlShaderSource): WebGLProgram => {
+const _compileShader = ({gl, source, interruptHandler}:{gl: WebGLRenderingContext, source: WebGlShaderSource, interruptHandler?:WebGlShaderInterruptHandler}): WebGLProgram => {
     let vShader: WebGLShader | Error;
     let fShader: WebGLShader | Error;
     const program = gl.createProgram();
@@ -52,6 +52,10 @@ const _compileShader = (gl: WebGLRenderingContext) => (source: WebGlShaderSource
         return fShader;
     }
 
+    if(interruptHandler) {
+        interruptHandler (gl) (program);
+    }
+
     gl.linkProgram(program)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         dispose();
@@ -74,10 +78,11 @@ export const activateShader = (shaderId: Symbol) =>
     _activateShader(shaderId) as WebGlShader;
 
 
-export const createShader = ({renderer, shaderId, source}: {renderer:WebGlRenderer,shaderId: Symbol,source: WebGlShaderSource}) => {
+
+export const createShader = ({renderer, shaderId, source, interruptHandler}: {renderer:WebGlRenderer,shaderId: Symbol,source: WebGlShaderSource, interruptHandler?:WebGlShaderInterruptHandler}) => {
     const {gl} = renderer;
 
-    const program = _compileShader(gl)(source);
+    const program = _compileShader({source, gl, interruptHandler});
 
     const attributes = createAttributes({renderer, program});
 
@@ -87,7 +92,6 @@ export const createShader = ({renderer, shaderId, source}: {renderer:WebGlRender
         program,
         uniforms: createUniforms({renderer, activateShader: () => _activateShader(shaderId)}),
         attributes,
-        vertexArrays: createVertexArrays({renderer, program, getAttributeLocation: attributes.getLocation})
     };
 
     shaders.set(shaderId, shader);

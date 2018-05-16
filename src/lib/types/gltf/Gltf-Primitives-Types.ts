@@ -5,8 +5,8 @@ export enum GltfPrimitiveDrawKind {
 	ARRAY = 2, //"array" in original
 }
 export type GltfPrimitive = (GltfPrimitiveElementsDraw | GltfPrimitiveArrayDraw) & {
-	shaderIdLookup: number;
-	vaoIdLookup: number;
+        shaderId: number;
+	vaoId: number;
 	drawMode: number;
 	material?: GltfMaterial;
 	shaderKind: GltfShaderKind

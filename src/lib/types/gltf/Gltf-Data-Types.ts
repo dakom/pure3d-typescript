@@ -1,4 +1,4 @@
-import {WebGlAttributeActivateOptions, GltfIblData, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
+import {WebGlAttributeActivateOptions, WebGlVertexArrays, GltfIblData, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
 
 export interface GltfDataAssets {
     buffers: Array<ArrayBuffer>
@@ -11,19 +11,26 @@ export interface GltfDataAssets {
 export interface GltfData {
     original: GLTF_ORIGINAL,
     animations: Array<GltfAnimationData>;
-    attributes: GltfAttributeData;
+    attributes: GltfAttributes;
     textures: Map<number, WebGLTexture>;
     shaders: Map<number, WebGlShader>;
-    vaoIds: Map<number, Symbol>;
     extensions: {
         ibl?: GltfIblData;
     }
 }
 
-export type GltfAttributeData = Map<number, {
-    strategy: WebGlAttributeActivateOptions;
-    rendererBufferId: Symbol;
-}>
+export interface GltfAttributes {
+    //Set on mesh primitives, because Symbols can't be serialized
+    vaoIdLookup: Map<number, Symbol>;
+
+
+    accessorLookup: Map<number, {
+        strategy: WebGlAttributeActivateOptions;
+        rendererBufferId: Symbol;
+    }>;
+
+    vertexArrays: WebGlVertexArrays;
+}
 
 export interface GltfAccessorDataInfo extends _GltfAccessorDataInfo {
     sparse?: {

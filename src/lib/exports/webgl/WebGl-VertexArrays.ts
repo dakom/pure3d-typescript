@@ -1,12 +1,12 @@
-import {WebGlBufferInfo, WebGlVertexArray, WebGlRenderer, WebGlBufferData, WebGlVertexData, WebGlConstants } from "../../Types";
+import {WebGlAttributeActivateOptions, WebGlBufferInfo, WebGlShader, WebGlVertexArrays, WebGlVertexArrayData, WebGlRenderer, WebGlBufferData, WebGlVertexData, WebGlConstants } from "../../Types";
 
 
-let ext;
 
-export const createVertexArrays = ({renderer, program, getAttributeLocation}:{renderer:WebGlRenderer, program: WebGLProgram, getAttributeLocation: (aName:string) => number}) => {
+export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRenderer, getAttributeLocation: (aName:string) => number}) => {
   const _cache = new Map<Symbol, any>();
   const {gl, version} = renderer;
   let currentSym:Symbol;
+    let ext;
 
   const _create = ():any => {
     if(version === 1) {
@@ -44,7 +44,7 @@ export const createVertexArrays = ({renderer, program, getAttributeLocation}:{re
     _bind(_cache.get(sym));
   }
 
-  const assign = (sym:Symbol) => (v:WebGlVertexArray):void => {
+  const assign = (sym:Symbol) => (v:WebGlVertexArrayData):void => {
       activate(sym);
 
       if(v.elementBufferId) {
@@ -80,3 +80,7 @@ export const createVertexArrays = ({renderer, program, getAttributeLocation}:{re
 
   return {activate, release, assign}
 }
+
+
+export const createVertexArraysForShader = ({renderer, shader}:{renderer:WebGlRenderer, shader:WebGlShader}) =>
+    createVertexArrays({renderer, getAttributeLocation: shader.attributes.getLocation})

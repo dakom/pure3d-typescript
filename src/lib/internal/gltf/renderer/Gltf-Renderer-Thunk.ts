@@ -1,6 +1,6 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
-import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlVertexArray, WebGlShader } from '../../../Types';
+import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
 import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIbl, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
@@ -16,9 +16,9 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     const {material, drawMode, shaderKind} = primitive;
     
-    const { uniforms, vertexArrays, attributes, shaderId } = data.shaders.get(primitive.shaderIdLookup);
+    const { uniforms, attributes, shaderId } = data.shaders.get(primitive.shaderId);
     const { uniform1i, uniform1f, uniform1fv, uniform1iv, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv } = uniforms.setters;
-    const vaoId = data.vaoIds.get(primitive.vaoIdLookup);
+    const vaoId = data.attributes.vaoIdLookup.get(primitive.vaoId);
 
     let samplerIndex = 0;
 
@@ -154,7 +154,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Draw
     */
 
-    vertexArrays.activate(vaoId);
+    data.attributes.vertexArrays.activate(vaoId);
 
     if(primitive.drawKind === GltfPrimitiveDrawKind.ELEMENTS) {
       const elementsAccessor = gltf.accessors[primitive.elementsId];
@@ -165,5 +165,5 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
       gl.drawArrays(drawMode, 0, primitive.arrayCount);
     }
 
-    vertexArrays.release();
+    data.attributes.vertexArrays.release();
 }

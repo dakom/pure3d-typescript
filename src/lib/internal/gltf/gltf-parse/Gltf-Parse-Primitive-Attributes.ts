@@ -1,8 +1,9 @@
-import { WebGlShader, WebGlVertexArray } from '../../../Types';
+import { WebGlShader, WebGlVertexArrayData } from '../../../Types';
 
 import { GLTF_ORIGINAL_MeshPrimitive, GltfData } from '../../../Types';
 
 let _vaoIdCounter = 0;
+
 
 const attributeShaderNameLookup = {
   "POSITION": "a_Position",
@@ -12,6 +13,8 @@ const attributeShaderNameLookup = {
   "COLOR_0": "a_Color"
 }
 
+//Sorting the attributes is important so that the dynamic shader
+//matches the correct location for each morph (e.g. morph_1 is position and location x, etc.)
 export const GLTF_PARSE_sortPrimitiveAttributeKeys = (keys: Array<string>): Array<string> =>
   keys.sort((a, b) => {
     if (a === b) {
@@ -32,16 +35,15 @@ export const GLTF_PARSE_primitiveHasAttribute = (attributeName: string) => (orig
 export const GLTF_PARSE_getPrimitiveAttributeKeys = (originalPrimitive: GLTF_ORIGINAL_MeshPrimitive): Array<string> =>
   GLTF_PARSE_sortPrimitiveAttributeKeys(Object.keys(originalPrimitive.attributes));
 
-export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, shaderIdLookup }: { originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, data: GltfData, shaderIdLookup:number }) => {
-  const vao = { data: [] } as WebGlVertexArray;
-
-  const shader = data.shaders.get(shaderIdLookup);
-  const vertexArrays = shader.vertexArrays;
+export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }: { originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, data: GltfData }) => {
+  const vao = { data: [] } as WebGlVertexArrayData;
+    
+    const accessorLookup = data.attributes.accessorLookup;
 
   if (originalPrimitive.indices !== undefined) {
     //console.log("elements", data.accessors.get(originalPrimitive.indices).values);
 
-    vao.elementBufferId = data.attributes.get(originalPrimitive.indices).rendererBufferId;
+    vao.elementBufferId = accessorLookup.get(originalPrimitive.indices).rendererBufferId;
   }
 
   const attributeKeys = GLTF_PARSE_getPrimitiveAttributeKeys(originalPrimitive);
@@ -50,16 +52,12 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
     
     const accessorId = originalPrimitive.attributes[attributeKey];
     const attributeName = attributeShaderNameLookup[attributeKey];
-
-    if(shader.attributes.getLocation(attributeName) !== -1) {
-      vao.data.push({
+      
+    vao.data.push({
         attributeName,
-        bufferId: data.attributes.get(accessorId).rendererBufferId,
-        ...data.attributes.get(accessorId).strategy
-      });
-    } else {
-        console.warn(attributeName, " is -1 (this is fine if it's due to a vertex attr not being used in fragment)");
-    }
+        bufferId: accessorLookup.get(accessorId).rendererBufferId,
+        ...accessorLookup.get(accessorId).strategy
+    });
 
   });
 
@@ -75,8 +73,8 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
         
         vao.data.push({
           attributeName: aMorph,
-          bufferId: data.attributes.get(accessorId).rendererBufferId,
-          ...data.attributes.get(accessorId).strategy
+          bufferId: accessorLookup.get(accessorId).rendererBufferId,
+          ...accessorLookup.get(accessorId).strategy
         });
       });
     });
@@ -85,12 +83,11 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data, 
   
   //vao.data.forEach(({attributeName}) => console.log(attributeName, shader.attributes.getLocation(attributeName)));
 
-  const vaoIdLookup = _vaoIdCounter++;
+  const vaoId = _vaoIdCounter++;
   const sym = Symbol();
-  data.vaoIds.set(vaoIdLookup, sym);
+  data.attributes.vaoIdLookup.set(vaoId, sym); 
+  data.attributes.vertexArrays.assign(sym)(vao);
+  data.attributes.vertexArrays.release();
 
-  vertexArrays.assign(sym)(vao);
-  vertexArrays.release();
-
-  return vaoIdLookup;
+  return vaoId;
 }
