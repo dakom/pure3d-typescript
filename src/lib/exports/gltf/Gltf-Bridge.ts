@@ -16,6 +16,7 @@ import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
+import {Gltf_GenerateShader} from "../../internal/gltf/shaders/Gltf-Generate-Shader";
 
 import {
 WebGlRenderer,
@@ -74,7 +75,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     let _allNodes:Array<GltfNode>;
     let _data: GltfData;
-
     const loadFile = (path:string) => 
         fetchArrayBufferUrl(path).map(GLTF_PARSE_getOriginalFromArrayBuffer)
 
@@ -86,14 +86,11 @@ function createGltfBridge(renderer:WebGlRenderer) {
         const data = GLTF_PARSE_CreateData({
             gltf, 
             renderer,
-            assets        
-        });
-
-        const primitives = GLTF_PARSE_createPrimitives({
-            renderer, 
-            data,
+            assets,
             config
         });
+
+        const primitives = GLTF_PARSE_createPrimitives({ renderer, data });
 
         _data = data;
         _allNodes = GLTF_PARSE_getNodes({gltf, primitives, data});
@@ -103,7 +100,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     const renderScene = (scene:GltfScene) => {
 
-        const renderThunks = new Map<number, Array<() => void>>();
+        const renderThunksByShader = new Map<Symbol, Array<() => void>>();
         const meshList = new Array<GltfMeshNode>();
         const lightList = new Array<LightNode>();
         const addToRenderList = (list:Array<any>) => (pred:((n:GltfNode) => boolean)) => (node:GltfNode) => {
@@ -127,27 +124,37 @@ function createGltfBridge(renderer:WebGlRenderer) {
             )
         );
 
-
+         
         meshList.forEach(node => 
             node.primitives.forEach(primitive => {
-                if (!renderThunks.has(primitive.shaderId)) {
-                    renderThunks.set(primitive.shaderId, []);
+                const shaderMeta = Gltf_GenerateShader({ 
+                    renderer, 
+                    lightList,
+                    scene,
+                    data: _data, 
+                    primitive 
+                });
+                
+                if (!renderThunksByShader.has(shaderMeta.shader.shaderId)) {
+                    renderThunksByShader.set(shaderMeta.shader.shaderId, []);
                 }
 
-                renderThunks
-                    .get(primitive.shaderId)
+                renderThunksByShader
+                    .get(shaderMeta.shader.shaderId)
                     .push(createRendererThunk({ 
                         renderer,
                         data: _data,
                         node,
                         primitive,
                         lightList,
-                        scene
+                        scene,
+                        shaderMeta
                     }));
             })
         );
 
-        renderThunks.forEach(thunks => thunks.forEach(fn => fn()));
+        renderThunksByShader.forEach(thunks => thunks.forEach(fn => fn()));
+
     }
 
     const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {

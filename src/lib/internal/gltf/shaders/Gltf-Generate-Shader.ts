@@ -1,23 +1,35 @@
 import {
+    GltfIbl,
+    GltfMeshNode,
+    OrthographicCameraSettings,
+    BaseCamera,
+    CameraNode,
+    PerspectiveCameraSettings,
+    AmbientLight,
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_Material,
     GLTF_ORIGINAL_MeshPrimitive,
     GltfData,
+    GltfShaderMeta,
     GltfInitConfig,
     GltfShaderKind,
     WebGlRenderer,
     WebGlBufferInfo,
-    WebGlBufferData
+    WebGlBufferData,
+    WebGlAttributeActivateOptions,
+    LightNode,
+    GltfScene,
+    GltfPrimitive
 } from '../../../Types';
-import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from './Gltf-Parse-Primitive-Attributes';
-import {GLTF_PARSE_primitiveIsUnlit} from "./extensions/unlit/Gltf-Parse-Extensions-Unlit";
+import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
+import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
 
-import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "./Gltf-Parse-Data-Attributes";
+import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 
-import vertexShader from "../shaders/Gltf-Shader-Vertex.glsl";
-import pbrFragmentShader from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
-import unlitFragmentShader from "../shaders/Gltf-Unlit-Shader-Fragment.glsl";
+import vertexShader from "./Gltf-Shader-Vertex.glsl";
+import pbrFragmentShader from "./Gltf-Pbr-Shader-Fragment.glsl";
+import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
 const PbrDefines = [
     //vertex
@@ -54,7 +66,10 @@ const hasAttribute = (gltf:GLTF_ORIGINAL) => (attr: string): boolean => {
     return flag;
 }
 
-const getDefines = ({ config, shaderKind, gltf, originalPrimitive, data }: { gltf: GLTF_ORIGINAL, data: GltfData, shaderKind: GltfShaderKind, config: GltfInitConfig, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive }): Array<string> => {
+const getDefines = ({ shaderKind, originalPrimitive, data }: { data: GltfData, shaderKind: GltfShaderKind, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive }): Array<string> => {
+
+    const gltf = data.original;
+    const config = data.config;
 
     const hasMaterial = (pred: ((m: GLTF_ORIGINAL_Material) => boolean)): boolean =>
         gltf.materials && gltf.materials.length
@@ -135,18 +150,26 @@ const setAttributeLocations = gl => program => {
         });
     }
 
-let _shaderIdCounter = 0;
-const _shaderLookup = new Map<string, number>();
 
-export const GLTF_PARSE_getPrimitiveShaderId = ({renderer, config, gltf, data, originalPrimitive }: { gltf: GLTF_ORIGINAL, data:GltfData, config: GltfInitConfig, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, renderer: WebGlRenderer }) => {
+export const Gltf_GenerateShader = 
+    ({renderer, lightList, scene, data, primitive}: 
+    { 
+        lightList: Array<LightNode>;
+        scene: GltfScene;
+        data:GltfData, 
+        renderer: WebGlRenderer,
+        primitive: GltfPrimitive    
+    }) => {
+
+    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
 
     const shaderKind:GltfShaderKind = 
-        GLTF_PARSE_primitiveIsUnlit({gltf, originalPrimitive})
+        GLTF_PARSE_primitiveIsUnlit({gltf: data.original, originalPrimitive})
         ? GltfShaderKind.PBR_UNLIT
         : GltfShaderKind.PBR
 
 
-    const definesList = getDefines({config, data, shaderKind, gltf, originalPrimitive})
+    const definesList = getDefines({data, shaderKind, originalPrimitive})
 
 
     const vertexShaderSource = vertexShader; 
@@ -164,23 +187,27 @@ export const GLTF_PARSE_getPrimitiveShaderId = ({renderer, config, gltf, data, o
     const shaderSource = vertex + fragment;
 
 
-    if (!_shaderLookup.has(shaderSource)) {
-                    const shader = createShader({
-                        shaderId: Symbol(),
-                        renderer,
-                        interruptHandler: setAttributeLocations,
-                        source: { vertex, fragment }
-                    });
+    
+    if (!data.shaders.has(shaderSource)) {
+        const shader = createShader({
+            shaderId: Symbol(),
+            renderer,
+            interruptHandler: setAttributeLocations,
+            source: { vertex, fragment }
+        });
 
-                    data.shaders.set(_shaderIdCounter, shader);
-                    _shaderLookup.set(shaderSource, _shaderIdCounter);
-                    _shaderIdCounter++;
-                    console.log(`new shader compiled`);
-                } else {
-                    console.log(`nice! re-using existing shader`);
-                }
+        const meta = {
+            kind: shaderKind,
+            shader
+        }
+        data.shaders.set(shaderSource, meta);
+        //console.log(`new shader compiled`);
+    } else {
+        //console.log(`nice! re-using existing shader`);
+    }
 
-     const shaderId = _shaderLookup.get(shaderSource);
+    const shaderMeta = data.shaders.get(shaderSource);
 
-    return {shaderId, shaderKind};
+
+    return shaderMeta;
 }
