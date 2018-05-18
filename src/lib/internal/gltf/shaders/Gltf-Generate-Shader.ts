@@ -10,7 +10,7 @@ import {
     GLTF_ORIGINAL_Material,
     GLTF_ORIGINAL_MeshPrimitive,
     GltfData,
-    GltfShaderMeta,
+    GltfShaderConfig,
     GltfInitConfig,
     GltfShaderKind,
     WebGlRenderer,
@@ -150,15 +150,32 @@ const setAttributeLocations = gl => program => {
         });
     }
 
+export const Gltf_GetInitialShaderConfig = ({data, primitive}:{data: GltfData, primitive: GltfPrimitive}):GltfShaderConfig => {
+
+    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
+
+    const kind:GltfShaderKind = 
+        GLTF_PARSE_primitiveIsUnlit({gltf: data.original, originalPrimitive})
+        ? GltfShaderKind.PBR_UNLIT
+        : GltfShaderKind.PBR
+
+    return {kind}
+}
+
+export const Gltf_GetRuntimeShaderConfig = (config:GltfShaderConfig):GltfShaderConfig => {
+    
+    return config
+}
 
 export const Gltf_GenerateShader = 
-    ({renderer, lightList, scene, data, primitive}: 
+    ({renderer, lightList, shaderConfig, scene, data, primitive}: 
     { 
         lightList: Array<LightNode>;
         scene: GltfScene;
         data:GltfData, 
         renderer: WebGlRenderer,
-        primitive: GltfPrimitive    
+        primitive: GltfPrimitive,
+        shaderConfig: GltfShaderConfig
     }) => {
 
     const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
@@ -196,18 +213,14 @@ export const Gltf_GenerateShader =
             source: { vertex, fragment }
         });
 
-        const meta = {
-            kind: shaderKind,
-            shader
-        }
-        data.shaders.set(shaderSource, meta);
+        data.shaders.set(shaderSource, shader);
         //console.log(`new shader compiled`);
     } else {
         //console.log(`nice! re-using existing shader`);
     }
 
-    const shaderMeta = data.shaders.get(shaderSource);
+    const shader = data.shaders.get(shaderSource);
 
 
-    return shaderMeta;
+    return shader;
 }

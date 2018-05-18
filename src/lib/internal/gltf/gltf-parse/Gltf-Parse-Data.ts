@@ -1,6 +1,6 @@
 import { Future, parallel } from 'fluture';
 import { fetchArrayBufferUrl, fetchImage, loadImageFromArrayBuffer } from 'fluture-loaders';
-import { GltfInitConfig, GltfShaderMeta, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
+import { GltfInitConfig, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
 
 import { GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
 import { prepWebGlRenderer } from '../init/Gltf-Init';
@@ -68,7 +68,7 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer, config }: { conf
     const textures = GLTF_PARSE_createTextures({ renderer, gltf, imageElements });
     const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
     const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
-    const shaders = new Map<string, GltfShaderMeta>();
+    const shaders = new Map<string, WebGlShader>();
 
     return GltfExtensions
         .map(ext => ext.createData)

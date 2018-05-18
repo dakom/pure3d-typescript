@@ -9,6 +9,7 @@ import {
     GltfDataAssets,
     CameraNode,
     WebGlRenderer,
+    GltfShaderConfig
 } from "../../../Types"; 
 import {Future} from "fluture";
 
@@ -17,4 +18,6 @@ export interface GLTF_PARSE_Extension {
     createData : ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData) => GltfData;
     createScene : (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene) => GltfScene;
     createNode : (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode) => GltfNode;
+    setInitialShaderConfig: (data:GltfData) => (config:GltfShaderConfig) => GltfShaderConfig;
+    setRuntimeShaderConfig: (data:GltfData) => (config:GltfShaderConfig) => GltfShaderConfig;
 }

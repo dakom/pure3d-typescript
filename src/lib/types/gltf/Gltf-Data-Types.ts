@@ -1,4 +1,4 @@
-import {WebGlAttributeActivateOptions, GltfInitConfig, GltfShaderMeta, WebGlVertexArrays, GltfIblData, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
+import {WebGlAttributeActivateOptions, GltfInitConfig, WebGlVertexArrays, GltfIblData, GltfIblDataAssets, WebGlShader, GLTF_ORIGINAL, GltfAnimationData, NumberArray} from "../../Types";
 
 export interface GltfDataAssets {
     buffers: Array<ArrayBuffer>
@@ -13,7 +13,7 @@ export interface GltfData {
     animations: Array<GltfAnimationData>;
     attributes: GltfAttributes;
     textures: Map<number, WebGLTexture>;
-    shaders: Map<string, GltfShaderMeta>;
+    shaders: Map<string, WebGlShader>;
     config: GltfInitConfig;
     extensions: {
         ibl?: GltfIblData;

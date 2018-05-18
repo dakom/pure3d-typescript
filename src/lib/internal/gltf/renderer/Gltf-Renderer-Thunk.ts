@@ -6,7 +6,7 @@ import { Future } from "fluture";
 import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIbl, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
-    const {renderer, data, node, primitive, lightList, scene, shaderMeta} = thunk;
+    const {renderer, data, node, primitive, lightList, scene, shaderConfig, shader} = thunk;
     const {camera} = scene;
     
     const { gl } = renderer;    
@@ -16,7 +16,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     const {material, drawMode} = primitive;
     
-    const { uniforms, attributes, shaderId } = shaderMeta.shader; 
+    const { uniforms, attributes, shaderId } = shader; 
     const { uniform1i, uniform1f, uniform1fv, uniform1iv, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv } = uniforms.setters;
     const vaoId = data.attributes.vaoIdLookup.get(primitive.vaoId);
 
@@ -28,7 +28,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Set the IBL uniforms
     */
 
-    if(shaderMeta.kind === GltfShaderKind.PBR && scene.extensions.ibl) {
+    if(shaderConfig.kind === GltfShaderKind.PBR && scene.extensions.ibl) {
       renderer.switchTexture(samplerIndex)(data.extensions.ibl.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   

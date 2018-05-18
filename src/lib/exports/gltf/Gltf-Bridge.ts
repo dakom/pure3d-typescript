@@ -16,7 +16,7 @@ import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
-import {Gltf_GenerateShader} from "../../internal/gltf/shaders/Gltf-Generate-Shader";
+import {Gltf_GetInitialShaderConfig, Gltf_GetRuntimeShaderConfig, Gltf_GenerateShader} from "../../internal/gltf/shaders/Gltf-Generate-Shader";
 
 import {
 WebGlRenderer,
@@ -127,20 +127,26 @@ function createGltfBridge(renderer:WebGlRenderer) {
          
         meshList.forEach(node => 
             node.primitives.forEach(primitive => {
-                const shaderMeta = Gltf_GenerateShader({ 
+                //TODO move the initial part outside of tick
+                const shaderConfig = 
+                    Gltf_GetRuntimeShaderConfig(Gltf_GetInitialShaderConfig({data: _data, primitive}));
+
+
+                const shader = Gltf_GenerateShader({ 
                     renderer, 
                     lightList,
                     scene,
                     data: _data, 
-                    primitive 
+                    primitive,
+                    shaderConfig
                 });
                 
-                if (!renderThunksByShader.has(shaderMeta.shader.shaderId)) {
-                    renderThunksByShader.set(shaderMeta.shader.shaderId, []);
+                if (!renderThunksByShader.has(shader.shaderId)) {
+                    renderThunksByShader.set(shader.shaderId, []);
                 }
 
                 renderThunksByShader
-                    .get(shaderMeta.shader.shaderId)
+                    .get(shader.shaderId)
                     .push(createRendererThunk({ 
                         renderer,
                         data: _data,
@@ -148,7 +154,8 @@ function createGltfBridge(renderer:WebGlRenderer) {
                         primitive,
                         lightList,
                         scene,
-                        shaderMeta
+                        shaderConfig,
+                        shader
                     }));
             })
         );
