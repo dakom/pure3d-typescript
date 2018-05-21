@@ -1,5 +1,9 @@
 %MORPH_VARS%
 
+#ifdef USE_LIGHTING
+%LIGHTING_VARS%
+#endif
+
 attribute vec4 a_Position;
 #ifdef HAS_NORMALS
 attribute vec4 a_Normal;
@@ -45,6 +49,10 @@ void main()
   #endif
 
   %MORPH_FUNCS%
+
+    #ifdef USE_LIGHTING
+    %LIGHTING_FUNCS%
+    #endif
 
   vec4 pos = u_ModelMatrix * m_Position;
   v_Position = vec3(pos.xyz) / pos.w;

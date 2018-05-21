@@ -15,7 +15,7 @@ console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; fo
 const _Demo = props => (
     <Demo 
         menuOptions={{
-                ibl: true,
+                ibl: false,//true,
                 lights: true
         }}
        

@@ -58,19 +58,24 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     */
 
 
+   
+    if(scene.light) {
+        //TODO set uniform, should be in ifdef for lighting
+    }
+
     lightList.forEach(lightNode => {
         const {light} = lightNode;
 
+
         //TODO - allow multiple lights, point lights, etc.
-        if(light.kind === LightKind.Directional) {
+        if(light.kind === LightKind.Spot) {
+
+            //console.log("SPOT");
 
             //uniform3fv("u_LightDirection")(light.);
             //uniform3fv("u_LightColor")(light.color);
         }
     })
-
-   
-
     
     /*
       Set the transform uniforms

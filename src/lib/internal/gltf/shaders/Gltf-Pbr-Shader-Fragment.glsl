@@ -1,3 +1,7 @@
+#ifdef USE_LIGHTING
+%LIGHTING_VARS%
+#endif
+
 //
 // This fragment shader defines a reference implementation for Physically Based Shading of
 // a microfacet surface material defined by a glTF model.
@@ -317,6 +321,9 @@ void main()
     color += emissive;
 #endif
 
+#ifdef USE_LIGHTING
+%LIGHTING_FUNCS%
+#endif
     // This section uses mix to override final color for reference app visualization
     // of various parameters in the lighting equation.
     color = mix(color, F, u_ScaleFGDSpec.x);

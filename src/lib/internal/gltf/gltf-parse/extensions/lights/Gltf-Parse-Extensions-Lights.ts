@@ -1,3 +1,8 @@
+
+   /* Note - lights are different than other extensions since 
+    * they are passed around really as part of the scene, for the sake of convenience (rather than scene.extensions for ambient, or hunting for nodes with extensions.light - lights are first-class citizens
+    * For this reason, it is possible to "trick" the shader config by specifying the scene data directly rather than auto-loading it via KHR_Lights, though that typically wouldn't be used
+    */
 import {
     WebGlConstants,
     WebGlRenderer,
@@ -145,14 +150,6 @@ const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPri
 
 const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
 
-    //Question... at this point the lighting info does not come from
-    //Extensions... is that right, e.g. extensions flatten info into regular
-    //Scene info but then the shaders are adjusted via reading that regular info?
-    //In other words - if something other than the extension set this info
-    //The situation will be that the extension will still be setting based on that
-    //This might actually be ideal since then extensions can be triggered more
-    //dynamically
-    
     let nPointLights = 0;
     let nDirectionalLights = 0;
     let nSpotLights = 0;
@@ -197,12 +194,35 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
     );
 }
 
+const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => {
+
+    let LIGHTING_VARS = '';
+    let LIGHTING_FUNCS = '';
+
+    return vs.replace("%LIGHTING_VARS%", LIGHTING_VARS).replace("%LIGHTING_FUNCS%", LIGHTING_FUNCS); 
+}
+
+const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string => {
+
+    let LIGHTING_VARS = '';
+    let LIGHTING_FUNCS = '';
+
+    return fs.replace("%LIGHTING_VARS%", LIGHTING_VARS).replace("%LIGHTING_FUNCS%", LIGHTING_FUNCS); 
+}
+
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
 
     if(primitive.shaderConfig.extensions.lights) {
-        console.log("TODO: SETUP SHADER SOURCE FOR LIGHTS!");
-        console.log(primitive.shaderConfig.extensions.lights);
-        return source;
+        const defines = [];
+
+        defines.push("USE_LIGHTING");
+
+
+        const defineString = defines.map(value => `#define ${value} 1\n`).join('');
+        return Object.assign({}, source, {
+            vertex: getDynamicVertexShader(primitive) (defineString + source.vertex),
+            fragment: getDynamicFragmentShader (primitive) (defineString + source.fragment)
+        })
     } else {
         return source;
     }
