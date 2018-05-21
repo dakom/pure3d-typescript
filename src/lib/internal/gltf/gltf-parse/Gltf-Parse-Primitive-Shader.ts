@@ -50,6 +50,50 @@ export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfDat
             )
         });
 
+const getHashKey = (config:GltfShaderConfig):string => {
+    let hashKey = "";
+
+    hashKey += config.hasNormalAttributes ? "1" : "0";
+    hashKey += config.hasTangentAttributes ? "1" : "0";
+    hashKey += config.hasUvAttributes ? "1" : "0";
+    hashKey += config.hasColorAttributes ? "1" : "0";
+    hashKey += config.hasBaseColorMap ? "1" : "0";
+    hashKey += config.hasNormalMap ? "1" : "0";
+    hashKey += config.hasEmissiveMap ? "1" : "0";
+    hashKey += config.hasMetalRoughnessMap ? "1" : "0";
+    hashKey += config.hasOcclusionMap ? "1" : "0";
+    hashKey += config.manualSRGB ? "1" : "0";
+    hashKey += config.fastSRGB ? "1" : "0";
+
+    if(config.extensions.ibl) {
+        hashKey += "1";
+        hashKey += config.extensions.ibl.useLod ? "1" : "0";
+    } else {
+        hashKey += "00";
+    }
+
+    if(config.extensions.lights) {
+        hashKey += "1";
+        hashKey += config.extensions.lights.hasAmbient ? "1" : "0";
+        hashKey += "-";
+        hashKey += config.extensions.lights.nDirectionalLights.toString();
+        hashKey += "-";
+        hashKey += config.extensions.lights.nPointLights.toString();
+        hashKey += "-";
+        hashKey += config.extensions.lights.nSpotLights.toString();
+    } else {
+        hashKey += "00-0-0-0";
+    }
+
+    if(config.extensions.unlit) {
+        hashKey += "1";
+    } else {
+        hashKey += "0";
+    }
+
+    return hashKey;
+}
+
 export const generateShader = 
     ({renderer, data, primitive}: 
     { 
@@ -57,12 +101,10 @@ export const generateShader =
         renderer: WebGlRenderer,
         primitive: GltfPrimitive,
     }) => {
-
-        const strLookup = JSON.stringify(primitive.shaderConfig);
-   
-    //change to check against primitive.shaderConfig, and compile from getShaderSource
     
-    if (!data.shaders.has(strLookup)) {
+    const hashKey = getHashKey(primitive.shaderConfig);
+
+    if (!data.shaders.has(hashKey)) {
         const source = getShaderSource({data, primitive});
 
         const shader = createShader({
@@ -72,13 +114,13 @@ export const generateShader =
             source,
         });
 
-        data.shaders.set(strLookup, shader);
+        data.shaders.set(hashKey, shader);
         //console.log(`new shader compiled`);
     } else {
         //console.log(`nice! re-using existing shader`);
     }
 
-    const shader = data.shaders.get(strLookup);
+    const shader = data.shaders.get(hashKey);
 
 
     return shader;
@@ -111,15 +153,6 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
     }
 
     return shaderConfig;
-
-            //case "USE_IBL": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.brdf !== undefined;
-            /*    
-            case "USE_TEX_LOD": return (
-                    shaderKind !== GltfShaderKind.PBR_UNLIT 
-                    && data.extensions.ibl 
-                    && data.extensions.ibl.useLod 
-            );
-            */
 }
 
 const getCoreRuntimeShaderConfig = ({data, scene, primitive}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}): GltfShaderConfig => {
@@ -227,9 +260,6 @@ const getCoreVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (
 
 const getCoreFragmentShader = (fs:string):string => 
     fs;
-
-
-
 
 const getShaderSource = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}): WebGlShaderSource => 
     GltfExtensions

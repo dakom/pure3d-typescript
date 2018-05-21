@@ -3,6 +3,10 @@ import {NumberArray} from "../../../common/array/Array-Types";
 export const GltfLightsExtensionName = "KHR_lights";
 
 export interface GltfLightsShaderConfig {
+    nPointLights: number;
+    nDirectionalLights: number;
+    nSpotLights: number;
+    hasAmbient: boolean;
 }
 
 export interface GLTF_PARSE_Extension_Lights_Config {

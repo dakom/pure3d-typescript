@@ -132,6 +132,8 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
         return [
             (frameTs:number) => {
 
+                scene = bridge.updateShaderConfigs(scene);
+
                 scene = Object.assign({}, scene, {
                     camera: updateCamera(controls) (scene.camera), 
                     nodes: updateNodeListTransforms ({

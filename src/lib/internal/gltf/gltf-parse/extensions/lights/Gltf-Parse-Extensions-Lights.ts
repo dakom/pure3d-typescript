@@ -8,6 +8,7 @@ import {
     GLTF_ORIGINAL_Scene,
     GltfData,
     GltfShaderConfig,
+    GltfLightsShaderConfig,
     GltfPrimitive,
     WebGlShaderSource,
     CameraNode,
@@ -143,11 +144,68 @@ const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPri
 }
 
 const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
-    return shaderConfig;
+
+    //Question... at this point the lighting info does not come from
+    //Extensions... is that right, e.g. extensions flatten info into regular
+    //Scene info but then the shaders are adjusted via reading that regular info?
+    //In other words - if something other than the extension set this info
+    //The situation will be that the extension will still be setting based on that
+    //This might actually be ideal since then extensions can be triggered more
+    //dynamically
+    
+    let nPointLights = 0;
+    let nDirectionalLights = 0;
+    let nSpotLights = 0;
+    let hasAmbient = scene.light ? true : false;
+
+    scene.nodes.forEach(node => {
+        if(node.kind === NodeKind.LIGHT) {
+            switch(node.light.kind) {
+                case LightKind.Ambient:
+                    hasAmbient = true;
+                    break;
+                case LightKind.Directional:
+                    nDirectionalLights++;
+                    break;
+                case LightKind.Point:
+                    nPointLights++;
+                    break;
+                case LightKind.Spot:
+                    nSpotLights++;
+                    break;
+            }
+        }
+    });
+
+   
+    const config:GltfLightsShaderConfig = {
+        nPointLights,
+        nDirectionalLights,
+        nSpotLights,
+        hasAmbient
+    }
+
+
+    return Object.assign({}, shaderConfig, 
+        {
+            extensions: Object.assign({}, shaderConfig.extensions, 
+                {
+                    lights: config
+                }
+            )
+        }
+    );
 }
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
-    return source;
+
+    if(primitive.shaderConfig.extensions.lights) {
+        console.log("TODO: SETUP SHADER SOURCE FOR LIGHTS!");
+        console.log(primitive.shaderConfig.extensions.lights);
+        return source;
+    } else {
+        return source;
+    }
 }
 export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
     loadAssets,
