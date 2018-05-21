@@ -36,7 +36,7 @@ export interface GltfIblData {
 
 
 //Scene
-export interface GltfIbl {
+export interface GltfIblScene {
   scaleDiffBaseMR: NumberArray;
   scaleFGDSpec: NumberArray;
   scaleIBLAmbient: NumberArray;

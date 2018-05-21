@@ -1,4 +1,4 @@
-import {WebGlRenderer, GltfData, GltfShaderConfig, WebGlShader, GltfMeshNode, GltfScene, GltfPrimitive, LightNode, GltfIbl, Camera} from "../../Types";
+import {WebGlRenderer, GltfData, GltfShaderConfig, WebGlShader, GltfMeshNode, GltfScene, GltfPrimitive, LightNode, GltfIblScene, Camera} from "../../Types";
 
 
 export interface GltfRendererThunk {
@@ -8,7 +8,6 @@ export interface GltfRendererThunk {
     primitive: GltfPrimitive;
     lightList: Array<LightNode>;
     scene: GltfScene;
-    shaderConfig: GltfShaderConfig;
-    shader: WebGlShader;
+    shaderInfo: {config: GltfShaderConfig, shader: WebGlShader }
 }
 

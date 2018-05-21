@@ -79,7 +79,7 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer, config }: { conf
             attributes,
             textures,
             shaders,
-            config,
+            initConfig: config,
             extensions: {}
         }
     );

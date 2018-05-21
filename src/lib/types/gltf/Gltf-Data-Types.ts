@@ -14,7 +14,7 @@ export interface GltfData {
     attributes: GltfAttributes;
     textures: Map<number, WebGLTexture>;
     shaders: Map<string, WebGlShader>;
-    config: GltfInitConfig;
+    initConfig: GltfInitConfig;
     extensions: {
         ibl?: GltfIblData;
     }

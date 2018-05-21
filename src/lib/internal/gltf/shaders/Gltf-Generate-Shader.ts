@@ -1,5 +1,5 @@
 import {
-    GltfIbl,
+    GltfIblScene,    
     GltfMeshNode,
     OrthographicCameraSettings,
     BaseCamera,
@@ -12,102 +12,133 @@ import {
     GltfData,
     GltfShaderConfig,
     GltfInitConfig,
-    GltfShaderKind,
     WebGlRenderer,
     WebGlBufferInfo,
     WebGlBufferData,
     WebGlAttributeActivateOptions,
     LightNode,
     GltfScene,
-    GltfPrimitive
+    GltfPrimitive,
+    WebGlShaderSource
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
 import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
 
+import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
+
 import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 
-import vertexShader from "./Gltf-Shader-Vertex.glsl";
-import pbrFragmentShader from "./Gltf-Pbr-Shader-Fragment.glsl";
-import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
+import vertexShaderSource from "./Gltf-Shader-Vertex.glsl";
+import fragmentShaderSource from "./Gltf-Pbr-Shader-Fragment.glsl";
+//import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
-const PbrDefines = [
-    //vertex
-    "HAS_NORMALS",
-    "HAS_TANGENTS",
-    "HAS_UV",
-
-    //fragment
-    "USE_IBL",
-    "HAS_COLOR",
-    "HAS_BASECOLORMAP",
-    "HAS_NORMALMAP",
-    "HAS_EMISSIVEMAP",
-    "HAS_METALROUGHNESSMAP",
-    "HAS_OCCLUSIONMAP",
-    "MANUAL_SRGB",
-    "SRGB_FAST_APPROXIMATION",
-    "USE_TEX_LOD",
-];
-
-const EmptyDefines = [
-
-]
-
-const hasAttribute = (gltf:GLTF_ORIGINAL) => (attr: string): boolean => {
-
-    let flag = false;
-
-    gltf.meshes.every(mesh => mesh.primitives.every((primitive: GLTF_ORIGINAL_MeshPrimitive) => {
-        flag = Object.keys(primitive.attributes).indexOf(attr) !== -1;
-        return !flag;
-    }));
-
-    return flag;
-}
-
-const getDefines = ({ shaderKind, originalPrimitive, data }: { data: GltfData, shaderKind: GltfShaderKind, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive }): Array<string> => {
-
+const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}):GltfShaderConfig => {
     const gltf = data.original;
-    const config = data.config;
 
-    const hasMaterial = (pred: ((m: GLTF_ORIGINAL_Material) => boolean)): boolean =>
-        gltf.materials && gltf.materials.length
-            ? gltf.materials.findIndex(pred) !== -1
-            : false;
+    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
 
+    const hasAttribute = (originalPrimitive: GLTF_ORIGINAL_MeshPrimitive) => (attr: string): boolean => 
+        Object.keys(originalPrimitive.attributes).indexOf(attr) !== -1;
 
+    const material = primitive.material;
     
-    return PbrDefines.filter(str => {
-        switch (str) {
-                //vertex
-            case "HAS_NORMALS": return hasAttribute (gltf) ("NORMAL");
-            case "HAS_TANGENTS": return hasAttribute (gltf) ("TANGENT");
-            case "HAS_UV": return hasAttribute (gltf) ("TEXCOORD_0");
+    const shaderConfig:GltfShaderConfig = {
+        hasNormalAttributes: hasAttribute (originalPrimitive) ("NORMAL"),
+        hasTangentAttributes: hasAttribute (originalPrimitive) ("TANGENT"),
+        hasUvAttributes: hasAttribute (originalPrimitive) ("TEXCOORD_0"),
 
-                //fragment
+        hasColorAttributes: hasAttribute(originalPrimitive) ("COLOR_0"),
+        hasBaseColorMap: material.baseColorSamplerIndex !== undefined,
+        hasNormalMap: material.normal !== undefined,
+        hasEmissiveMap: material.emissiveSamplerIndex !== undefined,
+        hasMetalRoughnessMap: material.metallicRoughnessSamplerIndex !== undefined,
+        hasOcclusionMap: material.occlusion !== undefined,
+        manualSRGB: data.initConfig.manualSRGB === true,
+        fastSRGB: data.initConfig.fastSRGB === true,
+        extensions: {}
+    }
 
-            case "USE_IBL": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.brdf !== undefined;
-            case "HAS_COLOR": return hasAttribute(gltf) ("COLOR_0");
-            case "HAS_BASECOLORMAP": return hasMaterial(material => material.pbrMetallicRoughness !== undefined && material.pbrMetallicRoughness.baseColorTexture !== undefined);
-            case "HAS_NORMALMAP": return hasMaterial(material => material.normalTexture !== undefined);
-            case "HAS_EMISSIVEMAP": return hasMaterial(material => material.emissiveTexture !== undefined);
-            case "HAS_METALROUGHNESSMAP": return hasMaterial(material => material.pbrMetallicRoughness !== undefined && material.pbrMetallicRoughness.metallicRoughnessTexture !== undefined);
-            case "HAS_OCCLUSIONMAP": return hasMaterial(material => material.occlusionTexture !== undefined);
-            case "MANUAL_SRGB": return config.manualSRGB === true;
-            case "SRGB_FAST_APPROXIMATION": return config.fastSRGB === true;
+    return shaderConfig;
+
+            //case "USE_IBL": return shaderKind !== GltfShaderKind.PBR_UNLIT && data.extensions.ibl && data.extensions.ibl.brdf !== undefined;
+            /*    
             case "USE_TEX_LOD": return (
                     shaderKind !== GltfShaderKind.PBR_UNLIT 
                     && data.extensions.ibl 
                     && data.extensions.ibl.useLod 
             );
-
-            default: return false;
-        }
-    });
+            */
 }
 
-const getDynamicVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (vs:string):string => {
+const getCoreRuntimeShaderConfig = ({data, scene, primitive}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}) => (config:GltfShaderConfig):GltfShaderConfig => {
+    return config;
+}
+
+
+const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfPrimitive }):WebGlShaderSource => {
+    const gltf = data.original;
+    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
+
+    const config = primitive.shaderConfig;
+
+    const defines = [];
+
+    if(config.hasNormalAttributes) {
+        defines.push("HAS_NORMALS");
+    }
+
+    if(config.hasTangentAttributes) {
+        defines.push("HAS_TANGENTS");
+    }
+
+    if(config.hasUvAttributes) {
+        defines.push("HAS_UV");
+    }
+
+    if(config.hasColorAttributes) {
+        defines.push("HAS_COLOR");
+    }
+
+    if(config.hasBaseColorMap) {
+        defines.push("HAS_BASECOLORMAP");
+    }
+
+    if(config.hasNormalMap) {
+        defines.push("HAS_NORMALMAP");
+    }
+
+    if(config.hasEmissiveMap) {
+        defines.push("HAS_EMISSIVEMAP");
+    }
+
+    if(config.hasMetalRoughnessMap) {
+        defines.push("HAS_METALROUGHNESSMAP");
+    }
+
+    if(config.hasOcclusionMap) {
+        defines.push("HAS_OCCLUSIONMAP");
+    }
+
+    if(config.manualSRGB) {
+        defines.push("MANUAL_SRGB");
+    }
+
+    if(config.fastSRGB) {
+        defines.push("SRGB_FAST_APPROXIMATION");
+    }
+
+    const defineString = defines.map(value => `#define ${value} 1\n`).join('');
+
+    const vertex = getCoreVertexShader (originalPrimitive) (defineString + vertexShaderSource);
+
+    const fragment = getCoreFragmentShader(defineString + fragmentShaderSource);
+
+    return {vertex, fragment}
+}
+
+
+const getCoreVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (vs:string):string => {
     const attributeKeys = GLTF_PARSE_getPrimitiveAttributeKeys(originalPrimitive);
     const {targets} = originalPrimitive;
     const shaderMorphVarLookup = {
@@ -143,67 +174,44 @@ const getDynamicVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) =
     return vs.replace("%MORPH_VARS%", MORPH_VARS).replace("%MORPH_FUNCS%", MORPH_FUNCS);
 }
 
-const setAttributeLocations = gl => program => {
-        GLTF_PARSE_attributeNames.forEach(aName => {
-            const location = GLTF_PARSE_getAttributeLocation(aName);
-            gl.bindAttribLocation(program, location, aName);
-        });
-    }
+const getCoreFragmentShader = (fs:string):string => 
+    fs;
 
-export const Gltf_GetInitialShaderConfig = ({data, primitive}:{data: GltfData, primitive: GltfPrimitive}):GltfShaderConfig => {
 
-    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
+//These need to be called via bridge/setup somehow
+export const getInitialPrimitiveShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}):GltfShaderConfig => 
+    GltfExtensions
+        .map(ext => ext.setInitialShaderConfig)
+        .reduce((acc, val) => (acc = val ({data, primitive}) (acc), acc), 
+            getCoreInitialShaderConfig({data, primitive})
+        );
 
-    const kind:GltfShaderKind = 
-        GLTF_PARSE_primitiveIsUnlit({gltf: data.original, originalPrimitive})
-        ? GltfShaderKind.PBR_UNLIT
-        : GltfShaderKind.PBR
+export const getRuntimePrimitiveShaderConfig = ({data, primitive, scene}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => 
+    GltfExtensions
+        .map(ext => ext.setRuntimeShaderConfig)
+        .reduce((acc, val) => (acc = val ({data, scene, primitive}) (acc), acc), 
+            getCoreRuntimeShaderConfig({data, scene, primitive}) (shaderConfig)
+        );
 
-    return {kind}
-}
-
-export const Gltf_GetRuntimeShaderConfig = (config:GltfShaderConfig):GltfShaderConfig => {
-    
-    return config
-}
+export const getShaderSource = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}): WebGlShaderSource => 
+    GltfExtensions
+        .map(ext => ext.getShaderSource)
+        .reduce((acc, val) => (acc = val ({data, primitive}) (acc), acc), 
+            getCoreShaderSource({data, primitive})
+        );
 
 export const Gltf_GenerateShader = 
-    ({renderer, lightList, shaderConfig, scene, data, primitive}: 
+    ({renderer, lightList, scene, data, primitive}: 
     { 
         lightList: Array<LightNode>;
         scene: GltfScene;
         data:GltfData, 
         renderer: WebGlRenderer,
         primitive: GltfPrimitive,
-        shaderConfig: GltfShaderConfig
     }) => {
 
-    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
-
-    const shaderKind:GltfShaderKind = 
-        GLTF_PARSE_primitiveIsUnlit({gltf: data.original, originalPrimitive})
-        ? GltfShaderKind.PBR_UNLIT
-        : GltfShaderKind.PBR
-
-
-    const definesList = getDefines({data, shaderKind, originalPrimitive})
-
-
-    const vertexShaderSource = vertexShader; 
-
-    const fragmentShaderSource = shaderKind === GltfShaderKind.PBR
-        ? pbrFragmentShader
-        : unlitFragmentShader; 
-
-    const defines = definesList.map(value => `#define ${value} 1\n`).join('');
-
-
-    const vertex = defines + getDynamicVertexShader(originalPrimitive) (vertexShaderSource);
-    const fragment = defines + fragmentShaderSource;
-
-    const shaderSource = vertex + fragment;
-
-
+   
+    //change to check against primitive.shaderConfig, and compile from getShaderSource
     
     if (!data.shaders.has(shaderSource)) {
         const shader = createShader({
@@ -224,3 +232,12 @@ export const Gltf_GenerateShader =
 
     return shader;
 }
+
+//For making sure attributes have the same number between shaders
+//Passed to the core WebGlShader creator
+const setAttributeLocations = gl => program => {
+        GLTF_PARSE_attributeNames.forEach(aName => {
+            const location = GLTF_PARSE_getAttributeLocation(aName);
+            gl.bindAttribLocation(program, location, aName);
+        });
+    }
