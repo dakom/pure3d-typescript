@@ -4,7 +4,7 @@ import { GltfData, GltfPrimitive, GltfInitConfig } from '../../../Types';
 import { GLTF_PARSE_createPrimitiveAttributes } from './Gltf-Parse-Primitive-Attributes';
 import { GLTF_PARSE_getPrimitiveDrawing } from './Gltf-Parse-Primitive-Drawing';
 import { GLTF_PARSE_createMaterialForPrimitive } from './Gltf-Parse-Primitive-Material';
-
+import {GLTF_PARSE_getInitialShaderConfig} from "./Gltf-Parse-Primitive-Shader";
 
 export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGlRenderer, data: GltfData}): Map<number, Array<GltfPrimitive>> => {
     const gltf = data.original;
@@ -23,7 +23,7 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
                 const mesh = gltf.meshes[node.mesh];
                 
 
-
+                
                 const primitive = {
                     originalMeshId: node.mesh,
                     originalPrimitiveId: primitiveIdx,
@@ -34,7 +34,8 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
                 if(originalPrimitive.material !== undefined) {
                     primitive.material = GLTF_PARSE_createMaterialForPrimitive({gltf, materialId: originalPrimitive.material, data});
                 }
-                
+               
+                primitive.shaderConfig = GLTF_PARSE_getInitialShaderConfig({data, primitive});
                 return primitive;
             }))
         );

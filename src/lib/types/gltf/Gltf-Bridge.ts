@@ -22,5 +22,6 @@ export interface GltfBridge {
             => Future<any, GltfDataAssets>;
     start: ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets,  config:GltfInitConfig})
             => void;
-    renderScene: (scene:GltfScene) => void; 
+    renderScene: (scene:GltfScene) => void;
+    updateShaderConfigs:  (scene:GltfScene) => GltfScene;
 }

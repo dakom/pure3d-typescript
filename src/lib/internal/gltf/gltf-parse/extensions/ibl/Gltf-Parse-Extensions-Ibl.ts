@@ -3,13 +3,17 @@ import {
     WebGlRenderer,
     WebGlBufferData,
     WebGlBufferInfo,
+    GltfShaderConfig,
+    GltfPrimitive,
+    GltfIblShaderConfig,
+    WebGlShaderSource,
     GltfData,
     CameraNode,
     GltfMeshNode,
     GltfNode,
     GltfScene,
     GltfIblExtensionName,
-    GltfIbl,
+    GltfIblScene,
     GltfIblDataAssets,
     GltfIblJson,
     GltfIblData,
@@ -194,9 +198,41 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
     return node;
 }
 
+const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => 
+    shaderConfig;
+
+const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => 
+    shaderConfig;
+
+
+const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
+
+    if(data.extensions.ibl) {
+        const defines = [];
+
+        defines.push("USE_IBL");
+
+        if(data.extensions.ibl.useLod) {
+            defines.push("USE_TEX_LOD");
+        }
+
+        const defineString = defines.map(value => `#define ${value} 1\n`).join('');
+        return Object.assign({}, source, {
+            vertex: defineString + source.vertex,
+            fragment: defineString + source.fragment
+        })
+
+    }
+
+    return source;
+}
+
 export const GLTF_PARSE_Extension_Ibl:GLTF_PARSE_Extension = {
     loadAssets,
     createData,
     createScene,
-    createNode
+    createNode,
+    initialShaderConfig,
+    runtimeShaderConfig,
+    shaderSource
 }

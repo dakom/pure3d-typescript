@@ -16,7 +16,7 @@ import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
-import {Gltf_GetInitialShaderConfig, Gltf_GetRuntimeShaderConfig, Gltf_GenerateShader} from "../../internal/gltf/shaders/Gltf-Generate-Shader";
+import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
 
 import {
 WebGlRenderer,
@@ -34,7 +34,7 @@ WebGlRenderer,
     GltfInitConfig,
     GltfData,
     TypedNumberArray,
-    GltfIbl,
+    GltfIblScene,
     GltfBridge,
     GltfDataAssets,
 } from '../../Types';
@@ -96,7 +96,25 @@ function createGltfBridge(renderer:WebGlRenderer) {
         _allNodes = GLTF_PARSE_getNodes({gltf, primitives, data});
     }
 
-
+    const updateShaderConfigs = (scene:GltfScene):GltfScene => {
+        const updateNode = (node:GltfMeshNode):GltfMeshNode =>
+            Object.assign({}, node, {
+                primitives: node.primitives.map(primitive => updateRuntimeShaderConfig({
+                    data: _data,
+                    primitive,
+                    scene
+                })
+                )
+            });
+            
+        return Object.assign({}, scene, {
+            nodes: scene.nodes.map(node =>
+                node.kind === GltfNodeKind.MESH
+                    ?   updateNode(node)
+                    :   node
+            )
+        }) as GltfScene;
+    }
 
     const renderScene = (scene:GltfScene) => {
 
@@ -127,18 +145,10 @@ function createGltfBridge(renderer:WebGlRenderer) {
          
         meshList.forEach(node => 
             node.primitives.forEach(primitive => {
-                //TODO move the initial part outside of tick
-                const shaderConfig = 
-                    Gltf_GetRuntimeShaderConfig(Gltf_GetInitialShaderConfig({data: _data, primitive}));
-
-
-                const shader = Gltf_GenerateShader({ 
+                const shader = generateShader({ 
                     renderer, 
-                    lightList,
-                    scene,
                     data: _data, 
                     primitive,
-                    shaderConfig
                 });
                 
                 if (!renderThunksByShader.has(shader.shaderId)) {
@@ -154,7 +164,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
                         primitive,
                         lightList,
                         scene,
-                        shaderConfig,
                         shader
                     }));
             })
@@ -175,8 +184,10 @@ function createGltfBridge(renderer:WebGlRenderer) {
             
         const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
 
-    
-        return GltfExtensions.map(ext => ext.createScene).reduce((acc, val) => acc = val (_data.original) (originalScene) (acc),
+   
+        //First time is mandatory - after that it's up to the caller
+       return updateShaderConfigs(
+            GltfExtensions.map(ext => ext.createScene).reduce((acc, val) => acc = val (_data.original) (originalScene) (acc),
             {
                 camera,
                 extensions: {},
@@ -189,7 +200,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
                 (null)
                 (nodes)
             } as GltfScene
-        );
+        ));
 
     }
 
@@ -212,7 +223,8 @@ function createGltfBridge(renderer:WebGlRenderer) {
         loadFile,
         loadAssets,
         start,
-        renderScene
+        renderScene,
+        updateShaderConfigs
     };
 
     Object.assign(exports, bridge);

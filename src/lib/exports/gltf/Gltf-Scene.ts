@@ -6,7 +6,7 @@ import {
     LightNode, 
     GltfMeshNode, 
     CameraNode, 
-    GltfIbl,
+    GltfIblScene,
     AmbientLight,
     DirectionalLight,
     PointLight,

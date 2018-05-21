@@ -8,6 +8,6 @@ export interface GltfRendererThunk {
     primitive: GltfPrimitive;
     lightList: Array<LightNode>;
     scene: GltfScene;
-    shaderInfo: {config: GltfShaderConfig, shader: WebGlShader }
+    shader: WebGlShader 
 }
 

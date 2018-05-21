@@ -7,8 +7,11 @@ import {
     GLTF_ORIGINAL_Node,
     GLTF_ORIGINAL_Scene,
     GltfData,
+    GltfShaderConfig,
+    GltfPrimitive,
+    WebGlShaderSource,
     CameraNode,
-    GltfIbl,
+    GltfIblScene,
     GltfNode,
     NodeKind,
     GltfLightsExtensionName,
@@ -135,9 +138,23 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
 
 }
 
+const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
+    return shaderConfig;
+}
+
+const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
+    return shaderConfig;
+}
+
+const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
+    return source;
+}
 export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
     loadAssets,
     createData,
     createScene,
-    createNode
+    createNode,
+    initialShaderConfig,
+    runtimeShaderConfig,
+    shaderSource
 };

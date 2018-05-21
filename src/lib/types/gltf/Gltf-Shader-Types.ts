@@ -1,4 +1,4 @@
-import {WebGlShader, GltfUnlitShaderConfig} from "../../Types";
+import {WebGlShader, GltfUnlitShaderConfig, GltfLightsShaderConfig, GltfIblShaderConfig} from "../../Types";
 
 export interface GltfShaderConfig {
     hasNormalAttributes: boolean;
@@ -14,7 +14,9 @@ export interface GltfShaderConfig {
     fastSRGB: boolean;
 
     extensions: {
-        unlit?: GltfUnlitShaderConfig
+        ibl?: GltfIblShaderConfig;
+        unlit?: GltfUnlitShaderConfig;
+        lights?: GltfLightsShaderConfig;
     }
 }
 

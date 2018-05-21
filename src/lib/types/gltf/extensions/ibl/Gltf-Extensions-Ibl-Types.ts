@@ -34,6 +34,10 @@ export interface GltfIblData {
   useLod: boolean;
 }
 
+//Shader
+export interface GltfIblShaderConfig {
+    useLod: boolean;
+}
 
 //Scene
 export interface GltfIblScene {

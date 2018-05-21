@@ -3,10 +3,10 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
-import {GltfRendererThunk, Light,GltfShaderKind, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIbl, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
+import {GltfRendererThunk, Light,GltfShaderConfig, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIblScene, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
-    const {renderer, data, node, primitive, lightList, scene, shaderConfig, shader} = thunk;
+    const {renderer, data, node, primitive, lightList, scene, shader} = thunk;
     const {camera} = scene;
     
     const { gl } = renderer;    
@@ -28,7 +28,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Set the IBL uniforms
     */
 
-    if(shaderConfig.kind === GltfShaderKind.PBR && scene.extensions.ibl) {
+    if(scene.extensions.ibl) {
       renderer.switchTexture(samplerIndex)(data.extensions.ibl.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   
