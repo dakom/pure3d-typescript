@@ -22,6 +22,9 @@
 
 See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
+## Usage 
+
+See [Wiki](https://github.com/dakom/pure3d/wiki) 
 
 ## What it is: 
 
@@ -53,6 +56,3 @@ It's a rite of passage to make your own WebGL renderer while learning it. This i
 
 * Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
 
-## More info
-
-See [Wiki](https://github.com/dakom/pure3d/wiki)
