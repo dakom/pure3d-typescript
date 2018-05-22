@@ -112,8 +112,6 @@ const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) 
         throw new Error("scene light is not ambient");
     }
 
-    console.log(light);
-
     return Object.assign({}, scene, {light})
 
 }
@@ -211,6 +209,9 @@ const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string
 }
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
+
+    console.log("Generating shader source from lights");
+    console.log(primitive.shaderConfig.extensions.lights);
 
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];

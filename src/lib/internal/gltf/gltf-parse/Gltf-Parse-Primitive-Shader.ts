@@ -41,57 +41,66 @@ export const GLTF_PARSE_getInitialShaderConfig = ({data, primitive}:{data:GltfDa
             getCoreInitialShaderConfig({data, primitive})
         );
 
-export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}):GltfPrimitive=> 
-    Object.assign({}, primitive, 
-        {shaderConfig: GltfExtensions
-            .map(ext => ext.runtimeShaderConfig)
-            .reduce((acc, val) => (acc = val ({data, scene, primitive}) (acc), acc), 
-                getCoreRuntimeShaderConfig({data, scene, primitive}) 
-            )
-        });
+export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}):GltfPrimitive=> {
+   
+    const shaderConfig = GltfExtensions
+        .map(ext => ext.runtimeShaderConfig)
+        .reduce((acc, val) => (acc = val ({data, scene, primitive}) (acc), acc), 
+            getCoreRuntimeShaderConfig({data, scene, primitive}) 
+        );
 
-const getHashKey = (config:GltfShaderConfig):string => {
-    let hashKey = "";
 
-    hashKey += config.hasNormalAttributes ? "1" : "0";
-    hashKey += config.hasTangentAttributes ? "1" : "0";
-    hashKey += config.hasUvAttributes ? "1" : "0";
-    hashKey += config.hasColorAttributes ? "1" : "0";
-    hashKey += config.hasBaseColorMap ? "1" : "0";
-    hashKey += config.hasNormalMap ? "1" : "0";
-    hashKey += config.hasEmissiveMap ? "1" : "0";
-    hashKey += config.hasMetalRoughnessMap ? "1" : "0";
-    hashKey += config.hasOcclusionMap ? "1" : "0";
-    hashKey += config.manualSRGB ? "1" : "0";
-    hashKey += config.fastSRGB ? "1" : "0";
+    const shaderKey = getShaderKey(shaderConfig);
+
+    return Object.assign({}, primitive, {shaderConfig, shaderKey});
+}
+
+export const updateShaderKey = (primitive:GltfPrimitive):GltfPrimitive => {
+    return Object.assign({}, primitive, {shaderKey: getShaderKey(primitive.shaderConfig)});
+}
+
+const getShaderKey = (config:GltfShaderConfig):string => {
+    let shaderKey = "";
+
+    shaderKey += config.hasNormalAttributes ? "1" : "0";
+    shaderKey += config.hasTangentAttributes ? "1" : "0";
+    shaderKey += config.hasUvAttributes ? "1" : "0";
+    shaderKey += config.hasColorAttributes ? "1" : "0";
+    shaderKey += config.hasBaseColorMap ? "1" : "0";
+    shaderKey += config.hasNormalMap ? "1" : "0";
+    shaderKey += config.hasEmissiveMap ? "1" : "0";
+    shaderKey += config.hasMetalRoughnessMap ? "1" : "0";
+    shaderKey += config.hasOcclusionMap ? "1" : "0";
+    shaderKey += config.manualSRGB ? "1" : "0";
+    shaderKey += config.fastSRGB ? "1" : "0";
 
     if(config.extensions.ibl) {
-        hashKey += "1";
-        hashKey += config.extensions.ibl.useLod ? "1" : "0";
+        shaderKey += "1";
+        shaderKey += config.extensions.ibl.useLod ? "1" : "0";
     } else {
-        hashKey += "00";
+        shaderKey += "00";
     }
 
     if(config.extensions.lights) {
-        hashKey += "1";
-        hashKey += config.extensions.lights.hasAmbient ? "1" : "0";
-        hashKey += "-";
-        hashKey += config.extensions.lights.nDirectionalLights.toString();
-        hashKey += "-";
-        hashKey += config.extensions.lights.nPointLights.toString();
-        hashKey += "-";
-        hashKey += config.extensions.lights.nSpotLights.toString();
+        shaderKey += "1";
+        shaderKey += config.extensions.lights.hasAmbient ? "1" : "0";
+        shaderKey += "-";
+        shaderKey += config.extensions.lights.nDirectionalLights.toString();
+        shaderKey += "-";
+        shaderKey += config.extensions.lights.nPointLights.toString();
+        shaderKey += "-";
+        shaderKey += config.extensions.lights.nSpotLights.toString();
     } else {
-        hashKey += "00-0-0-0";
+        shaderKey += "00-0-0-0";
     }
 
     if(config.extensions.unlit) {
-        hashKey += "1";
+        shaderKey += "1";
     } else {
-        hashKey += "0";
+        shaderKey += "0";
     }
 
-    return hashKey;
+    return shaderKey;
 }
 
 export const generateShader = 
@@ -102,9 +111,7 @@ export const generateShader =
         primitive: GltfPrimitive,
     }) => {
     
-    const hashKey = getHashKey(primitive.shaderConfig);
-
-    if (!data.shaders.has(hashKey)) {
+    if (!data.shaders.has(primitive.shaderKey)) {
         const source = getShaderSource({data, primitive});
 
         const shader = createShader({
@@ -114,13 +121,13 @@ export const generateShader =
             source,
         });
 
-        data.shaders.set(hashKey, shader);
+        data.shaders.set(primitive.shaderKey, shader);
         //console.log(`new shader compiled`);
     } else {
         //console.log(`nice! re-using existing shader`);
     }
 
-    const shader = data.shaders.get(hashKey);
+    const shader = data.shaders.get(primitive.shaderKey);
 
 
     return shader;

@@ -6,7 +6,7 @@ import {
   GltfNode,
 } from '../../Types';
 
-export const setAnimationTime = (animation: Readonly<GltfAnimationData>) => (time: number) => (nodes:Readonly<Array<GltfNode>>): Array<GltfNode> => {
+export const gltf_setAnimationTime = (animation: Readonly<GltfAnimationData>) => (time: number) => (nodes:Readonly<Array<GltfNode>>): Array<GltfNode> => {
     const bounds = findKeyframeBounds(animation.keyframes)(time);
 
     if (bounds === -1) {
@@ -44,7 +44,7 @@ export const setAnimationTime = (animation: Readonly<GltfAnimationData>) => (tim
   }
 
 //creates a function that will iterate over all the baked in animations, with a provided timestep
-export const createGltfAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): GltfAnimator => {
+export const gltf_createAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): GltfAnimator => {
   const totalTimes = new Array(opts.length).fill(0);
   let lastTs: number;
 
@@ -65,7 +65,7 @@ export const createGltfAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): 
       }
 
       if (nextTime >= animation.timeMin && nextTime <= animation.timeMax) {
-        nodes = setAnimationTime(animation)(nextTime)(nodes);
+        nodes = gltf_setAnimationTime(animation)(nextTime)(nodes);
       }
 
       totalTimes[index] = nextTime;

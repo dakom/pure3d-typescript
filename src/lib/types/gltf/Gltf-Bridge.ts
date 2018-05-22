@@ -24,4 +24,5 @@ export interface GltfBridge {
             => void;
     renderScene: (scene:GltfScene) => void;
     updateShaderConfigs:  (scene:GltfScene) => GltfScene;
+    updateShaderKeys: (scene:GltfScene) => GltfScene;
 }

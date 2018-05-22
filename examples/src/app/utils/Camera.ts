@@ -1,5 +1,19 @@
 
-import {getCameraProjection, PerspectiveCameraSettings, OrthographicCameraSettings, PerspectiveCamera, GltfScene,CameraKind, NumberArray, createMat4, createVec3, updateNodeListTransforms, Camera, createGltfAnimator, GltfNodeKind, GltfBridge, WebGlConstants, WebGlRenderer} from "lib/Lib";
+import {getCameraProjection,
+    PerspectiveCameraSettings,
+    OrthographicCameraSettings,
+    PerspectiveCamera,
+    GltfScene,
+    CameraKind,
+    NumberArray,
+    createMat4,
+    createVec3,
+    updateNodeListTransforms,
+    Camera,
+    GltfNodeKind,
+    GltfBridge,
+    WebGlConstants,
+    WebGlRenderer} from "lib/Lib";
 import {mat4, vec3} from "gl-matrix";
 import {PointerEventStatus, PointerScreenEventData} from "input-senders";
 import * as createControls from "orbit-controls";

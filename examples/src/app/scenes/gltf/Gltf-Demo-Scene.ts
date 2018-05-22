@@ -1,4 +1,17 @@
-import {GltfScene, GLTF_ORIGINAL,GltfLightsExtensionName, GltfIblExtensionName, updateNodeListTransforms, Camera, GltfNode, createGltfAnimator, GltfNodeKind, GltfBridge, loadGltf, WebGlConstants, WebGlRenderer} from "lib/Lib";
+import {
+    GltfScene, 
+    GLTF_ORIGINAL,
+    GltfLightsExtensionName,
+    GltfIblExtensionName,
+    updateNodeListTransforms,
+    Camera,
+    GltfNode,
+    gltf_createAnimator,
+    GltfNodeKind,
+    GltfBridge,
+    gltf_load, 
+    WebGlConstants,
+    WebGlRenderer} from "lib/Lib";
 import {ModelInfo, Model} from "./Gltf-Models";
 import {updateCamera, getInitialGltfCamera} from "../../utils/Camera";
 import {PointerEventStatus} from "input-senders";
@@ -107,7 +120,7 @@ const addExtensions = ({model, menuOptions}: {model:Model, menuOptions}) => {
 }
 
 export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, menuOptions}:{modelPath:string, modelInfo:ModelInfo, menuOptions: any}) => 
-    loadGltf({
+    gltf_load({
         renderer, 
         path: modelPath, 
         config: { },
@@ -115,9 +128,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
     .map(bridge => {
-
-
-        const animate = createGltfAnimator(bridge.getData().animations.map(animation => ({
+        const animate = gltf_createAnimator(bridge.getData().animations.map(animation => ({
             animation,
             loop: true
         })));
