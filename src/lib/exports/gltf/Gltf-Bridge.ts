@@ -111,6 +111,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         }) as GltfScene;
     }
 
+
     const updateShaderConfigs = (scene:GltfScene):GltfScene => {
         return updatePrimitives (scene) (primitive => updateRuntimeShaderConfig({
                     data: _data,
