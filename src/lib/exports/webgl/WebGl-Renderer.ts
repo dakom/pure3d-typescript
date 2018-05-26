@@ -84,7 +84,11 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
     const extensionMap = new Map<string, any>();
     const getExtension = (extName: string): any => {
         if (!extensionMap.has(extName)) {
-            extensionMap.set(extName, gl.getExtension(extName));
+            const ext = gl.getExtension(extName);
+            if(!ext) {
+                console.warn("Could not create extension", extName);
+            }
+            extensionMap.set(extName, ext);
         }
 
         return extensionMap.get(extName);

@@ -199,7 +199,17 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
 }
 
 const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => 
-    shaderConfig;
+    data.extensions.ibl 
+        ?   Object.assign({}, shaderConfig, 
+            {extensions: Object.assign({}, shaderConfig.extensions, 
+                {
+                    ibl: {
+                        useLod: data.extensions.ibl.useLod
+                    }
+                })
+            })
+
+        :   shaderConfig;
 
 const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => 
     shaderConfig;

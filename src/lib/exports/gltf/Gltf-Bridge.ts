@@ -16,7 +16,7 @@ import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
-import {updateShaderKey, updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
+import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
 
 import {
 WebGlRenderer,
@@ -117,10 +117,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
                     primitive,
                     scene
         }))
-    }
-
-    const updateShaderKeys = (scene:GltfScene):GltfScene => {
-       return updatePrimitives (scene) (updateShaderKey); 
     }
 
     const renderScene = (scene:GltfScene) => {
@@ -232,7 +228,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
         start,
         renderScene,
         updateShaderConfigs,
-        updateShaderKeys
     };
 
     Object.assign(exports, bridge);

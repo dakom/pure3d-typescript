@@ -172,7 +172,8 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
         }
     });
 
-   
+
+
     const config:GltfLightsShaderConfig = {
         nPointLights,
         nDirectionalLights,
@@ -215,6 +216,11 @@ const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive
 
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];
+        
+        const {nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
+        if(nPointLights > 10 || nDirectionalLights > 10 || nSpotLights > 10) {
+            console.warn("Only 10 lights of each kind are supported");
+        }
 
         defines.push("USE_LIGHTING");
 
@@ -228,6 +234,7 @@ const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive
         return source;
     }
 }
+
 export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
     loadAssets,
     createData,

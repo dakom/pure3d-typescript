@@ -19,7 +19,8 @@ import {
     LightNode,
     GltfScene,
     GltfPrimitive,
-    WebGlShaderSource
+    WebGlShaderSource,
+    GltfLightsShaderConfig,
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
 import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
@@ -50,16 +51,12 @@ export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfDat
         );
 
 
-    const shaderKey = getShaderKey(shaderConfig);
 
-    return Object.assign({}, primitive, {shaderConfig, shaderKey});
+    return Object.assign({}, primitive, {shaderConfig});
 }
-
-export const updateShaderKey = (primitive:GltfPrimitive):GltfPrimitive => {
-    return Object.assign({}, primitive, {shaderKey: getShaderKey(primitive.shaderConfig)});
-}
-
+/*
 const getShaderKey = (config:GltfShaderConfig):string => {
+
     let shaderKey = "";
 
     shaderKey += config.hasNormalAttributes ? "1" : "0";
@@ -102,7 +99,93 @@ const getShaderKey = (config:GltfShaderConfig):string => {
 
     return shaderKey;
 }
+*/
 
+
+//this was tested against alternatives for speed, but not correctness (though roughly it seems to be fine)
+//TODO - test thoroughly for correctness
+//https://stackoverflow.com/questions/17398578/hash-algorithm-for-variable-size-boolean-array?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+const hashBooleans32 = (xs:Uint8Array) => 
+{
+    let h = (1 << xs.length);
+    for (let i = 0; i < xs.length; i++)
+    {
+        h = h | ((xs[i]) << (xs.length - i - 1));
+    }
+    return h;
+}
+const getShaderKey = (config:GltfShaderConfig):string => {
+    const baseArray = new Uint8Array(15);
+    const lightsArray = new Uint8Array(30);
+
+        if(config.hasNormalAttributes) {
+            baseArray[0] = 1;
+        }
+        if(config.hasTangentAttributes) {
+            baseArray[1] = 1;
+        }
+        if(config.hasUvAttributes) {
+            baseArray[2] = 1;
+        }
+        if(config.hasColorAttributes) {
+            baseArray[3] = 1;
+        }
+        if(config.hasBaseColorMap) {
+            baseArray[4] = 1;
+        }
+        if(config.hasNormalMap) {
+            baseArray[5] = 1;
+        }
+        if(config.hasEmissiveMap) {
+            baseArray[6] = 1;
+        }
+        if(config.hasMetalRoughnessMap) {
+            baseArray[7] = 1;
+        }
+        if(config.hasOcclusionMap) {
+            baseArray[8] = 1;
+        }
+        if(config.manualSRGB) {
+            baseArray[9] = 1;
+        }
+        if(config.fastSRGB) {
+            baseArray[10] = 1;
+        }
+
+        if(config.extensions.ibl) {
+            baseArray[11] = 1;
+            if(config.extensions.ibl.useLod) {
+                baseArray[12] = 1;
+            }
+        }
+        if(config.extensions.unlit) {
+            baseArray[13] = 1;
+        }
+        if(config.extensions.lights) {
+            baseArray[14] = 1;
+            if(config.extensions.lights.hasAmbient) {
+                baseArray[15] = 1;
+            }
+
+            //Light instances get their own array - 10 * 3 = 30 possibilities
+            for(let i = 0; i < config.extensions.lights.nDirectionalLights; i++) {
+                lightsArray[i] = 1;
+            }
+
+            for(let i = 0; i < config.extensions.lights.nPointLights; i++) {
+                lightsArray[10 + i] = 1;
+            }
+
+            for(let i = 0; i < config.extensions.lights.nSpotLights; i++) {
+                lightsArray[20 + i] = 1;
+            }
+        }
+
+
+    const shaderKey = hashBooleans32(baseArray).toString() + "-" + hashBooleans32(lightsArray).toString();
+    return shaderKey;
+    
+}
 export const generateShader = 
     ({renderer, data, primitive}: 
     { 
@@ -110,8 +193,11 @@ export const generateShader =
         renderer: WebGlRenderer,
         primitive: GltfPrimitive,
     }) => {
-    
-    if (!data.shaders.has(primitive.shaderKey)) {
+
+
+    const shaderKey = getShaderKey(primitive.shaderConfig);
+
+    if (!data.shaders.has(shaderKey)) {
         const source = getShaderSource({data, primitive});
 
         const shader = createShader({
@@ -121,13 +207,13 @@ export const generateShader =
             source,
         });
 
-        data.shaders.set(primitive.shaderKey, shader);
+        data.shaders.set(shaderKey, shader);
         //console.log(`new shader compiled`);
     } else {
         //console.log(`nice! re-using existing shader`);
     }
 
-    const shader = data.shaders.get(primitive.shaderKey);
+    const shader = data.shaders.get(shaderKey);
 
 
     return shader;
