@@ -13,7 +13,8 @@
 ## GlTF Models
 
 - [x] Simple
-- [ ] Complex
+- [x] Complex
+- [ ] Animations 
 - [ ] Pbr Set 1
 - [ ] Pbr Set 2
 - [ ] Feature Test
