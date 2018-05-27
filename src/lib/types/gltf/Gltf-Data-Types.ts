@@ -10,7 +10,7 @@ export interface GltfDataAssets {
 
 export interface GltfData {
     original: GLTF_ORIGINAL,
-    animations: Array<GltfAnimationData>;
+    animations: Map<number, GltfAnimationData>;
     attributes: GltfAttributes;
     textures: Map<number, WebGLTexture>;
     shaders: Map<string, WebGlShader>;

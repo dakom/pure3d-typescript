@@ -1,6 +1,6 @@
 import { quat, vec2, vec3, vec4 } from 'gl-matrix';
 
-import { GltfAnimationKeyframe, GltfAnimationValues } from "../../../Types"; 
+import { GltfAnimationInterpolation, GltfAnimationTargetPath, GltfAnimationKeyframe, GltfAnimationValues } from "../../../Types"; 
 import { binaryFindBounds } from '../../common/BinarySearch';
 
 
@@ -26,9 +26,11 @@ const interpolate_linear = ({ v0, v1, t }: { v0: Readonly<GltfAnimationValues>, 
 
 }
 
-export const interpolateKeyframes = ({ k0, k1, time, style, isRotation }: { k0: Readonly<GltfAnimationKeyframe>, k1: Readonly<GltfAnimationKeyframe>, time: number, isRotation: boolean, style?: string }): GltfAnimationValues => {
+export const interpolateKeyframes = (
+    { k0, k1, time, interpolation, targetPath}
+    : 
+    { k0: Readonly<GltfAnimationKeyframe>, k1: Readonly<GltfAnimationKeyframe>, time: number, interpolation: GltfAnimationInterpolation, targetPath: GltfAnimationTargetPath}): GltfAnimationValues => {
 
-  const _style = style === undefined ? "LINEAR" : style;
 
   const v0 = k0.values;
   const v1 = k1.values;
@@ -36,11 +38,13 @@ export const interpolateKeyframes = ({ k0, k1, time, style, isRotation }: { k0: 
   const t = (time - k0.timing) / (k1.timing - k0.timing); //get t as a percentage of timing between k0 and k1: https://math.stackexchange.com/questions/754130/find-what-percent-x-is-between-two-numbers
 
 
-  switch (_style) {
-    case "LINEAR": return isRotation ? quat.slerp(quat.create(), v0, v1, t) : interpolate_linear({ v0, v1, t });
-    case "STEP": return v0;
-    case "CUBICSPLINE": throw new Error("cubicspline is not supported yet!");
-    default: throw new Error("unsupported interpolation " + _style)
+  switch (interpolation) {
+      case GltfAnimationInterpolation.LINEAR: return targetPath === GltfAnimationTargetPath.ROTATION 
+              ? quat.slerp(quat.create(), v0, v1, t) 
+              : interpolate_linear({ v0, v1, t });
+      case GltfAnimationInterpolation.STEP: return v0;
+      case GltfAnimationInterpolation.CUBICSPLINE: throw new Error("cubicspline is not supported yet!");
+    default: throw new Error("unsupported interpolation ")
   }
 }
 

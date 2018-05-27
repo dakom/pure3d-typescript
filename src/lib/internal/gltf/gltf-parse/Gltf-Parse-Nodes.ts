@@ -20,18 +20,22 @@ import {
 } from '../../../Types';
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
+import {GLTF_PARSE_addAnimationIds} from "./Gltf-Parse-Data-Animation";
 
 //could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
 export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
-    const getNodeTransform = (parentModelMatrix: NumberArray) => (nodeIndex: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
+
+    const getGltfNode = (parentModelMatrix: NumberArray) => (originalNodeId: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
 
         const baseNode = {
+            originalNodeId,
+            animationIds: [],
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length
-            ?   GltfNodeKind.MESH
-            :   node.camera !== undefined
-            ?   NodeKind.CAMERA
-            :   undefined //should be replaced via extension
+                ?   GltfNodeKind.MESH
+                :   node.camera !== undefined
+                    ?   NodeKind.CAMERA
+                    :   undefined, //should be replaced via extension
         } as GltfNode;
 
 
@@ -77,12 +81,15 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
 
         return !node.children
             ? finalNode
-            : Object.assign(finalNode, {children: node.children.map(idx => getNodeTransform (modelMatrix) (idx) (gltf.nodes[idx]))});
+            : Object.assign(finalNode, {children: node.children.map(idx => getGltfNode(modelMatrix) (idx) (gltf.nodes[idx]))});
     }
 
 
-    return gltf.nodes
-        .map((node, idx) => getNodeTransform(null) (idx) (node))
+    return GLTF_PARSE_addAnimationIds({
+        gltf,
+        nodes:  gltf.nodes
+                    .map((node, idx) => getGltfNode(null) (idx) (node))
+    })
 
 }
 

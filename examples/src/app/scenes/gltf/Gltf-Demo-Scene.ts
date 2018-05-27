@@ -128,10 +128,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
     .map(bridge => {
-        const animate = gltf_createAnimator(bridge.getData().animations.map(animation => ({
-            animation,
-            loop: true
-        })));
+        const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
 
 
         const {camera, controls, isControlled} = getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.bakedCamera)
@@ -139,7 +136,8 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
         let scene = bridge.getOriginalScene(camera) (0);
 
         controls.enable();
-        
+       
+
         return [
             (frameTs:number) => {
 

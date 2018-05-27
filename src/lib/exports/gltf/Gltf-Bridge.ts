@@ -62,7 +62,6 @@ export const gltf_load = ({ renderer, path, config, mapper }: GltfLoaderOptions)
         .loadFile(path)
         .chain(({gltf, glbBuffers}) => {
             gltf = mapper ? mapper(gltf) : gltf;
-
             return bridge.loadAssets({gltf, glbBuffers, basePath: getBasePath(path)})
                 .map(assets => ({gltf, config, assets}));
             
@@ -211,8 +210,8 @@ function createGltfBridge(renderer:WebGlRenderer) {
     const getOriginalCameras = ():Array<Camera> => {
        return _allNodes
             .filter(node => node.kind === NodeKind.CAMERA)
-            .map((node:CameraNode) => {
-                const camera:Camera = Object.assign({}, node.camera);
+            .map(node => {
+                const camera:Camera = Object.assign({}, (node as CameraNode).camera);
                 camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
                 return camera
             });

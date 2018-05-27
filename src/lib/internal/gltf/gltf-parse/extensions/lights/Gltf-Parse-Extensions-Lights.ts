@@ -211,8 +211,6 @@ const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
 
-    console.log("Generating shader source from lights");
-    console.log(primitive.shaderConfig.extensions.lights);
 
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];

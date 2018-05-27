@@ -1,12 +1,16 @@
 import { findKeyframeBounds, interpolateKeyframes } from "../../internal/gltf/animation/Gltf-Animation-Internal"; 
+import { GLTF_PARSE_animationPathToString} from "../../internal/gltf/gltf-parse/Gltf-Parse-Data-Animation"
+import { mapNodes} from "../common/nodes/Nodes";
 import {
   GltfAnimationData,
   GltfAnimator,
-  GltfAnimatorOptions,
-  GltfNode,
+  GltfData,
+    GltfNode,
+    GltfAnimationTargetPath
 } from '../../Types';
 
-export const gltf_setAnimationTime = (animation: Readonly<GltfAnimationData>) => (time: number) => (nodes:Readonly<Array<GltfNode>>): Array<GltfNode> => {
+
+export const gltf_setAnimationTime = (animation: Readonly<GltfAnimationData>) => (time: number) => (node: GltfNode):GltfNode => { 
     const bounds = findKeyframeBounds(animation.keyframes)(time);
 
     if (bounds === -1) {
@@ -19,42 +23,40 @@ export const gltf_setAnimationTime = (animation: Readonly<GltfAnimationData>) =>
       : interpolateKeyframes({
           k0: animation.keyframes[bounds[0]],
           k1: animation.keyframes[bounds[1]],
-          style: animation.sampler.interpolation,
-          isRotation: animation.channel.target.path === "rotation" ? true : false,
+          interpolation: animation.interpolation,
+          targetPath: animation.targetPath,
           time
         });
 
+    return Object.assign({}, node, 
+                    (animation.targetPath === GltfAnimationTargetPath.WEIGHTS)
+                        ? {morphWeights:  values}
+                        : {transform: 
+                            Object.assign({}, node.transform, {
+                                trs: Object.assign({}, node.transform.trs, {
+                                    [GLTF_PARSE_animationPathToString[animation.targetPath]]: values
+                                })
+                            })
+                        }
+    );
 
-    const nodeIndex = animation.channel.target.node;
-    const node = nodes[nodeIndex];
-    const updatedNodes = nodes.slice();
-    updatedNodes[nodeIndex] = Object.assign({}, node, 
-      (animation.channel.target.path === "weights")
-        ? {morphWeights:  values}
-        : {transform: 
-            Object.assign({}, node.transform, {
-              trs: Object.assign({}, node.transform.trs, {
-                [animation.channel.target.path]: values
-              })
-            })
-          }
-    )
-
-    return updatedNodes;
   }
 
 //creates a function that will iterate over all the baked in animations, with a provided timestep
-export const gltf_createAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>): GltfAnimator => {
-  const totalTimes = new Array(opts.length).fill(0);
+export const gltf_createAnimator = (animations:Map<number, GltfAnimationData>) => ({loop}:{loop?: boolean}): GltfAnimator => {
+     
+    const totalTimes = new Map<number, number>();
+    animations.forEach((value, key) => totalTimes.set(key, 0)); 
   let lastTs: number;
+
 
   return (ts: number) => (nodes:Array<GltfNode>): Array<GltfNode> => {
     const dt = lastTs === undefined ? 0 : ((ts - lastTs) / 1000);
     lastTs = ts;
 
 
-    opts.forEach(({ animation, loop }, index) => {
-      const prevTime = totalTimes[index];
+    animations.forEach((animation, key) => {
+      const prevTime = totalTimes.get(key);
 
       let nextTime = prevTime + dt;
 
@@ -65,10 +67,14 @@ export const gltf_createAnimator = (opts: Readonly<Array<GltfAnimatorOptions>>):
       }
 
       if (nextTime >= animation.timeMin && nextTime <= animation.timeMax) {
-        nodes = gltf_setAnimationTime(animation)(nextTime)(nodes);
+          nodes = mapNodes((node:GltfNode) => 
+            node.animationIds.indexOf(key) !== -1
+                ?   gltf_setAnimationTime(animation)(nextTime)(node)
+                :   node
+            ) (nodes);
       }
 
-      totalTimes[index] = nextTime;
+      totalTimes.set(key, nextTime);
     });
 
     return nodes;

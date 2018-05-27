@@ -235,11 +235,11 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
         hasUvAttributes: hasAttribute (originalPrimitive) ("TEXCOORD_0"),
 
         hasColorAttributes: hasAttribute(originalPrimitive) ("COLOR_0"),
-        hasBaseColorMap: material.baseColorSamplerIndex !== undefined,
-        hasNormalMap: material.normal !== undefined,
-        hasEmissiveMap: material.emissiveSamplerIndex !== undefined,
-        hasMetalRoughnessMap: material.metallicRoughnessSamplerIndex !== undefined,
-        hasOcclusionMap: material.occlusion !== undefined,
+        hasBaseColorMap: material && material.baseColorSamplerIndex !== undefined,
+        hasNormalMap: material && material.normal !== undefined,
+        hasEmissiveMap: material && material.emissiveSamplerIndex !== undefined,
+        hasMetalRoughnessMap: material && material.metallicRoughnessSamplerIndex !== undefined,
+        hasOcclusionMap: material && material.occlusion !== undefined,
         manualSRGB: data.initConfig.manualSRGB === true,
         fastSRGB: data.initConfig.fastSRGB === true,
         extensions: {}

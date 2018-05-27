@@ -215,7 +215,7 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
 ]
 
 export const MODEL_LIST_ANIMATIONS:Array<Model> = [
-    {primary: "BOX_ANIMATED_BINARY",
+    {primary: "BOX_ANIMATED",
         label: "BOX_ANIMATED",
         urls: {
             "BOX_ANIMATED_GLOSSY": "BoxAnimated/glTF-pbrSpecularGlossiness/BoxAnimated.gltf",
@@ -223,7 +223,8 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
             "BOX_ANIMATED_EMBEDDED": "BoxAnimated/glTF-Embedded/BoxAnimated.gltf",
             "BOX_ANIMATED_BINARY": "BoxAnimated/glTF-Binary/BoxAnimated.glb",
             "BOX_ANIMATED": "BoxAnimated/glTF/BoxAnimated.gltf",
-        },
+        },        
+        cameraPosition: Float64Array.from([0,2,10]),
     },
 ]
 
