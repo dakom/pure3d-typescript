@@ -17,7 +17,8 @@ const _Demo = props => (
         menuOptions={{
                 ibl: true,
                 //ibl: false,
-                lights: true
+                lights: true,
+                bakedCamera: true
         }}
        
         {...props}

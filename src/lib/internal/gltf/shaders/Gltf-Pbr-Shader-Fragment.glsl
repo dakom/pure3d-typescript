@@ -1,3 +1,6 @@
+precision highp float;
+precision highp int;
+
 #ifdef USE_LIGHTING
 %LIGHTING_VARS%
 #endif
@@ -17,8 +20,6 @@
 //     https://www.cs.virginia.edu/~jdl/bib/appearance/analytic%20models/schlick94b.pdf
 #extension GL_EXT_shader_texture_lod: enable
 #extension GL_OES_standard_derivatives : enable
-
-precision highp float;
 
 uniform vec3 u_LightDirection;
 uniform vec3 u_LightColor;

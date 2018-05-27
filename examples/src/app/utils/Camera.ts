@@ -25,9 +25,13 @@ export const updateCamera = (controls:any) => (camera:Camera):Camera => {
     controls.update();
 
     const view = mat4.lookAt(createMat4(), controls.position, controls.direction, controls.up);
-    
 
-    return Object.assign({}, camera, {position: controls.position, view});
+    //this usually isn't needed, but it helps to debug
+    const projection = getCameraProjection(camera); 
+
+
+
+    return Object.assign({}, camera, {position: controls.position, view, projection});
 }
 
 export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberArray, cameraLook: NumberArray}):Camera => {
@@ -53,40 +57,40 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
 
 }
 
-export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => {
-        const isCameraIndex = model.cameraIndex !== undefined ? true : false;
+export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (isBaked:boolean) => {
 
-        if(isCameraIndex) {
-            const camera = bridge.getOriginalCameras()[model.cameraIndex];
-            const cameraLook = [0,0,0]; //might be nice to derive this
+    const cameraIndex = model.cameraIndex !== undefined ? model.cameraIndex : 0;
 
-            const controls = createControls({
-                position: camera.position,
-                target: cameraLook
-            });
-            return {camera, controls}
-        } else {
-            const position = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);
+    const bakedCamera = bridge.getOriginalCameras()[cameraIndex];
 
-            const cameraLook = model.cameraLookAt
-                ?   model.cameraLookAt
-                :   Float64Array.from([0,0,0]);
+    let camera;
+    let cameraLook;
+    let controls;    
 
-           
+    if(bakedCamera) {
+        camera = bridge.getOriginalCameras()[cameraIndex];
+        cameraLook = [0,0,0]; //might be nice to derive this
+    } else {
+        const position = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);
 
-            const camera = getInitialBasicCamera({position, cameraLook});
-            const controls = createControls({
-                position, 
-                target: cameraLook 
-            });
-           
+        cameraLook = model.cameraLookAt
+            ?   model.cameraLookAt
+            :   Float64Array.from([0,0,0]);
 
-            //console.log( createControls({position: [4,4,4]}).position[0]);
+        camera = getInitialBasicCamera({position, cameraLook});
+        controls = createControls({
+            position, 
+            target: cameraLook 
+        });
 
-            //console.log(position, controls.position);
-            
-            return {camera, controls}
-        }
+    }
+
+    controls = createControls({
+        position: camera.position,
+        target: cameraLook
+    });
+
+    return {camera, controls, isControlled: !isBaked || !bakedCamera}
 }
 
 

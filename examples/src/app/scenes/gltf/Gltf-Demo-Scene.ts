@@ -134,7 +134,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
         })));
 
 
-        const {camera, controls} = getInitialGltfCamera (bridge) (modelInfo.model)
+        const {camera, controls, isControlled} = getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.bakedCamera)
 
         let scene = bridge.getOriginalScene(camera) (0);
 
@@ -146,7 +146,9 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
                 scene = bridge.updateShaderConfigs(scene);
 
                 scene = Object.assign({}, scene, {
-                    camera: updateCamera(controls) (scene.camera), 
+                    camera: !isControlled
+                        ?   scene.camera
+                        :   updateCamera(controls) (scene.camera), 
                     nodes: updateNodeListTransforms ({
                         updateLocal: true,
                         updateModel: true,

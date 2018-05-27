@@ -224,6 +224,16 @@ const _GltfMenu = ({menuOptions, classes, onOptions}:{menuOptions: any, classes:
           }
           label="Lights"
         />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={menuOptions.bakedCamera}
+              onChange={handleChange('bakedCamera')}
+              color="primary"
+            />
+          }
+          label="Baked Camera"
+        />
             </FormGroup>
             </Toolbar>
         )

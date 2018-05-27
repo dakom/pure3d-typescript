@@ -181,7 +181,49 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
             "2CYLINDER_ENGINE_BINARY": "2CylinderEngine/glTF-Binary/2CylinderEngine.glb",
             "2CYLINDER_ENGINE": "2CylinderEngine/glTF/2CylinderEngine.gltf",
         },
-        cameraIndex: 0
+    },
+    {primary: "SAW_BINARY",
+        label: "SAW",
+        urls: {
+            "SAW_GLOSSY": "ReciprocatingSaw/glTF-pbrSpecularGlossiness/ReciprocatingSaw.gltf",
+            "SAW_DRACO": "ReciprocatingSaw/glTF-Draco/ReciprocatingSaw.gltf",
+            "SAW_EMBEDDED": "ReciprocatingSaw/glTF-Embedded/ReciprocatingSaw.gltf",
+            "SAW_BINARY": "ReciprocatingSaw/glTF-Binary/ReciprocatingSaw.glb",
+            "SAW": "ReciprocatingSaw/glTF/ReciprocatingSaw.gltf",
+        },
+    },
+    {primary: "GEARBOX_BINARY",
+        label: "GEARBOX",
+        urls: {
+            "GEARBOX_GLOSSY": "GearboxAssy/glTF-pbrSpecularGlossiness/GearboxAssy.gltf",
+            "GEARBOX_DRACO": "GearboxAssy/glTF-Draco/GearboxAssy.gltf",
+            "GEARBOX_EMBEDDED": "GearboxAssy/glTF-Embedded/GearboxAssy.gltf",
+            "GEARBOX_BINARY": "GearboxAssy/glTF-Binary/GearboxAssy.glb",
+            "GEARBOX": "GearboxAssy/glTF/GearboxAssy.gltf",
+        },
+    },
+    {primary: "BUGGY_BINARY",
+        label: "BUGGY",
+        urls: {
+            "BUGGY_GLOSSY": "Buggy/glTF-pbrSpecularGlossiness/Buggy.gltf",
+            "BUGGY_DRACO": "Buggy/glTF-Draco/Buggy.gltf",
+            "BUGGY_EMBEDDED": "Buggy/glTF-Embedded/Buggy.gltf",
+            "BUGGY_BINARY": "Buggy/glTF-Binary/Buggy.glb",
+            "BUGGY": "Buggy/glTF/Buggy.gltf",
+        },
+    },
+]
+
+export const MODEL_LIST_ANIMATIONS:Array<Model> = [
+    {primary: "BOX_ANIMATED_BINARY",
+        label: "BOX_ANIMATED",
+        urls: {
+            "BOX_ANIMATED_GLOSSY": "BoxAnimated/glTF-pbrSpecularGlossiness/BoxAnimated.gltf",
+            "BOX_ANIMATED_DRACO": "BoxAnimated/glTF-Draco/BoxAnimated.gltf",
+            "BOX_ANIMATED_EMBEDDED": "BoxAnimated/glTF-Embedded/BoxAnimated.gltf",
+            "BOX_ANIMATED_BINARY": "BoxAnimated/glTF-Binary/BoxAnimated.glb",
+            "BOX_ANIMATED": "BoxAnimated/glTF/BoxAnimated.gltf",
+        },
     },
 ]
 
@@ -205,6 +247,7 @@ export const MODEL_LIST_FEATURETEST:Array<Model> = [];
 
 const allModels = MODEL_LIST_SIMPLE
     .concat(MODEL_LIST_COMPLEX)
+    .concat(MODEL_LIST_ANIMATIONS)
     .concat(MODEL_LIST_PBR1)
     .concat(MODEL_LIST_PBR2)
     .concat(MODEL_LIST_FEATURETEST);
@@ -234,6 +277,7 @@ const convertMenu = ([label, models]:[string, Array<Model>]) => {
 export const MODEL_MENUS = [
     convertMenu(["Simple", MODEL_LIST_SIMPLE]),
     convertMenu(["Complex", MODEL_LIST_COMPLEX]),
+    convertMenu(["Animations", MODEL_LIST_ANIMATIONS]),
     convertMenu(["PBR 1", MODEL_LIST_PBR1]),
     convertMenu(["PBR 2", MODEL_LIST_PBR2]),
     convertMenu(["Tests", MODEL_LIST_FEATURETEST])

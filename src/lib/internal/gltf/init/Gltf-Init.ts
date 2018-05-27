@@ -18,6 +18,8 @@ export const prepWebGlRenderer = (renderer: WebGlRenderer) => {
 
     renderer.gl.enable(renderer.gl.DEPTH_TEST);
 
+    renderer.gl.depthFunc(renderer.gl.LEQUAL);
+
     renderer.extras[HAS_PREPPED] = true;
   }
 

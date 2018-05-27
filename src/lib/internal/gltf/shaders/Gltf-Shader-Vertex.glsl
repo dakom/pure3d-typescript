@@ -1,3 +1,6 @@
+precision highp float;
+precision highp int;
+
 %MORPH_VARS%
 
 #ifdef USE_LIGHTING
