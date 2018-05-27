@@ -215,7 +215,7 @@ export const MODEL_LIST_COMPLEX:Array<Model> = [
 ]
 
 export const MODEL_LIST_ANIMATIONS:Array<Model> = [
-    {primary: "BOX_ANIMATED",
+    {primary: "BOX_ANIMATED_BINARY",
         label: "BOX_ANIMATED",
         urls: {
             "BOX_ANIMATED_GLOSSY": "BoxAnimated/glTF-pbrSpecularGlossiness/BoxAnimated.gltf",
@@ -223,6 +223,28 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
             "BOX_ANIMATED_EMBEDDED": "BoxAnimated/glTF-Embedded/BoxAnimated.gltf",
             "BOX_ANIMATED_BINARY": "BoxAnimated/glTF-Binary/BoxAnimated.glb",
             "BOX_ANIMATED": "BoxAnimated/glTF/BoxAnimated.gltf",
+        },        
+        cameraPosition: Float64Array.from([0,2,10]),
+    },
+    {primary: "MILK_TRUCK",
+        label: "MILK_TRUCK",
+        urls: {
+            "MILK_TRUCK_GLOSSY": "CesiumMilkTruck/glTF-pbrSpecularGlossiness/CesiumMilkTruck.gltf",
+            "MILK_TRUCK_DRACO": "CesiumMilkTruck/glTF-Draco/CesiumMilkTruck.gltf",
+            "MILK_TRUCK_EMBEDDED": "CesiumMilkTruck/glTF-Embedded/CesiumMilkTruck.gltf",
+            "MILK_TRUCK_BINARY": "CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb",
+            "MILK_TRUCK": "CesiumMilkTruck/glTF/CesiumMilkTruck.gltf",
+        },        
+        cameraPosition: Float64Array.from([0,2,10]),
+    },
+    {primary: "RIGGED_SIMPLE",
+        label: "RIGGED_SIMPLE",
+        urls: {
+            "RIGGED_SIMPLE_GLOSSY": "RiggedSimple/glTF-pbrSpecularGlossiness/RiggedSimple.gltf",
+            "RIGGED_SIMPLE_DRACO": "RiggedSimple/glTF-Draco/RiggedSimple.gltf",
+            "RIGGED_SIMPLE_EMBEDDED": "RiggedSimple/glTF-Embedded/RiggedSimple.gltf",
+            "RIGGED_SIMPLE_BINARY": "RiggedSimple/glTF-Binary/RiggedSimple.glb",
+            "RIGGED_SIMPLE": "RiggedSimple/glTF/RiggedSimple.gltf",
         },        
         cameraPosition: Float64Array.from([0,2,10]),
     },
