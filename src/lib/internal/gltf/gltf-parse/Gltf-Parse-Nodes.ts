@@ -22,7 +22,15 @@ import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attribu
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
 import {GLTF_PARSE_addAnimationIds} from "./Gltf-Parse-Data-Animation";
 
-//could be made a little more efficient to cull the root-instances of children early, but this is a bit clearer and it's not a biggie.
+/*
+ * All of the nodes are parsed in place as though they could be any root
+ * Technically this is extra needless computation, but it makes the code clearer
+ * Also, doing it this way allows for dynamic scene mixtures :D
+ *
+ * Since it's only on init, the cpu processing shouldn't matter much
+ * Nodes are by definition lightweight, it's no biggie in terms of memory either
+ * However, they _should_ be culled via GltfBridge.getOriginalScene(), otherwise dups will show
+ */
 export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
 
@@ -79,16 +87,20 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
                 baseNode
             )
 
+
         return !node.children
             ? finalNode
             : Object.assign(finalNode, {children: node.children.map(idx => getGltfNode(modelMatrix) (idx) (gltf.nodes[idx]))});
     }
 
 
+    const nodes = 
+        gltf.nodes
+            .map((node, idx) => getGltfNode(null) (idx) (node));
+
     return GLTF_PARSE_addAnimationIds({
         gltf,
-        nodes:  gltf.nodes
-                    .map((node, idx) => getGltfNode(null) (idx) (node))
+        nodes
     })
 
 }

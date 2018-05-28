@@ -246,7 +246,7 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
             "RIGGED_SIMPLE_BINARY": "RiggedSimple/glTF-Binary/RiggedSimple.glb",
             "RIGGED_SIMPLE": "RiggedSimple/glTF/RiggedSimple.gltf",
         },        
-        cameraPosition: Float64Array.from([0,2,10]),
+        cameraPosition: Float64Array.from([0,0,30]),
     },
 ]
 

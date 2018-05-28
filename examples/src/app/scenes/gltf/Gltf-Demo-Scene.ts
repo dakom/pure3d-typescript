@@ -142,6 +142,8 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
             (frameTs:number) => {
 
                 scene = bridge.updateShaderConfigs(scene);
+                const nodes = animate (frameTs) (scene.nodes)
+                
 
                 scene = Object.assign({}, scene, {
                     camera: !isControlled
@@ -154,7 +156,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
                         camera: scene.camera
                     })
                     (null)
-                    (animate(frameTs) (scene.nodes))
+                    (nodes)
                 });
 
                 

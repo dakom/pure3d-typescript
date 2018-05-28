@@ -35,12 +35,14 @@ const GLTF_PARSE_interpolationLookup = {
 export const GLTF_PARSE_addAnimationIds = ({gltf, nodes}:{gltf: GLTF_ORIGINAL, nodes: Array<GltfNode>}):Array<GltfNode> => {
     let animationId = 0;
 
+
     if (gltf.animations) {
         gltf.animations.forEach(animation => {
             animation
                 .channels
                 .filter(channel => channel.target.node !== undefined)
                 .forEach(channel => {
+
                     mapNodes
                         ((node:GltfNode) => {
                             if(node.originalNodeId === channel.target.node && node.animationIds.indexOf(animationId) === -1) {

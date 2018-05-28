@@ -17,6 +17,7 @@ import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Par
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
+import {forEachNodes, countNodes } from "../common/nodes/Nodes";
 
 import {
 WebGlRenderer,
@@ -145,7 +146,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
             )
         );
 
-         
         meshList.forEach(node => 
             node.primitives.forEach(primitive => {
                 const shader = generateShader({ 
@@ -177,33 +177,53 @@ function createGltfBridge(renderer:WebGlRenderer) {
     }
 
     const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {
+        let nodes = [] 
 
-        
+        if(sceneNumber >= 0 && _data.original.scenes[sceneNumber]) {
+            const sceneList = _data.original.scenes[sceneNumber].nodes;
+            
+            forEachNodes<GltfNode>(node => {
+                if(sceneList.indexOf(node.originalNodeId) !== -1) {
+                    nodes.push(node);
+                } 
+            }) (_allNodes);
+        } else {
+            nodes = _allNodes;
+            console.warn("no scene specified! Expect duplicate nodes...");
+        }
+
+
         const originalScene = sceneNumber >= 0 
             ?   _data.original.scenes[sceneNumber]
             :   {
-                    nodes: _allNodes.map((node, idx) => idx)
+                    nodes: _data.original.nodes.map((node, idx) => idx)
                 }
             
-        const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
+        //const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
 
-   
-        //First time is mandatory - after that it's up to the caller
-       return updateShaderConfigs(
-            GltfExtensions.map(ext => ext.createScene).reduce((acc, val) => acc = val (_data.original) (originalScene) (acc),
-            {
-                camera,
-                extensions: {},
-                nodes: updateNodeListTransforms <GltfNode>({
-                    updateLocal: true,
-                    updateModel: true,
-                    updateView: true,
-                    camera,
-                })
-                (null)
-                (nodes)
-            } as GltfScene
-        ));
+    
+
+        const scene = 
+            GltfExtensions
+                .map(ext => ext.createScene)
+                .reduce((acc, val) => 
+                    acc = val (_data.original) (originalScene) (acc),
+                    {
+                        camera,
+                        extensions: {},
+                        nodes: updateNodeListTransforms <GltfNode>({
+                            updateLocal: true,
+                            updateModel: true,
+                            updateView: true,
+                            camera,
+                        })
+                        (null)
+                        (nodes)
+                    } as GltfScene
+                );
+
+       //First time is mandatory - after that it's up to the caller
+       return updateShaderConfigs(scene);
 
     }
 

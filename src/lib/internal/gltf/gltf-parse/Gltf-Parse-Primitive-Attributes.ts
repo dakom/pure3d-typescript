@@ -10,7 +10,9 @@ const attributeShaderNameLookup = {
   "NORMAL": "a_Normal",
   "TANGENT": "a_Tangent",
   "TEXCOORD_0": "a_UV",
-  "COLOR_0": "a_Color"
+  "COLOR_0": "a_Color",
+  "JOINTS_0": "a_Skin_Joints",
+  "WEIGHTS_0": "a_Skin_Weights"
 }
 
 //Sorting the attributes is important so that the dynamic shader
@@ -21,7 +23,7 @@ export const GLTF_PARSE_sortPrimitiveAttributeKeys = (keys: Array<string>): Arra
       return 0;
     }
 
-    const ORDER = ["POSITION", "NORMAL", "TANGENT", "TEXCOOR_0", "COLOR_0"];
+    const ORDER = ["POSITION", "NORMAL", "TANGENT", "TEXCOOR_0", "COLOR_0", "JOINTS_0", "WEIGHTS_0"];
 
     const oa = ORDER.indexOf(a);
     const ob = ORDER.indexOf(b);
@@ -41,12 +43,12 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
     const accessorLookup = data.attributes.accessorLookup;
 
   if (originalPrimitive.indices !== undefined) {
-    //console.log("elements", data.accessors.get(originalPrimitive.indices).values);
 
     vao.elementBufferId = accessorLookup.get(originalPrimitive.indices).rendererBufferId;
   }
 
   const attributeKeys = GLTF_PARSE_getPrimitiveAttributeKeys(originalPrimitive);
+
 
   attributeKeys.forEach((attributeKey) => {
     
