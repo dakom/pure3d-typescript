@@ -82,6 +82,14 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     */
 
     
+    if(node.skinId !== undefined) {
+        //console.log("rendering skin!");
+        //TODO - upload skin matrix... though first it needs to have been calculated!
+        //should follow same idea as animation - explicitly call update which does the matrix math
+        //note that it must be called whenever the node _or_ the skeleton is updated
+        //therefore probably make new Gltf-specific transform function that will update meshes
+        //uniformMatrix4fv("u_Skin_Matrix")(false)();
+    }
     uniformMatrix4fv("u_MVPMatrix")(false)(node.transform.modelViewProjectionMatrix);
     uniformMatrix4fv("u_ModelMatrix")(false)(node.transform.modelMatrix);
     

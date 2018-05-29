@@ -1,4 +1,4 @@
-import {WebGlBufferData, WebGlBufferInfo, WebGlRenderer, WebGlShader } from '../../../Types';
+import {WebGlBufferData, WebGlBufferInfo, WebGlRenderer, WebGlShader, GLTF_ORIGINAL_Node} from '../../../Types';
 
 import { GltfData, GltfPrimitive, GltfInitConfig } from '../../../Types';
 import { GLTF_PARSE_createPrimitiveAttributes } from './Gltf-Parse-Primitive-Attributes';
@@ -17,14 +17,16 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
 
 
     gltf.nodes
-        .filter(node => node.mesh !== undefined && node.mesh !== null) 
-        .forEach(node =>
+        .map((node, idx) => [node, idx] as [GLTF_ORIGINAL_Node, number])
+        .filter(([node, idx]) => node.mesh !== undefined && node.mesh !== null) 
+        .forEach(([node, nodeId]) =>
             meshPrimitives.set(node.mesh, gltf.meshes[node.mesh].primitives.map((originalPrimitive, primitiveIdx) => {
                 const mesh = gltf.meshes[node.mesh];
                 
 
                 
                 const primitive = {
+                    originalNodeId: nodeId,
                     originalMeshId: node.mesh,
                     originalPrimitiveId: primitiveIdx,
                     vaoId: GLTF_PARSE_createPrimitiveAttributes({originalPrimitive, data}),

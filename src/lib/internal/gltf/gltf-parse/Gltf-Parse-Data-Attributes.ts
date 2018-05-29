@@ -20,8 +20,8 @@ export const GLTF_PARSE_attributeNames = [
     "a_Morph_5",
     "a_Morph_6",
     "a_Morph_7",
-    "a_Skin_Joints",
-    "a_Skin_Weights"
+    "a_Skin_Joint",
+    "a_Skin_Weight"
 ]
 
 const GLTF_PARSE_attributeLocationLookup = new Map<string, number>();

@@ -33,8 +33,16 @@ import {GLTF_PARSE_addAnimationIds} from "./Gltf-Parse-Data-Animation";
  */
 export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
+    const skinSet = new Set<number>();
+    if(gltf.skins) {
+        gltf.skins.forEach(skin => 
+            skin.joints.forEach(skinId => skinSet.add(skinId))
+        )
+    }
+
 
     const getGltfNode = (parentModelMatrix: NumberArray) => (originalNodeId: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
+
 
         const baseNode = {
             originalNodeId,
@@ -43,10 +51,10 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
                 ?   GltfNodeKind.MESH
                 :   node.camera !== undefined
                     ?   NodeKind.CAMERA
-                    :   undefined, //should be replaced via extension
+                    :   skinSet.has(originalNodeId)
+                        ?   GltfNodeKind.SKIN
+                        :   undefined, //could be replaced via extension
         } as GltfNode;
-
-
 
         const trs = node.matrix ? getTrsFromMatrix(Float64Array.from(node.matrix)) : getTrs(node);
         const localMatrix = node.matrix ? new Float64Array(node.matrix) : getMatrixFromTrs(trs);
@@ -64,12 +72,16 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
         if(baseNode.kind === GltfNodeKind.MESH) {
             baseNode.primitives = primitives.get(node.mesh);
 
+            if(node.skin !== undefined) {
+                baseNode.skinId = node.skin;
+            }
+
             const morphWeights =
                 node.weights
-                ? Float64Array.from(node.weights)
-                : gltf.meshes[node.mesh].weights
-                ? Float64Array.from(gltf.meshes[node.mesh].weights)
-                : undefined;
+                    ? Float64Array.from(node.weights)
+                    : gltf.meshes[node.mesh].weights
+                        ? Float64Array.from(gltf.meshes[node.mesh].weights)
+                        : undefined;
 
             if(morphWeights) {
                 baseNode.morphWeights = morphWeights;

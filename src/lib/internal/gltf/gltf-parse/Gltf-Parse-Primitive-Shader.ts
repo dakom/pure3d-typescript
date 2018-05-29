@@ -9,6 +9,7 @@ import {
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_Material,
     GLTF_ORIGINAL_MeshPrimitive,
+    GltfNode,
     GltfData,
     GltfShaderConfig,
     GltfInitConfig,
@@ -21,6 +22,7 @@ import {
     GltfPrimitive,
     WebGlShaderSource,
     GltfLightsShaderConfig,
+    GltfSkinNode, GltfSkinJoint
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
 import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
@@ -35,7 +37,7 @@ import fragmentShaderSource from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
 //import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
 //These need to be called via bridge/setup somehow
-export const GLTF_PARSE_getInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}):GltfShaderConfig => 
+export const GLTF_PARSE_getInitialShaderConfig = ({data, primitive }:{data:GltfData, primitive:GltfPrimitive }):GltfShaderConfig => 
     GltfExtensions
         .map(ext => ext.initialShaderConfig)
         .reduce((acc, val) => (acc = val ({data, primitive}) (acc), acc), 
@@ -50,61 +52,17 @@ export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfDat
             getCoreRuntimeShaderConfig({data, scene, primitive}) 
         );
 
-
-
     return Object.assign({}, primitive, {shaderConfig});
 }
-/*
-const getShaderKey = (config:GltfShaderConfig):string => {
-
-    let shaderKey = "";
-
-    shaderKey += config.hasNormalAttributes ? "1" : "0";
-    shaderKey += config.hasTangentAttributes ? "1" : "0";
-    shaderKey += config.hasUvAttributes ? "1" : "0";
-    shaderKey += config.hasColorAttributes ? "1" : "0";
-    shaderKey += config.hasBaseColorMap ? "1" : "0";
-    shaderKey += config.hasNormalMap ? "1" : "0";
-    shaderKey += config.hasEmissiveMap ? "1" : "0";
-    shaderKey += config.hasMetalRoughnessMap ? "1" : "0";
-    shaderKey += config.hasOcclusionMap ? "1" : "0";
-    shaderKey += config.manualSRGB ? "1" : "0";
-    shaderKey += config.fastSRGB ? "1" : "0";
-
-    if(config.extensions.ibl) {
-        shaderKey += "1";
-        shaderKey += config.extensions.ibl.useLod ? "1" : "0";
-    } else {
-        shaderKey += "00";
-    }
-
-    if(config.extensions.lights) {
-        shaderKey += "1";
-        shaderKey += config.extensions.lights.hasAmbient ? "1" : "0";
-        shaderKey += "-";
-        shaderKey += config.extensions.lights.nDirectionalLights.toString();
-        shaderKey += "-";
-        shaderKey += config.extensions.lights.nPointLights.toString();
-        shaderKey += "-";
-        shaderKey += config.extensions.lights.nSpotLights.toString();
-    } else {
-        shaderKey += "00-0-0-0";
-    }
-
-    if(config.extensions.unlit) {
-        shaderKey += "1";
-    } else {
-        shaderKey += "0";
-    }
-
-    return shaderKey;
-}
-*/
 
 
-//this was tested against alternatives for speed, but not correctness (though roughly it seems to be fine)
-//TODO - test thoroughly for correctness
+//TODO - speed has been optimized but need to test thoroughly for correctness (was roughly tested)
 //https://stackoverflow.com/questions/17398578/hash-algorithm-for-variable-size-boolean-array?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+    const baseArray = new Uint8Array(15);
+    const morphsArray = new Uint8Array(30);
+    const skinArray = new Uint8Array(30);
+    const lightsArray = new Uint8Array(30);
 const hashBooleans32 = (xs:Uint8Array) => 
 {
     let h = (1 << xs.length);
@@ -115,8 +73,7 @@ const hashBooleans32 = (xs:Uint8Array) =>
     return h;
 }
 const getShaderKey = (config:GltfShaderConfig):string => {
-    const baseArray = new Uint8Array(15);
-    const lightsArray = new Uint8Array(30);
+
 
         if(config.hasNormalAttributes) {
             baseArray[0] = 1;
@@ -181,11 +138,42 @@ const getShaderKey = (config:GltfShaderConfig):string => {
             }
         }
 
+    for(let i = 0; i < config.nPositionMorphs; i++) {
+        morphsArray[i]
+    }
 
-    const shaderKey = hashBooleans32(baseArray).toString() + "-" + hashBooleans32(lightsArray).toString();
+    for(let i = 0; i < config.nNormalMorphs; i++) {
+        morphsArray[8 + i]
+    }
+    for(let i = 0; i < config.nTangentMorphs; i++) {
+        morphsArray[16 + i]
+    }
+    for(let i = 0; i < config.nMorphWeights; i++) {
+        morphsArray[24 + i]
+    }
+
+    for(let i = 0; i < config.nSkinJoints; i++) {
+        skinArray[i] = 1;
+    }
+
+    const shaderKey = 
+        hashBooleans32(baseArray).toString() 
+        "-" + hashBooleans32(morphsArray).toString()
+        + "-" + hashBooleans32(skinArray).toString()
+        + "-" + hashBooleans32(lightsArray).toString();
+    
     return shaderKey;
     
 }
+
+const shaderConfigBenchmark = (shaderConfig:GltfShaderConfig) => {
+    const t = performance.now();
+    for(let i = 0; i < 500; i++) {
+        getShaderKey(shaderConfig);
+    }
+    console.log(performance.now() - t);
+}
+
 export const generateShader = 
     ({renderer, data, primitive}: 
     { 
@@ -195,6 +183,8 @@ export const generateShader =
     }) => {
 
 
+   //shaderConfigBenchmark(primitive.shaderConfig); 
+    
     const shaderKey = getShaderKey(primitive.shaderConfig);
 
     if (!data.shaders.has(shaderKey)) {
@@ -219,8 +209,10 @@ export const generateShader =
     return shader;
 }
 
-const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}):GltfShaderConfig => {
+const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive }):GltfShaderConfig => {
     const gltf = data.original;
+
+    const originalNode = data.original.nodes[primitive.originalNodeId];
 
     const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
 
@@ -228,8 +220,38 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
         Object.keys(originalPrimitive.attributes).indexOf(attr) !== -1;
 
     const material = primitive.material;
+   
+    let nMorphWeights = 0;
+    let nPositionMorphs = 0;
+    let nNormalMorphs = 0;
+    let nTangentMorphs = 0;
+    let nSkinJoints = 0;
+ 
+    if(originalNode.skin !== undefined) {
+        const skin = data.skins.get(originalNode.skin);
+        nSkinJoints = skin.joints.length;
+    }
     
+    if(originalPrimitive.targets) {
+        originalPrimitive.targets.forEach(target => {
+            GLTF_PARSE_sortPrimitiveAttributeKeys(Object.keys(target)).forEach(key => {
+                switch(key) {
+                    case "POSITION": nPositionMorphs++; break;
+                    case "NORMAL": nNormalMorphs++; break;
+                    case "TANGENT": nTangentMorphs++; break;
+                    default: console.warn("unknown...", key);
+                }
+            })
+
+            nMorphWeights++;
+        })
+    }
     const shaderConfig:GltfShaderConfig = {
+        nMorphWeights,
+        nPositionMorphs,
+        nNormalMorphs,
+        nTangentMorphs,
+        nSkinJoints,
         hasNormalAttributes: hasAttribute (originalPrimitive) ("NORMAL"),
         hasTangentAttributes: hasAttribute (originalPrimitive) ("TANGENT"),
         hasUvAttributes: hasAttribute (originalPrimitive) ("TEXCOORD_0"),
@@ -307,7 +329,7 @@ const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfP
 
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');
 
-    const vertex = getCoreVertexShader (originalPrimitive) (defineString + vertexShaderSource);
+    const vertex = getCoreVertexShader ({data, primitive}) (defineString + vertexShaderSource);
 
     const fragment = getCoreFragmentShader(defineString + fragmentShaderSource);
 
@@ -315,7 +337,9 @@ const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfP
 }
 
 
-const getCoreVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (vs:string):string => {
+const getCoreVertexShader = ({data, primitive }:{data:GltfData, primitive: GltfPrimitive }) => (vs:string):string => {
+    const originalNode = data.original.nodes[primitive.originalNodeId];
+    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
     const attributeKeys = GLTF_PARSE_getPrimitiveAttributeKeys(originalPrimitive);
     const {targets} = originalPrimitive;
     const shaderMorphVarLookup = {
@@ -327,10 +351,11 @@ const getCoreVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (
     let MORPH_VARS = '';
     let MORPH_FUNCS = '';
 
+    let morphIndex = 0;
+    let weightIndex = 0;
+
     if(targets) {
 
-        let morphIndex = 0;
-        let weightIndex = 0;
         targets.forEach(target => {
             GLTF_PARSE_sortPrimitiveAttributeKeys(Object.keys(target)).forEach(key => {
                 const aMorph = `a_Morph_${morphIndex}`;
@@ -348,11 +373,37 @@ const getCoreVertexShader = (originalPrimitive:GLTF_ORIGINAL_MeshPrimitive) => (
         MORPH_VARS += `uniform float u_MorphWeights[${weightIndex}];\n`;
     }
 
-    return vs.replace("%MORPH_VARS%", MORPH_VARS).replace("%MORPH_FUNCS%", MORPH_FUNCS);
+    let SKIN_VARS = '';
+    let SKIN_FUNCS = '';
+
+    if(originalNode.skin !== undefined) {
+        const skin = data.skins.get(originalNode.skin);
+        const nJoints = skin.joints.length;
+        SKIN_VARS += `attribute vec4 a_Skin_Joint;\n`;
+        SKIN_VARS += `attribute vec4 a_Skin_Weight;\n`;
+        SKIN_VARS += `uniform mat4 u_Skin_Matrix[${nJoints}];\n`;
+
+        SKIN_FUNCS += `mat4 skinMat =\n`;
+        for(let i = 0; i < nJoints; i++) {
+            SKIN_FUNCS += `a_Skin_Weight[${i}] * u_Skin_Matrix[int(a_Skin_Joint[${i}])]`;
+            if(i === nJoints -1) {
+                SKIN_FUNCS += ';\n';
+            } else {
+                SKIN_FUNCS += ' +\n';
+            }
+        }
+
+        SKIN_FUNCS += `m_Position = skinMat * m_Position;\n`; 
+        
+    }
+    return vs
+        .replace("%MORPH_VARS%", MORPH_VARS)
+        .replace("%MORPH_FUNCS%", MORPH_FUNCS)
+        .replace("%SKIN_VARS%", SKIN_VARS)
+        .replace("%SKIN_FUNCS%", SKIN_FUNCS)
 }
 
-const getCoreFragmentShader = (fs:string):string => 
-    fs;
+const getCoreFragmentShader = (fs:string):string => fs;
 
 const getShaderSource = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}): WebGlShaderSource => 
     GltfExtensions

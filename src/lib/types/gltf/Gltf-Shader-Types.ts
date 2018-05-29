@@ -1,6 +1,11 @@
 import {WebGlShader, GltfUnlitShaderConfig, GltfLightsShaderConfig, GltfIblShaderConfig} from "../../Types";
 
 export interface GltfShaderConfig {
+    nMorphWeights: number;
+    nPositionMorphs:number;
+    nNormalMorphs: number;
+    nTangentMorphs: number;
+    nSkinJoints:number;
     hasNormalAttributes: boolean;
     hasTangentAttributes: boolean;
     hasUvAttributes: boolean;

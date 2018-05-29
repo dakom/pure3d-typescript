@@ -11,8 +11,8 @@ const attributeShaderNameLookup = {
   "TANGENT": "a_Tangent",
   "TEXCOORD_0": "a_UV",
   "COLOR_0": "a_Color",
-  "JOINTS_0": "a_Skin_Joints",
-  "WEIGHTS_0": "a_Skin_Weights"
+  "JOINTS_0": "a_Skin_Joint",
+  "WEIGHTS_0": "a_Skin_Weight"
 }
 
 //Sorting the attributes is important so that the dynamic shader
@@ -54,7 +54,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
     
     const accessorId = originalPrimitive.attributes[attributeKey];
     const attributeName = attributeShaderNameLookup[attributeKey];
-      
+
     vao.data.push({
         attributeName,
         bufferId: accessorLookup.get(accessorId).rendererBufferId,

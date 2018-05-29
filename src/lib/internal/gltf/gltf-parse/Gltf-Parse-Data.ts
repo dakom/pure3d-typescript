@@ -1,11 +1,12 @@
 import { Future, parallel } from 'fluture';
 import { fetchArrayBufferUrl, fetchImage, loadImageFromArrayBuffer } from 'fluture-loaders';
-import { GltfInitConfig, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
+import { GltfSkinData, GltfInitConfig, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
 
 import { GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
 import { prepWebGlRenderer } from '../init/Gltf-Init';
 import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
+import { GLTF_PARSE_createSkins} from "./Gltf-Parse-Data-Skins";
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
 import {createVertexArrays} from "../../../exports/webgl/WebGl-VertexArrays";
@@ -68,8 +69,9 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer, config }: { conf
     const textures = GLTF_PARSE_createTextures({ renderer, gltf, imageElements });
     const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
     const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
+    const skins = GLTF_PARSE_createSkins({gltf, buffers});
     const shaders = new Map<string, WebGlShader>();
-
+    
     return GltfExtensions
         .map(ext => ext.createData)
         .reduce((acc, val) => (acc = val ({gltf, assets, renderer}) (acc), acc), 
@@ -78,6 +80,7 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer, config }: { conf
             animations,
             attributes,
             textures,
+            skins,
             shaders,
             initConfig: config,
             extensions: {}

@@ -2,6 +2,7 @@ precision highp float;
 precision highp int;
 
 %MORPH_VARS%
+%SKIN_VARS%
 
 #ifdef USE_LIGHTING
 %LIGHTING_VARS%
@@ -51,12 +52,14 @@ void main()
     vec4 m_Tangent = a_Tangent;
   #endif
 
+    %SKIN_FUNCS%
   %MORPH_FUNCS%
 
     #ifdef USE_LIGHTING
     %LIGHTING_FUNCS%
     #endif
 
+  
   vec4 pos = u_ModelMatrix * m_Position;
   v_Position = vec3(pos.xyz) / pos.w;
 

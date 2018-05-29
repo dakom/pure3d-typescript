@@ -9,6 +9,7 @@ export type GltfPrimitive = (GltfPrimitiveElementsDraw | GltfPrimitiveArrayDraw)
         vaoId: number;
 	drawMode: number;
 	material?: GltfMaterial;
+        originalNodeId: number;
         originalMeshId: number;
         originalPrimitiveId: number;
 };
