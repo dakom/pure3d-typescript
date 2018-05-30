@@ -3,7 +3,7 @@ import {
     GLTF_ORIGINAL,
     GltfLightsExtensionName,
     GltfIblExtensionName,
-    updateNodeListTransforms,
+    gltf_updateNodeTransforms,
     Camera,
     GltfNode,
     gltf_createAnimator,
@@ -143,19 +143,19 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
 
                 scene = bridge.updateShaderConfigs(scene);
                 const nodes = animate (frameTs) (scene.nodes)
-                
+
 
                 scene = Object.assign({}, scene, {
                     camera: !isControlled
                         ?   scene.camera
                         :   updateCamera(controls) (scene.camera), 
-                    nodes: updateNodeListTransforms ({
+                    nodes: gltf_updateNodeTransforms ({
+                        skinData: bridge.getData().skins,
                         updateLocal: true,
                         updateModel: true,
                         updateView: true,
                         camera: scene.camera
                     })
-                    (null)
                     (nodes)
                 });
 

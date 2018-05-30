@@ -12,6 +12,8 @@ export * from "./exports/gltf/Gltf-Animation";
 export * from "./exports/gltf/Gltf-Bridge";
 export * from "./exports/gltf/Gltf-Scene";
 export * from "./exports/gltf/Gltf-Primitive-Utils";
+export * from "./exports/gltf/Gltf-Nodes";
+export * from "./exports/gltf/Gltf-Skins";
 
 //exports/WebGL
 export * from "./exports/webgl/WebGl-Attributes";

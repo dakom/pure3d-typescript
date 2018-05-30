@@ -19,8 +19,7 @@ const _Demo = props => (
                 //ibl: false,
                 //lights: true,
                 lights: false,
-                bakedCamera: true
-        }}
+                bakedCamera: true}}
        
         {...props}
     />

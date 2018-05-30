@@ -9,7 +9,7 @@ export * from "./types/gltf/Gltf-Renderer-Types";
 export * from "./types/gltf/Gltf-Scene-Types";
 export * from "./types/gltf/Gltf-Shader-Types";
 export * from "./types/gltf/Gltf-Init-Types";
-export * from "./types/gltf/Gltf-Bridge";
+export * from "./types/gltf/Gltf-Bridge-Types";
 export * from "./types/gltf/Gltf-Attribute-Types";
 export * from "./types/gltf/Gltf-Accessor-Types";
 export * from "./types/gltf/Gltf-Skin-Types";

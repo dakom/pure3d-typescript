@@ -5,7 +5,6 @@ import {
     GltfNodeKind,
     GltfNode,
     TypedNumberArray,
-    GltfSkinJoint
 } from '../../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE } from './Gltf-Parse-Data-Constants';
 import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
@@ -47,25 +46,25 @@ export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL,
             throw new Error("inverse bind matrices mismatch!");
         }
    
-        let skeletonRoot:GltfSkinJoint;
+        let skeletonRootId: number;
 
         const skinData:GltfSkinData = {
             joints: originalSkin.joints.map((originalNodeId, idx) => {
-                const joint:GltfSkinJoint = {
+                const joint = {
                     originalNodeId,
                     inverseBindMatrix: inverseBindMatrices[idx]
                 }
 
                 if(originalSkin.skeleton !== undefined && originalSkin.skeleton === originalNodeId) {
-                    skeletonRoot = Object.assign({}, joint);
+                    skeletonRootId = originalNodeId;
                 }
 
                 return joint;
             })
         }
 
-        if(skeletonRoot) {
-            skinData.skeletonRoot = skeletonRoot;
+        if(skeletonRootId !== undefined) {
+            skinData.skeletonRootId = skeletonRootId;
         }
 
         skins.set(skinId, skinData);

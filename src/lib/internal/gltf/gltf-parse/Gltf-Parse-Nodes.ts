@@ -17,6 +17,7 @@ import {
     CameraNode,
     GltfNodeKind,
     NodeKind,
+    GltfDataAssets
 } from '../../../Types';
 import { GLTF_PARSE_primitiveHasAttribute } from './Gltf-Parse-Primitive-Attributes';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
@@ -31,15 +32,7 @@ import {GLTF_PARSE_addAnimationIds} from "./Gltf-Parse-Data-Animation";
  * Nodes are by definition lightweight, it's no biggie in terms of memory either
  * However, they _should_ be culled via GltfBridge.getOriginalScene(), otherwise dups will show
  */
-export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
-
-    const skinSet = new Set<number>();
-    if(gltf.skins) {
-        gltf.skins.forEach(skin => 
-            skin.joints.forEach(skinId => skinSet.add(skinId))
-        )
-    }
-
+export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: GltfDataAssets, gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
     const getGltfNode = (parentModelMatrix: NumberArray) => (originalNodeId: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
 
@@ -51,9 +44,7 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
                 ?   GltfNodeKind.MESH
                 :   node.camera !== undefined
                     ?   NodeKind.CAMERA
-                    :   skinSet.has(originalNodeId)
-                        ?   GltfNodeKind.SKIN
-                        :   undefined, //could be replaced via extension
+                    :   undefined, //could be replaced via extension, or be a skin joint
         } as GltfNode;
 
         const trs = node.matrix ? getTrsFromMatrix(Float64Array.from(node.matrix)) : getTrs(node);
@@ -73,7 +64,15 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
             baseNode.primitives = primitives.get(node.mesh);
 
             if(node.skin !== undefined) {
-                baseNode.skinId = node.skin;
+                const skinData = data.skins.get(node.skin);
+                baseNode.skin = {
+                    skinId: node.skin,
+                    jointIds: skinData.joints.map(({originalNodeId}) => originalNodeId)
+                }
+
+                if(skinData.skeletonRootId !== undefined) {
+                    baseNode.skin.skeletonRootId = skinData.skeletonRootId;
+                }
             }
 
             const morphWeights =
@@ -86,11 +85,9 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
             if(morphWeights) {
                 baseNode.morphWeights = morphWeights;
             }
-        }
-
-        if(baseNode.kind === NodeKind.CAMERA) {
+        } else if(baseNode.kind === NodeKind.CAMERA) {
             baseNode.camera = GLTF_PARSE_getCamera(gltf.cameras[node.camera]) (modelMatrix);
-        }
+        } 
 
         const finalNode = GltfExtensions
             .map(ext => ext.createNode)
@@ -105,14 +102,10 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data}:{gltf:GLTF_ORIGINAL
             : Object.assign(finalNode, {children: node.children.map(idx => getGltfNode(modelMatrix) (idx) (gltf.nodes[idx]))});
     }
 
-
-    const nodes = 
-        gltf.nodes
-            .map((node, idx) => getGltfNode(null) (idx) (node));
-
     return GLTF_PARSE_addAnimationIds({
         gltf,
-        nodes
+        nodes:  gltf.nodes
+                    .map((node, idx) => getGltfNode(null) (idx) (node))
     })
 
 }

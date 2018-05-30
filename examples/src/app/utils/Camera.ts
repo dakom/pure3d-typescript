@@ -8,7 +8,6 @@ import {getCameraProjection,
     NumberArray,
     createMat4,
     createVec3,
-    updateNodeListTransforms,
     Camera,
     GltfNodeKind,
     GltfBridge,
@@ -69,6 +68,8 @@ export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (isB
 
     if(bakedCamera) {
         camera = bridge.getOriginalCameras()[cameraIndex];
+
+        console.log(camera);
         cameraLook = [0,0,0]; //might be nice to derive this
     } else {
         const position = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);

@@ -1,6 +1,7 @@
 import {updateTransform} from "../transform/Transform";
 import {NumberArray, TransformUpdateOptions, _Node} from "../../../Types";
 
+
 //filter stuff could use some testing
 export const filterNodeDeep = <T extends _Node> (fn: (node:T) => boolean) => (node:T | undefined):T | undefined => {
     if(node === undefined || !fn(node)) {

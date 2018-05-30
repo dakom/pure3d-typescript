@@ -2,7 +2,12 @@ precision highp float;
 precision highp int;
 
 %MORPH_VARS%
-%SKIN_VARS%
+
+#ifdef HAS_SKIN
+attribute vec4 a_Skin_Joint;
+attribute vec4 a_Skin_Weight;
+uniform mat4 u_Skin_Matrices[%SKIN_JOINT_COUNT%];
+#endif
 
 #ifdef USE_LIGHTING
 %LIGHTING_VARS%
@@ -52,8 +57,15 @@ void main()
     vec4 m_Tangent = a_Tangent;
   #endif
 
-    %SKIN_FUNCS%
-  %MORPH_FUNCS%
+#ifdef HAS_SKIN
+    mat4 skinMat = a_Skin_Weight[0] * u_Skin_Matrices[int(a_Skin_Joint[0])]
+        +   a_Skin_Weight[1] * u_Skin_Matrices[int(a_Skin_Joint[1])]
+        +   a_Skin_Weight[2] * u_Skin_Matrices[int(a_Skin_Joint[2])]
+        +   a_Skin_Weight[3] * u_Skin_Matrices[int(a_Skin_Joint[3])];
+
+    m_Position = skinMat * m_Position;
+#endif
+    %MORPH_FUNCS%
 
     #ifdef USE_LIGHTING
     %LIGHTING_FUNCS%

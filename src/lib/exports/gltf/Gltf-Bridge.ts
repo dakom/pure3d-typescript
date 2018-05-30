@@ -18,10 +18,11 @@ import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
 import {forEachNodes, countNodes } from "../common/nodes/Nodes";
-
+import {getCameraProjection} from "../common/camera/Camera";
 import {
 WebGlRenderer,
     CameraNode,
+    CameraKind,
     NodeKind,
     WebGlBufferInfo,WebGlBufferData,
     LightNode,
@@ -95,7 +96,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         const primitives = GLTF_PARSE_createPrimitives({ renderer, data });
 
         _data = data;
-        _allNodes = GLTF_PARSE_getNodes({gltf, primitives, data});
+        _allNodes = GLTF_PARSE_getNodes({gltf, primitives, data, assets});
     }
 
     const updatePrimitives = (scene:GltfScene) => (mapper: (primitive:GltfPrimitive) => GltfPrimitive):GltfScene => {
@@ -125,28 +126,23 @@ function createGltfBridge(renderer:WebGlRenderer) {
         const renderThunksByShader = new Map<Symbol, Array<() => void>>();
         const meshList = new Array<GltfMeshNode>();
         const lightList = new Array<LightNode>();
-        const addToRenderList = (list:Array<any>) => (pred:((n:GltfNode) => boolean)) => (node:GltfNode) => {
-            if(pred(node)) {   
-                list.push(node);
-            }
-            if(node.children) {
-                node.children.forEach((node:GltfNode) => addToRenderList (list) (pred) (node));
-            }
-        }
-        scene.nodes.forEach(addToRenderList
-            (meshList) 
-            (
-                node => node.kind === GltfNodeKind.MESH && node.transform && node.transform.modelViewProjectionMatrix ? true : false
-            )
-        );
-        scene.nodes.forEach(addToRenderList
-            (lightList) 
-            (
-                node => node.kind === NodeKind.LIGHT ? true : false
-            )
-        );
 
-        meshList.forEach(node => 
+        forEachNodes ((node:GltfNode) => {
+            if( node.kind === GltfNodeKind.MESH 
+                && node.transform 
+                && node.transform.modelViewProjectionMatrix ? true : false) {
+                    meshList.push(node as GltfMeshNode);
+            } else if(node.kind === NodeKind.LIGHT) {
+                lightList.push(node as LightNode);
+            } 
+        }) (scene.nodes);
+
+        meshList.forEach(node => {
+            let skinMatrices:Float32Array;
+            if(node.skin !== undefined && node.skin.skinMatrices) {
+                skinMatrices = node.skin.skinMatrices;
+            }
+
             node.primitives.forEach(primitive => {
                 const shader = generateShader({ 
                     renderer, 
@@ -161,6 +157,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
                 renderThunksByShader
                     .get(shader.shaderId)
                     .push(createRendererThunk({ 
+                        skinMatrices,
                         renderer,
                         data: _data,
                         node,
@@ -170,7 +167,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
                         shader
                     }));
             })
-        );
+        });
 
         renderThunksByShader.forEach(thunks => thunks.forEach(fn => fn()));
 
@@ -233,6 +230,10 @@ function createGltfBridge(renderer:WebGlRenderer) {
             .map(node => {
                 const camera:Camera = Object.assign({}, (node as CameraNode).camera);
                 camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
+                if(camera.kind === CameraKind.PERSPECTIVE && camera.aspectRatio === undefined) {
+                    camera.aspectRatio = renderer.canvas.width / renderer.canvas.height;
+                }
+                camera.projection = getCameraProjection(camera);
                 return camera
             });
     }

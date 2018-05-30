@@ -22,7 +22,6 @@ import {
     GltfPrimitive,
     WebGlShaderSource,
     GltfLightsShaderConfig,
-    GltfSkinNode, GltfSkinJoint
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
 import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
@@ -63,6 +62,8 @@ export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfDat
     const morphsArray = new Uint8Array(30);
     const skinArray = new Uint8Array(30);
     const lightsArray = new Uint8Array(30);
+
+
 const hashBooleans32 = (xs:Uint8Array) => 
 {
     let h = (1 << xs.length);
@@ -72,59 +73,63 @@ const hashBooleans32 = (xs:Uint8Array) =>
     }
     return h;
 }
+
 const getShaderKey = (config:GltfShaderConfig):string => {
 
 
-        if(config.hasNormalAttributes) {
-            baseArray[0] = 1;
+    if(config.hasNormalAttributes) {
+        baseArray[0] = 1;
+    }
+    if(config.hasTangentAttributes) {
+        baseArray[1] = 1;
+    }
+    if(config.hasUvAttributes) {
+        baseArray[2] = 1;
+    }
+    if(config.hasColorAttributes) {
+        baseArray[3] = 1;
+    }
+    if(config.hasBaseColorMap) {
+        baseArray[4] = 1;
+    }
+    if(config.hasNormalMap) {
+        baseArray[5] = 1;
+    }
+    if(config.hasEmissiveMap) {
+        baseArray[6] = 1;
+    }
+    if(config.hasMetalRoughnessMap) {
+        baseArray[7] = 1;
+    }
+    if(config.hasOcclusionMap) {
+        baseArray[8] = 1;
+    }
+    if(config.manualSRGB) {
+        baseArray[9] = 1;
+    }
+    if(config.fastSRGB) {
+        baseArray[10] = 1;
+    }
+
+    if(config.extensions.ibl) {
+        baseArray[11] = 1;
+        if(config.extensions.ibl.useLod) {
+            baseArray[12] = 1;
         }
-        if(config.hasTangentAttributes) {
-            baseArray[1] = 1;
-        }
-        if(config.hasUvAttributes) {
-            baseArray[2] = 1;
-        }
-        if(config.hasColorAttributes) {
-            baseArray[3] = 1;
-        }
-        if(config.hasBaseColorMap) {
-            baseArray[4] = 1;
-        }
-        if(config.hasNormalMap) {
-            baseArray[5] = 1;
-        }
-        if(config.hasEmissiveMap) {
-            baseArray[6] = 1;
-        }
-        if(config.hasMetalRoughnessMap) {
-            baseArray[7] = 1;
-        }
-        if(config.hasOcclusionMap) {
-            baseArray[8] = 1;
-        }
-        if(config.manualSRGB) {
-            baseArray[9] = 1;
-        }
-        if(config.fastSRGB) {
-            baseArray[10] = 1;
+    }
+    if(config.extensions.unlit) {
+        baseArray[13] = 1;
+    }
+
+
+    if(config.extensions.lights) {
+        baseArray[14] = 1;
+        if(config.extensions.lights.hasAmbient) {
+            baseArray[15] = 1;
         }
 
-        if(config.extensions.ibl) {
-            baseArray[11] = 1;
-            if(config.extensions.ibl.useLod) {
-                baseArray[12] = 1;
-            }
-        }
-        if(config.extensions.unlit) {
-            baseArray[13] = 1;
-        }
-        if(config.extensions.lights) {
-            baseArray[14] = 1;
-            if(config.extensions.lights.hasAmbient) {
-                baseArray[15] = 1;
-            }
 
-            //Light instances get their own array - 10 * 3 = 30 possibilities
+        //Light instances get their own array - 10 * 3 = 30 possibilities
             for(let i = 0; i < config.extensions.lights.nDirectionalLights; i++) {
                 lightsArray[i] = 1;
             }
@@ -136,7 +141,8 @@ const getShaderKey = (config:GltfShaderConfig):string => {
             for(let i = 0; i < config.extensions.lights.nSpotLights; i++) {
                 lightsArray[20 + i] = 1;
             }
-        }
+    }
+
 
     for(let i = 0; i < config.nPositionMorphs; i++) {
         morphsArray[i]
@@ -157,18 +163,18 @@ const getShaderKey = (config:GltfShaderConfig):string => {
     }
 
     const shaderKey = 
-        hashBooleans32(baseArray).toString() 
-        "-" + hashBooleans32(morphsArray).toString()
+        hashBooleans32(baseArray).toString()
+    "-" + hashBooleans32(morphsArray).toString()
         + "-" + hashBooleans32(skinArray).toString()
         + "-" + hashBooleans32(lightsArray).toString();
-    
+
     return shaderKey;
-    
+
 }
 
 const shaderConfigBenchmark = (shaderConfig:GltfShaderConfig) => {
     const t = performance.now();
-    for(let i = 0; i < 500; i++) {
+    for(let i = 0; i < 5000; i++) {
         getShaderKey(shaderConfig);
     }
     console.log(performance.now() - t);
@@ -228,7 +234,7 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
     let nSkinJoints = 0;
  
     if(originalNode.skin !== undefined) {
-        const skin = data.skins.get(originalNode.skin);
+        const skin = data.original.skins[originalNode.skin];
         nSkinJoints = skin.joints.length;
     }
     
@@ -327,6 +333,10 @@ const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfP
         defines.push("SRGB_FAST_APPROXIMATION");
     }
 
+    if(config.nSkinJoints) {
+        defines.push("HAS_SKIN");
+    }
+
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');
 
     const vertex = getCoreVertexShader ({data, primitive}) (defineString + vertexShaderSource);
@@ -373,34 +383,17 @@ const getCoreVertexShader = ({data, primitive }:{data:GltfData, primitive: GltfP
         MORPH_VARS += `uniform float u_MorphWeights[${weightIndex}];\n`;
     }
 
-    let SKIN_VARS = '';
-    let SKIN_FUNCS = '';
+    let SKIN_JOINT_COUNT = '';
 
     if(originalNode.skin !== undefined) {
-        const skin = data.skins.get(originalNode.skin);
-        const nJoints = skin.joints.length;
-        SKIN_VARS += `attribute vec4 a_Skin_Joint;\n`;
-        SKIN_VARS += `attribute vec4 a_Skin_Weight;\n`;
-        SKIN_VARS += `uniform mat4 u_Skin_Matrix[${nJoints}];\n`;
-
-        SKIN_FUNCS += `mat4 skinMat =\n`;
-        for(let i = 0; i < nJoints; i++) {
-            SKIN_FUNCS += `a_Skin_Weight[${i}] * u_Skin_Matrix[int(a_Skin_Joint[${i}])]`;
-            if(i === nJoints -1) {
-                SKIN_FUNCS += ';\n';
-            } else {
-                SKIN_FUNCS += ' +\n';
-            }
-        }
-
-        SKIN_FUNCS += `m_Position = skinMat * m_Position;\n`; 
-        
+        const skin = data.original.skins[originalNode.skin];
+        SKIN_JOINT_COUNT = skin.joints.length.toString();
+       
     }
     return vs
         .replace("%MORPH_VARS%", MORPH_VARS)
         .replace("%MORPH_FUNCS%", MORPH_FUNCS)
-        .replace("%SKIN_VARS%", SKIN_VARS)
-        .replace("%SKIN_FUNCS%", SKIN_FUNCS)
+        .replace("%SKIN_JOINT_COUNT%", SKIN_JOINT_COUNT);
 }
 
 const getCoreFragmentShader = (fs:string):string => fs;
