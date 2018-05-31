@@ -9,16 +9,21 @@ export enum GltfNodeKind {
 }
 
 
-export type GltfNode = (GltfCameraNode | LightNode | GltfMeshNode) & {
+export type GltfNode = (GltfCameraNode | GltfLightNode | GltfMeshNode); 
+
+export interface _GltfNode extends _Node {
     originalNodeId: number;
     animationIds: Array<number>;
 };
 
-export interface GltfCameraNode extends CameraNode {
+export interface GltfLightNode extends LightNode, _GltfNode {
+}
+
+export interface GltfCameraNode extends CameraNode, _GltfNode {
     cameraIndex: number;
 }
 
-export interface GltfMeshNode extends _Node {
+export interface GltfMeshNode extends _GltfNode {
         kind: GltfNodeKind.MESH;
 	primitives?: Array<GltfPrimitive>;
 	morphWeights?: NumberArray;
