@@ -3,10 +3,9 @@ import {mat4, vec3} from "gl-matrix";
 import {createVec3, createMat4} from "../../../exports/common/array/Array";
 import {getCameraView, getCameraProjection} from "../../../exports/common/camera/Camera";
 
-export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (modelMatrix:NumberArray):Camera => {
+export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => {
 
-    const baseCamera:CameraSettings = 
-        originalCamera.type === "orthographic"
+    return  originalCamera.type === "orthographic"
         ?   {
                 kind:   CameraKind.ORTHOGRAPHIC,
                 xmag:   originalCamera.orthographic.xmag,
@@ -22,13 +21,7 @@ export const GLTF_PARSE_getCamera = (originalCamera:GLTF_ORIGINAL_Camera) => (mo
                 zfar: originalCamera.perspective.zfar,
             }
 
-    
-    const view = getCameraView(modelMatrix);
 
-
-    const projection = getCameraProjection(baseCamera as Camera);
-
-    return Object.assign(baseCamera, {view, projection});
 
 }
 

@@ -17,10 +17,11 @@ import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Par
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
-import {forEachNodes, countNodes } from "../common/nodes/Nodes";
-import {getCameraProjection} from "../common/camera/Camera";
+import {forEachNodes, findInNodes, countNodes } from "../common/nodes/Nodes";
+import {getCameraView, getCameraProjection} from "../common/camera/Camera";
 import {
 WebGlRenderer,
+    GltfCameraNode,
     CameraNode,
     CameraKind,
     NodeKind,
@@ -224,18 +225,27 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     }
 
-    const getOriginalCameras = ():Array<Camera> => {
-       return _allNodes
-            .filter(node => node.kind === NodeKind.CAMERA)
-            .map(node => {
-                const camera:Camera = Object.assign({}, (node as CameraNode).camera);
-                camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
-                if(camera.kind === CameraKind.PERSPECTIVE && camera.aspectRatio === undefined) {
-                    camera.aspectRatio = renderer.canvas.width / renderer.canvas.height;
-                }
-                camera.projection = getCameraProjection(camera);
-                return camera
-            });
+    const getOriginalCamera = (index:number):Camera => {
+        const node = 
+            findInNodes<GltfNode>
+                (node => node.kind === NodeKind.CAMERA && node.cameraIndex === index)
+                (_allNodes) as GltfCameraNode;
+
+        if(!node) {
+            return undefined;
+        }
+
+        console.log(node);
+
+        const camera = Object.assign({}, node.camera);
+
+        camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
+        if(camera.kind === CameraKind.PERSPECTIVE && camera.aspectRatio === undefined) {
+            camera.aspectRatio = renderer.canvas.width / renderer.canvas.height;
+        }
+        camera.view = getCameraView(node.transform.modelMatrix);
+        camera.projection = getCameraProjection(camera);
+        return camera
     }
 
     const bridge:GltfBridge = {
@@ -243,7 +253,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         getAllNodes: () => _allNodes,
         getData: () => _data,
         getOriginalScene,
-        getOriginalCameras,
+        getOriginalCamera,
         loadFile,
         loadAssets,
         start,

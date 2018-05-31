@@ -15,7 +15,6 @@ import {
     GltfNode,
     Transform,
     TypedNumberArray,
-    GltfSkinData
 } from "../../Types";
 import {forEachNodes, countNodes, mapNodes, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {mat4} from "gl-matrix";

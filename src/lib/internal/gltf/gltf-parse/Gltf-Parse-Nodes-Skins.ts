@@ -1,10 +1,10 @@
 import { 
     WebGlAttributeActivateOptions,
     GLTF_ORIGINAL,
-    GltfSkinData,
     GltfNodeKind,
     GltfNode,
     TypedNumberArray,
+    GltfSkinJoint
 } from '../../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE } from './Gltf-Parse-Data-Constants';
 import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
@@ -12,8 +12,11 @@ import {GLTF_PARSE_getAccessorDataInfo} from "./Gltf-Parse-Data-Info";
 import {mapNodes} from "../../../exports/common/nodes/Nodes";
 import {createIdentityMat4} from "../../../exports/common/array/Array";
 
-export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}): Map<number, GltfSkinData> => {
-    const skins = new Map<number, GltfSkinData>();
+export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}) => {
+    const skins = new Map<number, {
+        skeletonRootId?: number;
+        joints: Array<GltfSkinJoint>;
+    }>();
     if(!gltf.skins || !gltf.skins.length) {
         return skins;
     }
@@ -48,7 +51,7 @@ export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL,
    
         let skeletonRootId: number;
 
-        const skinData:GltfSkinData = {
+        const skinData = {
             joints: originalSkin.joints.map((originalNodeId, idx) => {
                 const joint = {
                     originalNodeId,
@@ -61,7 +64,7 @@ export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL,
 
                 return joint;
             })
-        }
+        } as any;
 
         if(skeletonRootId !== undefined) {
             skinData.skeletonRootId = skeletonRootId;

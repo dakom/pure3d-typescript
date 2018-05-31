@@ -119,6 +119,22 @@ const addExtensions = ({model, menuOptions}: {model:Model, menuOptions}) => {
     
 }
 
+
+const getCameraList = (gltf:GLTF_ORIGINAL) => {
+
+    if(!gltf.cameras || !gltf.cameras.length) {
+        return []
+    }
+
+    return gltf.cameras.map((camera, idx) => {
+        let str = idx.toString();
+        if(camera.name) {
+            str += " " + camera.name;
+        }
+        return str;
+    });
+}
+
 export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, menuOptions}:{modelPath:string, modelInfo:ModelInfo, menuOptions: any}) => 
     gltf_load({
         renderer, 
@@ -128,10 +144,17 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
     .map(bridge => {
+
+        const cameras = getCameraList(bridge.getData().original);
+        if(cameras.sort().toString() !== menuOptions.cameras.sort().toString()) {
+            menuOptions.onChange(Object.assign({}, menuOptions, {cameras}));
+            return () => {};
+        }
+
         const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
 
 
-        const {camera, controls, isControlled} = getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.bakedCamera)
+        const {camera, controls, isControlled} = getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.selectedCamera)
 
         let scene = bridge.getOriginalScene(camera) (0);
 

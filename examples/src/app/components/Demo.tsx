@@ -25,22 +25,41 @@ const alertMessage = {
 }
 
 
-export class Demo extends React.Component<{match: any, menuOptions: any}, {menuOptions: any}> {
+
+export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            menuOptions: this.props.menuOptions
+            menuOptions: {
+                ibl: true,
+                //ibl: false,
+                //lights: true,
+                lights: false,
+                cameras: [],
+                selectedCamera: -1
+
+            }
         }
+
+        this.onOptions = this.onOptions.bind(this);
+    }
+
+    onOptions(menuOptions) {
+        this.setState({menuOptions});
     }
     render() {
         const {section, scene} = this.props.match.params;
 
+        const menuOptions = Object.assign({}, this.state.menuOptions, {
+            onChange: this.onOptions
+        });
+
         return (
             <React.Fragment>
-            <Container section={section} scene={scene} menuOptions={this.state.menuOptions} /> 
-            <TopMenu menuOptions={this.state.menuOptions} onOptions={menuOptions => this.setState({menuOptions})} basePage={section} buttons={buttons[section]} alertMessage={alertMessage[section]} /> 
+            <Container section={section} scene={scene} menuOptions={menuOptions} /> 
+            <TopMenu menuOptions={menuOptions} basePage={section} buttons={buttons[section]} alertMessage={alertMessage[section]} /> 
             </React.Fragment>
         )
     }

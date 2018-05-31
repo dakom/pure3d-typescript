@@ -13,10 +13,12 @@ import MenuIcon from '@material-ui/icons/Menu';
 import {withRouter} from "react-router-dom";
 import HomeIcon from '@material-ui/icons/Home';
 import blue from 'material-ui/colors/blue';
-import { FormGroup, FormControlLabel } from 'material-ui/Form';
+import { FormControl, FormGroup, FormControlLabel } from 'material-ui/Form';
 import Checkbox from 'material-ui/Checkbox';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import Select from 'material-ui/Select';
+import Input, {InputLabel} from "material-ui/Input";
 
 const topStyles = {
     appBar: {
@@ -191,10 +193,14 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
 export const TopMenu = withRouter(_TopMenu);
 
 
-const _GltfMenu = ({menuOptions, classes, onOptions}:{menuOptions: any, classes: any, onOptions: (options:any) => void}) => {
+const _GltfMenu = ({menuOptions, classes }:{menuOptions: any, classes: any }) => {
 
-    const handleChange = name => event => onOptions(Object.assign({}, menuOptions, {
+    const handleCheckboxChange = name => event => menuOptions.onChange(Object.assign({}, menuOptions, {
         [name]: event.target.checked
+    }));
+
+    const handleSelectChange = name => event => menuOptions.onChange(Object.assign({}, menuOptions, {
+        [name]: event.target.value
     }));
 
         return (
@@ -209,7 +215,7 @@ const _GltfMenu = ({menuOptions, classes, onOptions}:{menuOptions: any, classes:
           control={
             <Checkbox
               checked={menuOptions.ibl}
-              onChange={handleChange("ibl")}
+              onChange={handleCheckboxChange("ibl")}
               />
           }
           label="IBL"
@@ -218,22 +224,24 @@ const _GltfMenu = ({menuOptions, classes, onOptions}:{menuOptions: any, classes:
           control={
             <Checkbox
               checked={menuOptions.lights}
-              onChange={handleChange('lights')}
+              onChange={handleCheckboxChange('lights')}
               color="primary"
             />
           }
           label="Lights"
         />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={menuOptions.bakedCamera}
-              onChange={handleChange('bakedCamera')}
-              color="primary"
-            />
-          }
-          label="Baked Camera"
-        />
+        <FormControl>
+                <Select
+                    value={menuOptions.selectedCamera}
+                    onChange={handleSelectChange('selectedCamera')}
+                    input={<Input name="camera" id="camera-readonly" />}
+                >
+                <MenuItem value={-1}><em>Camera: Default / Manual</em></MenuItem>
+                {menuOptions.cameras.map((camera, cameraIndex) => 
+                    <MenuItem key={cameraIndex} value={cameraIndex}><em>Camera: {camera}</em></MenuItem>
+                )}
+                </Select>
+        </FormControl>
             </FormGroup>
             </Toolbar>
         )

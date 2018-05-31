@@ -8,7 +8,6 @@ export interface Model {
     },
     cameraPosition?: Float64Array;
     cameraLookAt?: Float64Array;
-    cameraIndex?: number;
     noIbl?:boolean;
 }
 
@@ -20,20 +19,11 @@ export interface ModelInfo {
 //First just set the main asset that will show in the dropdown
 export const MODEL_LIST_SIMPLE:Array<Model> = [
     {
-        primary: "CAMERA_PERSPECTIVE",
+        primary: "CAMERAS",
         urls: {        
-            "CAMERA_PERSPECTIVE": "Cameras/glTF/Cameras.gltf",
-            "CAMERA_PERSPECTIVE_EMBEDDED": "Cameras/glTF-Embedded/Cameras.gltf",
+            "CAMERAS": "Cameras/glTF/Cameras.gltf",
+            "CAMERAS_EMBEDDED": "Cameras/glTF-Embedded/Cameras.gltf",
         },
-        cameraIndex: 0
-    },
-    {
-        primary: "CAMERA_ORTHOGRAPHIC",
-        urls: {        
-            "CAMERA_ORTHOGRAPHIC": "Cameras/glTF/Cameras.gltf",
-            "CAMERA_ORTHOGRAPHIC_EMBEDDED": "Cameras/glTF-Embedded/Cameras.gltf",
-        },
-        cameraIndex: 1
     },
     {
         primary: "SIMPLE_SPARSE_ACCESSOR",
@@ -301,7 +291,6 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
             "VIRTUAL_CITY_BINARY": "VC/glTF-Binary/VC.glb",
             "VIRTUAL_CITY": "VC/glTF/VC.gltf",
         },        
-        cameraIndex: 9
     },
 ]
 

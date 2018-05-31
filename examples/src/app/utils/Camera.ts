@@ -56,21 +56,17 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
 
 }
 
-export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (isBaked:boolean) => {
+export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (cameraIndex:number) => {
 
-    const cameraIndex = model.cameraIndex !== undefined ? model.cameraIndex : 0;
-
-    const bakedCamera = bridge.getOriginalCameras()[cameraIndex];
+    const bakedCamera = bridge.getOriginalCamera(cameraIndex);
 
     let camera;
     let cameraLook;
     let controls;    
 
     if(bakedCamera) {
-        camera = bridge.getOriginalCameras()[cameraIndex];
-
-        console.log(camera);
-        cameraLook = [0,0,0]; //might be nice to derive this
+        camera = bakedCamera;
+        cameraLook = [0,0,0]; //TODO - derive this
     } else {
         const position = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);
 
@@ -91,7 +87,7 @@ export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (isB
         target: cameraLook
     });
 
-    return {camera, controls, isControlled: !isBaked || !bakedCamera}
+    return {camera, controls, isControlled: !bakedCamera}
 }
 
 

@@ -12,18 +12,6 @@ export const AppContext = React.createContext({buildMode, buildVersion, isProduc
 
 console.log(`%cPure3D v${buildVersion} (${buildMode} mode)`, 'color: #4286f4; font-size: large; font-family: "Comic Sans MS", cursive, sans-serif');
 
-const _Demo = props => (
-    <Demo 
-        menuOptions={{
-                ibl: true,
-                //ibl: false,
-                //lights: true,
-                lights: false,
-                bakedCamera: true}}
-       
-        {...props}
-    />
-)
 
 const App = () => {
     return (
@@ -31,7 +19,7 @@ const App = () => {
 	<Router>
 		<Switch>
                        <Route exact path="/" component={Home} /> 
-			<Route path="/:section/:scene?" component={_Demo} />
+			<Route path="/:section/:scene?" component={Demo} />
 		</Switch>
 	</Router>
         </AppContext.Provider>

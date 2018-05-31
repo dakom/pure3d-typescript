@@ -13,7 +13,6 @@ import {
     SpotLight,
     TransformUpdateOptions,
     GltfNode,
-    GltfSkinData
 } from "../../Types";
 import {mapNodes, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
 

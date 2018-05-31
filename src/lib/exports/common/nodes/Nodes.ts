@@ -19,6 +19,7 @@ export const filterNodesDeep = <T extends _Node> (fn: (node:T) => boolean) => (n
         .filter(n => n);
 
 //Side effects
+//Note -forEach allows returning true to exit early
 export const forEachNode = <T extends _Node> (fn: (node:T) => void | boolean) => (node:T):void => {
     if(fn (node) !== true && node.children) {
         node.children.forEach(forEachNode(fn))
@@ -28,11 +29,42 @@ export const forEachNode = <T extends _Node> (fn: (node:T) => void | boolean) =>
 export const forEachNodes = <T extends _Node> (fn: (node:T) => void | boolean) => (nodes:Array<T>):void => 
     nodes.forEach(forEachNode(fn));
 
+//Helpers
 export const countNodes = <T extends _Node>(nodes:Array<T>):number => {
     let count = 0;
 
     forEachNodes(() => (count++, null)) (nodes);
     return count;
+}
+
+export const findInNodes = <T extends _Node> (pred: (node:T) => boolean) => (nodes:Array<T>):T => {
+    let targetNode:T;
+
+    forEachNodes 
+        ((node:T) => {
+            if(pred(node)) {
+               targetNode = node;
+                return true;
+            }
+        })
+        (nodes);
+
+    return targetNode;
+}
+
+export const findInNode = <T extends _Node> (pred: (node:T) => boolean) => (node:Array<T>):T => {
+    let targetNode:T;
+
+    forEachNodes 
+        ((node:T) => {
+            if(pred(node)) {
+               targetNode = node;
+                return true;
+            }
+        })
+        (node);
+
+    return targetNode;
 }
 //Note - the immutability guarantee is the responsibility of the function - after it returns, the children are _replaced_
 export const mapNode = <T extends _Node> (fn: (node:T) => T) => (node:T):T => {
