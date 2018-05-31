@@ -13,8 +13,9 @@ import {
     SpotLight,
     TransformUpdateOptions,
     GltfNode,
+    GltfCameraNode
 } from "../../Types";
-import {mapNodes, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
+import {mapNodes, findNode, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
 
 import {gltf_setJointTransforms} from "./Gltf-Skins";
 
@@ -24,3 +25,7 @@ export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions ) => (node
     
     return mapNodes <GltfNode>(gltf_setJointTransforms (updatedNodes)) (updatedNodes);
 }
+
+export const gltf_findNodeById = (id:number) => (nodeOrNodes: Array<GltfNode> | GltfNode):GltfNode => 
+    findNode ((node:GltfNode) => node.originalNodeId === id)  (nodeOrNodes)
+

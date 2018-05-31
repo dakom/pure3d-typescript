@@ -1,4 +1,4 @@
-import {CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
+import {Transform, CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
 import {createVec3, createMat4} from "../array/Array";
 import {mat4} from "gl-matrix";
 
@@ -46,4 +46,10 @@ export const getCameraView = (modelMatrix:NumberArray) =>
 export const getCameraPosition = (modelMatrix:NumberArray) =>
     mat4.getTranslation(createVec3(), modelMatrix) as NumberArray; 
 
+export const updateCameraWithTransform = <T extends CameraSettings>(transform:Transform) => (camera:T):T => 
+    Object.assign({}, camera, {
+            position: mat4.getTranslation(createVec3(), transform.localMatrix),
+            view: getCameraView(transform.modelMatrix),
+            projection: getCameraProjection(camera)
+    });
 

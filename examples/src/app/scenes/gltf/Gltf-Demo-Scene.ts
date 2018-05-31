@@ -6,6 +6,7 @@ import {
     gltf_updateNodeTransforms,
     Camera,
     GltfNode,
+    gltf_findNodeById,
     gltf_createAnimator,
     GltfNodeKind,
     GltfBridge,
@@ -154,11 +155,14 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
         const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
 
 
-        const {camera, controls, isControlled} = getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.selectedCamera)
+        const {camera, cameraNodeId, controls, isControlled} = 
+            getInitialGltfCamera (bridge) (modelInfo.model) (menuOptions.selectedCamera)
 
         let scene = bridge.getOriginalScene(camera) (0);
 
-        controls.enable();
+        if(controls) {
+            controls.enable();
+        }
        
 
         return [
@@ -167,11 +171,20 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
                 scene = bridge.updateShaderConfigs(scene);
                 const nodes = animate (frameTs) (scene.nodes)
 
-
+                const cameraNode = 
+                    ((!isControlled)
+                        ?   gltf_findNodeById (cameraNodeId) (nodes)
+                        :   undefined) as any;
+                //TODO - update Camera Node....
+                
                 scene = Object.assign({}, scene, {
-                    camera: !isControlled
-                        ?   scene.camera
-                        :   updateCamera(controls) (scene.camera), 
+                    camera:  updateCamera 
+                                ({
+                                    isControlled,
+                                    controls,
+                                    cameraNode
+                                })
+                                (scene.camera), 
                     nodes: gltf_updateNodeTransforms ({
                         updateLocal: true,
                         updateModel: true,
@@ -181,14 +194,13 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
                     (nodes)
                 });
 
-                
-                
-
                 bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
                 bridge.renderScene(scene);
             },
             () => {
-                controls.disable();
+                if(controls) {
+                    controls.disable(); 
+                }
                 console.log("cleanup!");
             }
         ]

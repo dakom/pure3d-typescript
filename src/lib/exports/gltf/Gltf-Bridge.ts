@@ -17,8 +17,8 @@ import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Par
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
-import {forEachNodes, findInNodes, countNodes } from "../common/nodes/Nodes";
-import {getCameraView, getCameraProjection} from "../common/camera/Camera";
+import {forEachNodes, findNode, countNodes } from "../common/nodes/Nodes";
+import {updateCameraWithTransform, getCameraView, getCameraProjection} from "../common/camera/Camera";
 import {
 WebGlRenderer,
     GltfCameraNode,
@@ -225,9 +225,9 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     }
 
-    const getOriginalCamera = (index:number):Camera => {
+    const getCameraNode = (index:number):GltfCameraNode => {
         const node = 
-            findInNodes<GltfNode>
+            findNode<GltfNode>
                 (node => node.kind === NodeKind.CAMERA && node.cameraIndex === index)
                 (_allNodes) as GltfCameraNode;
 
@@ -235,17 +235,13 @@ function createGltfBridge(renderer:WebGlRenderer) {
             return undefined;
         }
 
-        console.log(node);
-
         const camera = Object.assign({}, node.camera);
 
-        camera.position = mat4.getTranslation(createVec3(), node.transform.localMatrix); 
         if(camera.kind === CameraKind.PERSPECTIVE && camera.aspectRatio === undefined) {
             camera.aspectRatio = renderer.canvas.width / renderer.canvas.height;
         }
-        camera.view = getCameraView(node.transform.modelMatrix);
-        camera.projection = getCameraProjection(camera);
-        return camera
+        
+        return Object.assign({}, node, {camera: updateCameraWithTransform(node.transform) ( camera)})
     }
 
     const bridge:GltfBridge = {
@@ -253,7 +249,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         getAllNodes: () => _allNodes,
         getData: () => _data,
         getOriginalScene,
-        getOriginalCamera,
+        getCameraNode,
         loadFile,
         loadAssets,
         start,

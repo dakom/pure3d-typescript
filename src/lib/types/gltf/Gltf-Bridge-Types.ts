@@ -6,7 +6,8 @@ import {
     GLTF_ORIGINAL,
     GltfInitConfig,
     GltfScene,
-    GltfDataAssets
+    GltfDataAssets,
+    GltfCameraNode,
 } from "../../Types";
 import {Future} from "fluture";
 
@@ -15,7 +16,7 @@ export interface GltfBridge {
     getAllNodes: () => Array<GltfNode>;
     getData: () => GltfData;
     getOriginalScene: (camera:Camera) => (sceneNumber:number) => GltfScene; 
-    getOriginalCamera: (index:number) => Camera;
+    getCameraNode: (index:number) => GltfCameraNode;
     loadFile: (path:string) => Future<XMLHttpRequest, {gltf: GLTF_ORIGINAL, glbBuffers: Array<ArrayBuffer>}>;  
     loadAssets: 
         ({gltf, basePath, glbBuffers}:{gltf:GLTF_ORIGINAL, basePath?: string, glbBuffers:Array<ArrayBuffer>})

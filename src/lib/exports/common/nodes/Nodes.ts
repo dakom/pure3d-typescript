@@ -37,35 +37,26 @@ export const countNodes = <T extends _Node>(nodes:Array<T>):number => {
     return count;
 }
 
-export const findInNodes = <T extends _Node> (pred: (node:T) => boolean) => (nodes:Array<T>):T => {
+export const findNode = <T extends _Node> (pred: (node:T) => boolean) => (nodesOrNode:T | Array<T>):T => {
     let targetNode:T;
 
-    forEachNodes 
-        ((node:T) => {
-            if(pred(node)) {
-               targetNode = node;
-                return true;
-            }
-        })
-        (nodes);
+    const fn = (node:T) => {
+        if(pred(node)) {
+            targetNode = node;
+            return true;
+        }
+    }
+
+    if(Array.isArray(nodesOrNode)) {
+        forEachNodes (fn) (nodesOrNode);
+    } else {
+        forEachNode (fn) (nodesOrNode);
+    }
 
     return targetNode;
 }
 
-export const findInNode = <T extends _Node> (pred: (node:T) => boolean) => (node:Array<T>):T => {
-    let targetNode:T;
 
-    forEachNodes 
-        ((node:T) => {
-            if(pred(node)) {
-               targetNode = node;
-                return true;
-            }
-        })
-        (node);
-
-    return targetNode;
-}
 //Note - the immutability guarantee is the responsibility of the function - after it returns, the children are _replaced_
 export const mapNode = <T extends _Node> (fn: (node:T) => T) => (node:T):T => {
     const n = fn (node)

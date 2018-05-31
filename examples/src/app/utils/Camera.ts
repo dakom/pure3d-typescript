@@ -1,5 +1,6 @@
 
 import {getCameraProjection,
+    updateCameraWithTransform,
     PerspectiveCameraSettings,
     OrthographicCameraSettings,
     PerspectiveCamera,
@@ -11,6 +12,7 @@ import {getCameraProjection,
     Camera,
     GltfNodeKind,
     GltfBridge,
+    GltfCameraNode,
     WebGlConstants,
     WebGlRenderer} from "lib/Lib";
 import {mat4, vec3} from "gl-matrix";
@@ -20,17 +22,23 @@ import {Model} from "../scenes/gltf/Gltf-Models";
 
 const cameraUp = Float64Array.from([0,1,0]);
 
-export const updateCamera = (controls:any) => (camera:Camera):Camera => {
-    controls.update();
 
-    const view = mat4.lookAt(createMat4(), controls.position, controls.direction, controls.up);
+export const updateCamera = ({isControlled, controls, cameraNode}:{controls: any, cameraNode: GltfCameraNode, isControlled: boolean}) => (camera:Camera):Camera => {
 
-    //this usually isn't needed, but it helps to debug
-    const projection = getCameraProjection(camera); 
+    if(isControlled) {
+        controls.update();
+
+        const view = mat4.lookAt(createMat4(), controls.position, controls.direction, controls.up);
+
+        //this usually isn't needed, but it helps to debug
+        const projection = getCameraProjection(camera); 
 
 
 
-    return Object.assign({}, camera, {position: controls.position, view, projection});
+        return Object.assign({}, camera, {position: controls.position, view, projection});
+    } else {
+        return updateCameraWithTransform<Camera>(cameraNode.transform) (camera);
+    }
 }
 
 export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberArray, cameraLook: NumberArray}):Camera => {
@@ -58,36 +66,31 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
 
 export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (cameraIndex:number) => {
 
-    const bakedCamera = bridge.getOriginalCamera(cameraIndex);
+    const cameraNode = bridge.getCameraNode(cameraIndex);
 
-    let camera;
-    let cameraLook;
-    let controls;    
-
-    if(bakedCamera) {
-        camera = bakedCamera;
-        cameraLook = [0,0,0]; //TODO - derive this
+    if(cameraNode) {
+        return {
+            camera: cameraNode.camera,
+            cameraNodeId: cameraNode.originalNodeId,
+            isControlled: false
+        }
     } else {
         const position = model.cameraPosition !== undefined ? model.cameraPosition : Float64Array.from([0,0,4]);
 
-        cameraLook = model.cameraLookAt
+        const cameraLook = model.cameraLookAt
             ?   model.cameraLookAt
             :   Float64Array.from([0,0,0]);
 
-        camera = getInitialBasicCamera({position, cameraLook});
-        controls = createControls({
+        const camera = getInitialBasicCamera({position, cameraLook});
+        const controls = createControls({
             position, 
             target: cameraLook 
         });
 
+        return {camera, controls, isControlled: true}
     }
 
-    controls = createControls({
-        position: camera.position,
-        target: cameraLook
-    });
 
-    return {camera, controls, isControlled: !bakedCamera}
 }
 
 
