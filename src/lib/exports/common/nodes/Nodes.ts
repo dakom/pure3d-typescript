@@ -19,21 +19,19 @@ export const filterNodesDeep = <T extends _Node> (fn: (node:T) => boolean) => (n
         .filter(n => n);
 
 //Side effects
-export const forEachNode = <T extends _Node> (fn: (node:T) => void) => (node:T):void => {
-    fn (node)
-
-    if(node.children) {
+export const forEachNode = <T extends _Node> (fn: (node:T) => void | boolean) => (node:T):void => {
+    if(fn (node) !== true && node.children) {
         node.children.forEach(forEachNode(fn))
-    }
+    } 
 }
 
-export const forEachNodes = <T extends _Node> (fn: (node:T) => void) => (nodes:Array<T>):void => 
+export const forEachNodes = <T extends _Node> (fn: (node:T) => void | boolean) => (nodes:Array<T>):void => 
     nodes.forEach(forEachNode(fn));
 
 export const countNodes = <T extends _Node>(nodes:Array<T>):number => {
     let count = 0;
 
-    forEachNodes(() => count++) (nodes);
+    forEachNodes(() => (count++, null)) (nodes);
     return count;
 }
 //Note - the immutability guarantee is the responsibility of the function - after it returns, the children are _replaced_

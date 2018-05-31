@@ -19,9 +19,9 @@ import {mapNodes, mapNode, updateNodeTransforms, updateNodeListTransforms} from 
 
 import {gltf_setJointTransforms} from "./Gltf-Skins";
 
-export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions & {skinData: Map<number, GltfSkinData>}) => (nodes:Array<GltfNode>):Array<GltfNode> => {
+export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions ) => (nodes:Array<GltfNode>):Array<GltfNode> => {
 
     const updatedNodes = updateNodeListTransforms <GltfNode> (opts) (null) (nodes);
     
-    return mapNodes <GltfNode>(gltf_setJointTransforms (opts.skinData) (updatedNodes)) (updatedNodes);
+    return mapNodes <GltfNode>(gltf_setJointTransforms (updatedNodes)) (updatedNodes);
 }

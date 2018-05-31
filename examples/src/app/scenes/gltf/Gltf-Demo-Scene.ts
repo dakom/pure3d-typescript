@@ -150,7 +150,6 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
                         ?   scene.camera
                         :   updateCamera(controls) (scene.camera), 
                     nodes: gltf_updateNodeTransforms ({
-                        skinData: bridge.getData().skins,
                         updateLocal: true,
                         updateModel: true,
                         updateView: true,

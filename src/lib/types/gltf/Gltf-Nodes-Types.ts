@@ -1,6 +1,6 @@
 
 import {NumberArray} from "../common/array/Array-Types";
-import {GltfPrimitive, CameraNode, TypedNumberArray, LightNode, NodeKind, _Node} from "../../Types"; 
+import {GltfPrimitive, CameraNode, GltfSkinJoint, TypedNumberArray, LightNode, NodeKind, _Node} from "../../Types"; 
 
 //would be nice to extend but that's not really doable with enums
 export enum GltfNodeKind {
@@ -21,7 +21,7 @@ export interface GltfMeshNode extends _Node {
         skin?: {
             skinId: number;
             skeletonRootId?: number;
-            jointIds: Array<number>;
+            joints: Array<GltfSkinJoint>;
             skinMatrices?: Float32Array;
         }
 

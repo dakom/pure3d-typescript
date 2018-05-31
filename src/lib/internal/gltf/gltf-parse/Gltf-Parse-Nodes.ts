@@ -67,7 +67,7 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: Gl
                 const skinData = data.skins.get(node.skin);
                 baseNode.skin = {
                     skinId: node.skin,
-                    jointIds: skinData.joints.map(({originalNodeId}) => originalNodeId)
+                    joints: skinData.joints.slice()
                 }
 
                 if(skinData.skeletonRootId !== undefined) {

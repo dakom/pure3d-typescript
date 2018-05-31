@@ -2,9 +2,10 @@ import {GltfNode, TypedNumberArray, WebGlAttributeActivateOptions, GltfInitConfi
 
 export interface GltfSkinData {
     skeletonRootId?: number;
-    joints: Array<{
-        originalNodeId: number;
-        inverseBindMatrix: TypedNumberArray;
-    }>
+    joints: Array<GltfSkinJoint>
 }
 
+export interface GltfSkinJoint {
+    originalNodeId: number;
+    inverseBindMatrix: TypedNumberArray;
+}
