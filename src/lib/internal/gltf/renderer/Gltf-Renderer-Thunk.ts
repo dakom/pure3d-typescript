@@ -120,6 +120,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
       uniform1i(uName)(samplerIndex++);
     }
 
+
     renderer.glToggle(WebGlConstants.CULL_FACE)((material === undefined || material.doubleSided === undefined) ? true : false);
 
     if (material) {

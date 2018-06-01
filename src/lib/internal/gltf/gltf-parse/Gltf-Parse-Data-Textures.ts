@@ -66,20 +66,26 @@ const resizeImageToNextPowerOf2 = (img:HTMLImageElement):HTMLCanvasElement => {
     return canvas; 
 }
 
+const defaultSampler = {
+    filterMin: WebGlConstants.LINEAR,
+    filterMag: WebGlConstants.LINEAR,
+    wrapS: WebGlConstants.REPEAT,
+    wrapT: WebGlConstants.REPEAT
+};
+
 export const GLTF_PARSE_createTextures = ({ renderer, gltf, imageElements }: { renderer: WebGlRenderer, gltf: GLTF_ORIGINAL, imageElements: Array<HTMLImageElement> }): Map<number, WebGLTexture> => {
     const textureMap = new Map<number, WebGLTexture>();
     const { gl } = renderer;
 
     if (gltf.textures) {
         gltf.textures.forEach((texture, textureId) => {
-            const sampler = gltf.samplers[texture.sampler];
+
+
+            const sampler:GLTF_ORIGINAL_Sampler = Object.assign({}, defaultSampler, texture.sampler === undefined ? undefined : gltf.samplers[texture.sampler]);
             const colorSpace = getColorSpaceForTextureId({ renderer, gltf, textureId });
             const img = imageElements[texture.source];
-                
-            const wrapS = !sampler.wrapS ? WebGlConstants.REPEAT : sampler.wrapS;
-            const wrapT = !sampler.wrapT ? WebGlConstants.REPEAT : sampler.wrapT;
-            const filterMin = !sampler.filterMin ? WebGlConstants.LINEAR : sampler.filterMin;
-            const filterMag = !sampler.filterMag ? WebGlConstants.LINEAR : sampler.filterMag;
+            
+            const {wrapS, wrapT, filterMin, filterMag} = sampler;
          
            
             const display = (requiresPowerOf2({wrapS, wrapT, filterMin, filterMag, sampler}) && !isPowerOf2(img))

@@ -55,6 +55,10 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
     const accessorId = originalPrimitive.attributes[attributeKey];
     const attributeName = attributeShaderNameLookup[attributeKey];
 
+    if(!accessorLookup.has(accessorId)) {
+        throw new Error("bug here!");
+    }
+
     vao.data.push({
         attributeName,
         bufferId: accessorLookup.get(accessorId).rendererBufferId,

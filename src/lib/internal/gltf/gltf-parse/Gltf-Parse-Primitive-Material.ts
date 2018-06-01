@@ -67,6 +67,7 @@ export const GLTF_PARSE_createMaterialForPrimitive = ({gltf, materialId, data}:{
   }
   
 
+  material.doubleSided = _m.doubleSided;
   material.alphaCutoff = _m.alphaCutoff;
   
   return material;

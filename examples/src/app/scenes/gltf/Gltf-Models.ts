@@ -269,7 +269,7 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
             "MONSTER_BINARY": "Monster/glTF-Binary/Monster.glb",
             "MONSTER": "Monster/glTF/Monster.gltf",
         },        
-        cameraPosition: Float64Array.from([0,0,30]),
+        cameraPosition: Float64Array.from([0,0,.1]),
     },
     {primary: "BRAINSTEM_BINARY",
         label: "BRAINSTEM",
@@ -296,6 +296,54 @@ export const MODEL_LIST_ANIMATIONS:Array<Model> = [
 
 export const MODEL_LIST_PBR1:Array<Model> = [
     {
+        primary: "AVOCADO_BINARY", 
+        label: "AVOCADO",
+        urls: {
+            "AVOCADO":   "Avocado/glTF/Avocado.gltf",
+            "AVOCADO_EMBEDDED":  "Avocado/glTF-Embedded/Avocado.gltf",
+            "AVOCADO_BINARY":  "Avocado/glTF-Binary/Avocado.glb",
+            "AVOCADO_GLOSSY": "Avocado/glTF-pbrSpecularGlossiness/Avocado.gltf",
+            "AVOCADO_DRACO": "Avocado/glTF-Draco/Avocado.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,.2]),
+    },
+    {
+        primary: "BARRAMUNDI_FISH_BINARY", 
+        label: "BARRAMUNDI_FISH",
+        urls: {
+            "BARRAMUNDI_FISH":   "BarramundiFish/glTF/BarramundiFish.gltf",
+            "BARRAMUNDI_FISH_EMBEDDED":  "BarramundiFish/glTF-Embedded/BarramundiFish.gltf",
+            "BARRAMUNDI_FISH_BINARY":  "BarramundiFish/glTF-Binary/BarramundiFish.glb",
+            "BARRAMUNDI_FISH_GLOSSY": "BarramundiFish/glTF-pbrSpecularGlossiness/BarramundiFish.gltf",
+            "BARRAMUNDI_FISH_DRACO": "BarramundiFish/glTF-Draco/BarramundiFish.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,2]),
+    },
+    {
+        primary: "BOOM_BOX_BINARY", 
+        label: "BOOM_BOX",
+        urls: {
+            "BOOM_BOX":   "BoomBox/glTF/BoomBox.gltf",
+            "BOOM_BOX_EMBEDDED":  "BoomBox/glTF-Embedded/BoomBox.gltf",
+            "BOOM_BOX_BINARY":  "BoomBox/glTF-Binary/BoomBox.glb",
+            "BOOM_BOX_GLOSSY": "BoomBox/glTF-pbrSpecularGlossiness/BoomBox.gltf",
+            "BOOM_BOX_DRACO": "BoomBox/glTF-Draco/BoomBox.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,.05]),
+    },
+    {
+        primary: "CORSET_BINARY", 
+        label: "CORSET",
+        urls: {
+            "CORSET":   "Corset/glTF/Corset.gltf",
+            "CORSET_EMBEDDED":  "Corset/glTF-Embedded/Corset.gltf",
+            "CORSET_BINARY":  "Corset/glTF-Binary/Corset.glb",
+            "CORSET_GLOSSY": "Corset/glTF-pbrSpecularGlossiness/Corset.gltf",
+            "CORSET_DRACO": "Corset/glTF-Draco/Corset.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,.2]),
+    },
+    {
         primary: "DAMAGED_HELMET_BINARY", 
         label: "DAMAGED_HELMET",
         urls: {
@@ -304,9 +352,82 @@ export const MODEL_LIST_PBR1:Array<Model> = [
             "DAMAGED_HELMET_BINARY":  "DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
         }
     },
+    {
+        primary: "FLIGHT_HELMET",
+        label: "FLIGHT_HELMET",
+        urls: {
+            "FLIGHT_HELMET":   "FlightHelmet/glTF/FlightHelmet.gltf",
+            "FLIGHT_HELMET_EMBEDDED":  "FlightHelmet/glTF-Embedded/FlightHelmet.gltf",
+            "FLIGHT_HELMET_BINARY":  "FlightHelmet/glTF-Binary/FlightHelmet.glb",
+            "FLIGHT_HELMET_GLOSSY": "FlightHelmet/glTF-pbrSpecularGlossiness/FlightHelmet.gltf",
+            "FLIGHT_HELMET_DRACO": "FlightHelmet/glTF-Draco/FlightHelmet.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,1]),
+    },
+    {
+        primary: "LANTERN_BINARY", 
+        label: "LANTERN",
+        urls: {
+            "LANTERN":   "Lantern/glTF/Lantern.gltf",
+            "LANTERN_EMBEDDED":  "Lantern/glTF-Embedded/Lantern.gltf",
+            "LANTERN_BINARY":  "Lantern/glTF-Binary/Lantern.glb",
+            "LANTERN_GLOSSY": "Lantern/glTF-pbrSpecularGlossiness/Lantern.gltf",
+            "LANTERN_DRACO": "Lantern/glTF-Draco/Lantern.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,60]),
+    },
+    {
+        primary: "WATER_BOTTLE_BINARY", 
+        label: "WATER_BOTTLE",
+        urls: {
+            "WATER_BOTTLE":   "WaterBottle/glTF/WaterBottle.gltf",
+            "WATER_BOTTLE_EMBEDDED":  "WaterBottle/glTF-Embedded/WaterBottle.gltf",
+            "WATER_BOTTLE_BINARY":  "WaterBottle/glTF-Binary/WaterBottle.glb",
+            "WATER_BOTTLE_GLOSSY": "WaterBottle/glTF-pbrSpecularGlossiness/WaterBottle.gltf",
+            "WATER_BOTTLE_DRACO": "WaterBottle/glTF-Draco/WaterBottle.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,.7]),
+    },
 ]
 
-export const MODEL_LIST_PBR2:Array<Model> = [];
+export const MODEL_LIST_PBR2:Array<Model> = [
+    {
+        primary: "TWO_SIDED_PLANE",
+        label: "TWO_SIDED_PLANE",
+        urls: {
+            "TWO_SIDED_PLANE":   "TwoSidedPlane/glTF/TwoSidedPlane.gltf",
+            "TWO_SIDED_PLANE_EMBEDDED":  "TwoSidedPlane/glTF-Embedded/TwoSidedPlane.gltf",
+            "TWO_SIDED_PLANE_BINARY":  "TwoSidedPlane/glTF-Binary/TwoSidedPlane.glb",
+            "TWO_SIDED_PLANE_GLOSSY": "TwoSidedPlane/glTF-pbrSpecularGlossiness/TwoSidedPlane.gltf",
+            "TWO_SIDED_PLANE_DRACO": "TwoSidedPlane/glTF-Draco/TwoSidedPlane.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,2]),
+    },
+    {
+        primary: "CUBE", 
+        label: "CUBE",
+        urls: {
+            "CUBE":   "Cube/glTF/Cube.gltf",
+            "CUBE_EMBEDDED":  "Cube/glTF-Embedded/Cube.gltf",
+            "CUBE_BINARY":  "Cube/glTF-Binary/Cube.glb",
+            "CUBE_GLOSSY": "Cube/glTF-pbrSpecularGlossiness/Cube.gltf",
+            "CUBE_DRACO": "Cube/glTF-Draco/Cube.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
+    {
+        primary: "ANIMATED_CUBE", 
+        label: "ANIMATED_CUBE",
+        urls: {
+            "ANIMATED_CUBE":   "AnimatedCube/glTF/AnimatedCube.gltf",
+            "ANIMATED_CUBE_EMBEDDED":  "AnimatedCube/glTF-Embedded/AnimatedCube.gltf",
+            "ANIMATED_CUBE_BINARY":  "AnimatedCube/glTF-Binary/AnimatedCube.glb",
+            "ANIMATED_CUBE_GLOSSY": "AnimatedCube/glTF-pbrSpecularGlossiness/AnimatedCube.gltf",
+            "ANIMATED_CUBE_DRACO": "AnimatedCube/glTF-Draco/AnimatedCube.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
+];
 export const MODEL_LIST_FEATURETEST:Array<Model> = [];
 
 /// END CONFIG

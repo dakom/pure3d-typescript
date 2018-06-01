@@ -14,8 +14,8 @@
 
 - [x] Simple
 - [x] Complex
-- [ ] Animations 
-- [ ] Pbr Set 1
+- [x] Animations 
+- [x] Pbr Set 1
 - [ ] Pbr Set 2
 - [ ] Feature Test
 
@@ -23,18 +23,19 @@
 
 See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
-## Usage 
-
-See [Wiki](https://github.com/dakom/pure3d/wiki) 
-
 ## What it is: 
 
-* An abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
-* Automatically optimize and skip unnecessary low-level webgl calls.
-* Complete implementation of GLTF renderer with super easy API surface.
-* Separation of concerns to make interop with functional frameworks, workers, and wasm a bit more organic.
-* Some helpers to drive transform updates and animations (not forced into render pipeline)
+* For DIY renderers - a generic abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
+* For batteries included - a GLTF renderer with super easy API surface.
+
+## How it works
+
+* Generic layer automatically optimizes and skip unnecessary low-level webgl calls.
+* Gltf layer has strong separation of concerns to make interop with functional frameworks, workers, and wasm a bit more organic.
+* Some pure functional helpers to drive transform updates and animations (not forced into render pipeline)
 * Fully exported Typescript definitions
+
+See [Wiki](https://github.com/dakom/pure3d/wiki) for more details
 
 ## What it probably won't be:
 
@@ -45,7 +46,6 @@ See [Wiki](https://github.com/dakom/pure3d/wiki)
 ## What it hopes to be later:
 
 * WebGL 2 added functionality / speed gains
-* Ported with same separation to OpenGL (for allowing Rust multi-target)
 * Supporting more GLTF extensions 
 * Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes, drawInstanced, etc.)
 

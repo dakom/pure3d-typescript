@@ -22,39 +22,15 @@ import {mapNodes, forEachNodes, findNode, mapNode, updateNodeTransforms, updateN
 
 import {mat4} from "gl-matrix";
 
-const getJointList = (fullTree:Array<GltfNode>) => (meshNode:GltfMeshNode) => { 
-    const jointIds = new Map<number, number>();
+export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions ) => (nodes:Array<GltfNode>):Array<GltfNode> => {
 
-    const jointList = meshNode.skin.joints.map((joint, index) => {
-        jointIds.set(joint.originalNodeId, index);
-        return {
-            originalNodeId: joint.originalNodeId,
-            inverseBindMatrix: joint.inverseBindMatrix
-        } as {
-            originalNodeId: number;
-            transform: Transform;
-            inverseBindMatrix: TypedNumberArray;
-        }
-
-    });
+    const updatedNodes = updateNodeListTransforms <GltfNode> (opts) (null) (nodes);
     
-     
-    forEachNodes
-        ((node:GltfNode) => {
-            if(jointIds.has(node.originalNodeId)) {
-                const index = jointIds.get(node.originalNodeId);
-                jointList[index].transform = node.transform;
-                jointIds.delete(node.originalNodeId);
-
-                if(!jointIds.size) {
-                    return true;
-                }
-            }
-        })
-        (fullTree)
-
-    return jointList;
+    return mapNodes <GltfNode>(gltf_setJointTransforms (updatedNodes)) (updatedNodes);
 }
+
+export const gltf_findNodeById = (id:number) => (nodeOrNodes: Array<GltfNode> | GltfNode):GltfNode => 
+    findNode ((node:GltfNode) => node.originalNodeId === id)  (nodeOrNodes)
 
 export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfNode):GltfNode => {
     if(node.kind === GltfNodeKind.MESH && node.skin) {
@@ -70,10 +46,12 @@ export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfN
         }
         let pos = 0;
 
-        const inverseRootMatrix = 
+        //see https://github.com/KhronosGroup/glTF-Tutorials/issues/17
+        const inverseRootMatrix = mat4.invert(mat4.create(),
             node.skin.skeletonRootId === undefined
-                ?   undefined
-                :   mat4.invert(mat4.create(), getSkeletonRootTransform(node.skin.skeletonRootId).modelMatrix)
+                ?   node.transform.modelMatrix
+                :   getSkeletonRootTransform(node.skin.skeletonRootId).modelMatrix
+        );
         
         const skinMatrices = jointList.reduce((acc, joint) => {
            
@@ -108,14 +86,38 @@ export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfN
     return node;
 }
 
+const getJointList = (fullTree:Array<GltfNode>) => (meshNode:GltfMeshNode) => { 
+    const jointIds = new Map<number, number>();
 
-export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions ) => (nodes:Array<GltfNode>):Array<GltfNode> => {
+    const jointList = meshNode.skin.joints.map((joint, index) => {
+        jointIds.set(joint.originalNodeId, index);
+        return {
+            originalNodeId: joint.originalNodeId,
+            inverseBindMatrix: joint.inverseBindMatrix
+        } as {
+            originalNodeId: number;
+            transform: Transform;
+            inverseBindMatrix: TypedNumberArray;
+        }
 
-    const updatedNodes = updateNodeListTransforms <GltfNode> (opts) (null) (nodes);
+    });
     
-    return mapNodes <GltfNode>(gltf_setJointTransforms (updatedNodes)) (updatedNodes);
+     
+    forEachNodes
+        ((node:GltfNode) => {
+            if(jointIds.has(node.originalNodeId)) {
+                const index = jointIds.get(node.originalNodeId);
+                jointList[index].transform = node.transform;
+                jointIds.delete(node.originalNodeId);
+
+                if(!jointIds.size) {
+                    return true;
+                }
+            }
+        })
+        (fullTree)
+
+    return jointList;
 }
 
-export const gltf_findNodeById = (id:number) => (nodeOrNodes: Array<GltfNode> | GltfNode):GltfNode => 
-    findNode ((node:GltfNode) => node.originalNodeId === id)  (nodeOrNodes)
 

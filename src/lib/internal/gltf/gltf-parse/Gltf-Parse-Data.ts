@@ -23,6 +23,7 @@ const loadBuffers = ({ basePath, gltf, glbBuffers }: { basePath: string, gltf: G
 
 const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer> }): Future<any, Array<HTMLImageElement>> => {
     const getImageBufferData = (bufferViewId: number): ArrayBuffer => {
+
         const bufferView = gltf.bufferViews[bufferViewId];
         const bufferId = bufferView.buffer;
         const offset = bufferView.byteOffset === undefined ? 0 : bufferView.byteOffset;
@@ -30,15 +31,16 @@ const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_
         return buffers[bufferId].slice(offset, offset + bufferView.byteLength);
     }
 
+
     //load texture data
     return parallel(Infinity, !gltf.images || !gltf.images.length
         ? []
         : gltf.images.map(image => 
-            image.bufferView
-            ? loadImageFromArrayBuffer({ data: getImageBufferData(image.bufferView), mimeType: image.mimeType })
-            : image.uri.indexOf("data:") === 0
-            ? fetchImage(image.uri) //untested
-            : fetchImage(basePath + image.uri)
+            image.bufferView !== undefined
+                ? loadImageFromArrayBuffer({ data: getImageBufferData(image.bufferView), mimeType: image.mimeType })
+                : image.uri.indexOf("data:") === 0
+                    ? fetchImage(image.uri) //untested
+                    : fetchImage(basePath + image.uri)
         )
     )
 }
