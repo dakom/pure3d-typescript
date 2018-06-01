@@ -1,4 +1,6 @@
 import {
+    GltfLightNode,
+    GltfCameraNode,
     GltfScene, 
     Camera, 
     LightKind, 

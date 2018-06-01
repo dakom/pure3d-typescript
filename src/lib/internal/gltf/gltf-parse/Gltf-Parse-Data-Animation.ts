@@ -1,4 +1,8 @@
 import { 
+
+    GltfLightNode,
+    GltfCameraNode,
+    GltfMeshNode,
     WebGlAttributeActivateOptions,
     GLTF_ORIGINAL,
     GltfAnimationData,

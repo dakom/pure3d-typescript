@@ -2,6 +2,8 @@ import {getTrsFromMatrix, getModelMatrix, getNormalMatrix, getMatrixFromTrs, get
 import {GLTF_PARSE_getCamera} from "./Gltf-Parse-Camera";
 
 import {
+    GltfLightNode,
+    GltfCameraNode,
     Transform,
     Transform_TRS,
     Camera,

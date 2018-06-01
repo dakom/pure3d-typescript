@@ -2,6 +2,9 @@ import { findKeyframeBounds, interpolateKeyframes } from "../../internal/gltf/an
 import { GLTF_PARSE_animationPathToString} from "../../internal/gltf/gltf-parse/Gltf-Parse-Data-Animation"
 import { mapNodes} from "../common/nodes/Nodes";
 import {
+    GltfCameraNode,
+    GltfLightNode,
+    GltfMeshNode,
   GltfAnimationData,
   GltfAnimator,
   GltfData,

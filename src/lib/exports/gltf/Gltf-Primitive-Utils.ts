@@ -1,4 +1,7 @@
 import {
+
+    GltfCameraNode,
+    GltfLightNode,
 WebGlRenderer,
     CameraNode,
     NodeKind,

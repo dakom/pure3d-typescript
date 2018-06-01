@@ -1,4 +1,6 @@
 import {
+    GltfLightNode,
+    GltfCameraNode,
     GltfIblScene,    
     GltfMeshNode,
     OrthographicCameraSettings,
