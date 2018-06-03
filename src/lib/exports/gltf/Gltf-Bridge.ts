@@ -123,6 +123,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     const renderScene = (scene:GltfScene) => {
         _renderScene (renderer) (_data) (scene);
+
     }
 
     const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {

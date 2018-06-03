@@ -85,13 +85,15 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
         })
     });
 
-    //These are for _all_ gltf renders, but there might be another gl renderer between them
+    //These are for _all_ gltf renders, but there might be another gl renderer between them so the flags need to be set
     renderer.glToggle(WebGlConstants.BLEND) (false);
     renderer.glToggle(WebGlConstants.DEPTH_TEST) (true);
 
+    //these are just random guesses looking at some common practices out in the wild
     renderer.glDepthFunc(renderer.gl.LEQUAL);
     renderer.glBlendFunc(renderer.gl.SRC_ALPHA) (renderer.gl.ONE_MINUS_SRC_ALPHA);
 
+    //Render calls are sorted by alpha and then shader.
     if(shaderGroupByAlpha.has(GltfMaterialAlphaMode.OPAQUE)) {
         shaderGroupByAlpha.get(GltfMaterialAlphaMode.OPAQUE)
             .forEach(xs => xs.forEach(fn => fn()));
