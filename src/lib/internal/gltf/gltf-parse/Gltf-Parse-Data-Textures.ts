@@ -6,7 +6,7 @@ import { GLTF_ORIGINAL, GLTF_ORIGINAL_Sampler } from '../../../Types';
 const getColorSpaceForTextureId = ({ renderer, gltf, textureId }: { renderer: WebGlRenderer, gltf: GLTF_ORIGINAL, textureId: number }): number => {
     const defaultColorSpace = WebGlConstants.RGBA;
     const SRGBA = 0x8C42; //SRGB_ALPHA_EXT ... not in type definitions yet and might vary by renderer.version
-
+    const SRGB = 0x8C40; //SRGB_ALPHA_EXT ... not in type definitions yet and might vary by renderer.version
     for (let i = 0; i < gltf.materials.length; i++) {
         const material = gltf.materials[i];
         if (material.emissiveTexture && material.emissiveTexture.index === textureId) {

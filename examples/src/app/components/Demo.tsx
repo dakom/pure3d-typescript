@@ -6,12 +6,12 @@ import {MODEL_MENUS} from "../scenes/gltf/Gltf-Models";
 
 
 const gltfAlertMessage =
-`Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\n`
+`
+If cameras are available in the gltf, they'll be added to the menu _after_ the file finishes loading.\n\n
+In some cases the default moveable camera isn't within the view of the model... actually that's only monster afaik\n\n
+Different formats, where available, are set via adding or removing "_BINARY" and "_EMBEDDED" in the hash url.\n\n`
     + `For example, the following are all different formats of the same GLTF:\n\n`
-    + `#DAMAGED_HELMET\n#DAMAGED_HELMET_EMBEDDED\n#DAMAGED_HELMET_BINARY\n\n`
-    + `Also, some models are intended to be moved around, others are not.\n\n`
-    + `So if the camera "pops" or feels off, know that it's in the domain of the *demo* code for not handling this case.\n`
-    + `It is not a bug in the renderer itself :D`;
+    + `#DAMAGED_HELMET\n#DAMAGED_HELMET_EMBEDDED\n#DAMAGED_HELMET_BINARY\n\n`;
 
 
 const buttons = {

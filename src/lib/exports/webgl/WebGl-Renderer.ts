@@ -95,6 +95,23 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
         return extensionMap.get(extName);
     }
 
+    let depthFunc;
+    const glDepthFunc = (func:number) => {
+        if(func !== depthFunc) {
+            gl.depthFunc(func);
+            depthFunc = func;
+        }
+    }
+
+    let _sFactor, _dFactor;
+    const glBlendFunc = (sFactor:number) => (dFactor:number) => {
+        if(sFactor !== _sFactor || dFactor !== _dFactor) {
+            gl.blendFunc(sFactor, dFactor);
+            _sFactor = sFactor;
+            _dFactor = dFactor;
+        }
+    }
+
     const textureSwitcher = createTextureSwitcher(gl);
 
     return {
@@ -104,6 +121,8 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
         buffers,
         ...textureSwitcher,
         glToggle,
+        glDepthFunc,
+        glBlendFunc,
         getExtension,
         version,
         extras: {}

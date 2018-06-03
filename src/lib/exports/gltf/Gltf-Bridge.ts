@@ -11,14 +11,13 @@ import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-P
 import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
 import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
-import {gltf_serializeScene, gltf_parseScene} from "./Gltf-Scene";
-import { createRendererThunk } from '../../internal/gltf/renderer/Gltf-Renderer-Thunk';
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
 import {updateNodeListTransforms} from "../common/nodes/Nodes";
-import {updateRuntimeShaderConfig, generateShader} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
+import {updateRuntimeShaderConfig} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
 import {forEachNodes, findNode, countNodes } from "../common/nodes/Nodes";
 import {updateCameraWithTransform, getCameraView, getCameraProjection} from "../common/camera/Camera";
+import {renderScene as _renderScene} from "../../internal/gltf/renderer/Gltf-Renderer";
 import {
 WebGlRenderer,
     GltfCameraNode,
@@ -123,55 +122,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
     }
 
     const renderScene = (scene:GltfScene) => {
-
-        const renderThunksByShader = new Map<Symbol, Array<() => void>>();
-        const meshList = new Array<GltfMeshNode>();
-        const lightList = new Array<LightNode>();
-
-        forEachNodes ((node:GltfNode) => {
-            if( node.kind === GltfNodeKind.MESH 
-                && node.transform 
-                && node.transform.modelViewProjectionMatrix ? true : false) {
-                    meshList.push(node as GltfMeshNode);
-            } else if(node.kind === NodeKind.LIGHT) {
-                lightList.push(node as LightNode);
-            } 
-        }) (scene.nodes);
-
-        meshList.forEach(node => {
-            let skinMatrices:Float32Array;
-            if(node.skin !== undefined && node.skin.skinMatrices) {
-                skinMatrices = node.skin.skinMatrices;
-            }
-
-            node.primitives.forEach(primitive => {
-                const shader = generateShader({ 
-                    renderer, 
-                    data: _data, 
-                    primitive,
-                });
-                
-                if (!renderThunksByShader.has(shader.shaderId)) {
-                    renderThunksByShader.set(shader.shaderId, []);
-                }
-
-                renderThunksByShader
-                    .get(shader.shaderId)
-                    .push(createRendererThunk({ 
-                        skinMatrices,
-                        renderer,
-                        data: _data,
-                        node,
-                        primitive,
-                        lightList,
-                        scene,
-                        shader
-                    }));
-            })
-        });
-
-        renderThunksByShader.forEach(thunks => thunks.forEach(fn => fn()));
-
+        _renderScene (renderer) (_data) (scene);
     }
 
     const getOriginalScene = (camera:Camera) => (sceneNumber:number) => {

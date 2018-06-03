@@ -43,12 +43,6 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     activateShader(shaderId);
 
 
-    if(material && material.alphaMode === GltfMaterialAlphaMode.BLEND) {
-        renderer.glToggle(WebGlConstants.BLEND) (true);
-    } else {
-        renderer.glToggle(WebGlConstants.BLEND) (false);
-    }
-
     if(material && material.doubleSided) {
         renderer.glToggle(WebGlConstants.CULL_FACE) (false);
     } else {

@@ -256,6 +256,11 @@ void main()
         if(baseColor.a < u_AlphaCutoff) {
             discard;
         }
+
+    #endif
+
+    #ifndef HAS_ALPHA_BLEND
+        baseColor.a = 1.0;
     #endif
 
     vec3 f0 = vec3(0.04);

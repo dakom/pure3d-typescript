@@ -216,8 +216,9 @@ const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfP
         defines.push("HAS_SKIN");
     }
 
-    if(config.alphaMode === GltfMaterialAlphaMode.MASK) {
-        defines.push("HAS_ALPHA_CUTOFF");
+    switch(config.alphaMode) {
+        case GltfMaterialAlphaMode.MASK: defines.push("HAS_ALPHA_CUTOFF"); break;
+        case GltfMaterialAlphaMode.BLEND: defines.push("HAS_ALPHA_BLEND"); break;
     }
 
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');
