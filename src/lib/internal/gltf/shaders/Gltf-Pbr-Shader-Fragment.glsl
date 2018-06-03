@@ -32,6 +32,7 @@ uniform sampler2D u_brdfLUT;
 
 #ifdef HAS_BASECOLORMAP
 uniform sampler2D u_BaseColorSampler;
+uniform float u_AlphaCutoff; //PURE3D - Added
 #endif
 #ifdef HAS_NORMALMAP
 uniform sampler2D u_NormalSampler;
@@ -244,10 +245,18 @@ void main()
 
     // The albedo may be defined from a base texture or a flat color
 #ifdef HAS_BASECOLORMAP
-    vec4 baseColor = SRGBtoLINEAR(texture2D(u_BaseColorSampler, v_UV)) * u_BaseColorFactor;
+    vec4 textureColor = texture2D(u_BaseColorSampler, v_UV);
+    vec4 baseColor = SRGBtoLINEAR(textureColor) * u_BaseColorFactor;
 #else
     vec4 baseColor = u_BaseColorFactor;
 #endif
+
+    #ifdef HAS_ALPHA_CUTOFF
+        //Pure3d added
+        if(baseColor.a < u_AlphaCutoff) {
+            discard;
+        }
+    #endif
 
     vec3 f0 = vec3(0.04);
 #ifdef HAS_COLOR

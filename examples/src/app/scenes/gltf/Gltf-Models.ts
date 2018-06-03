@@ -465,6 +465,90 @@ export const MODEL_LIST_FEATURETEST:Array<Model> = [
         },
         cameraPosition: Float64Array.from([0,0,7]),
     },
+    {
+        primary: "BOOM_BOX_AXES", 
+        label: "BOOM_BOX_AXES",
+        urls: {
+            "BOOM_BOX_AXES":   "BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf",
+            "BOOM_BOX_AXES_EMBEDDED":  "BoomBoxWithAxes/glTF-Embedded/BoomBoxWithAxes.gltf",
+            "BOOM_BOX_AXES_BINARY":  "BoomBoxWithAxes/glTF-Binary/BoomBoxWithAxes.glb",
+            "BOOM_BOX_AXES_GLOSSY": "BoomBoxWithAxes/glTF-pbrSpecularGlossiness/BoomBoxWithAxes.gltf",
+            "BOOM_BOX_AXES_DRACO": "BoomBoxWithAxes/glTF-Draco/BoomBoxWithAxes.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,.1]),
+    },
+    {
+        primary: "METAL_ROUGH_SPHERES", 
+        label: "METAL_ROUGH_SPHERES",
+        urls: {
+            "METAL_ROUGH_SPHERES":   "MetalRoughSpheres/glTF/MetalRoughSpheres.gltf",
+            "METAL_ROUGH_SPHERES_EMBEDDED":  "MetalRoughSpheres/glTF-Embedded/MetalRoughSpheres.gltf",
+            "METAL_ROUGH_SPHERES_BINARY":  "MetalRoughSpheres/glTF-Binary/MetalRoughSpheres.glb",
+            "METAL_ROUGH_SPHERES_GLOSSY": "MetalRoughSpheres/glTF-pbrSpecularGlossiness/MetalRoughSpheres.gltf",
+            "METAL_ROUGH_SPHERES_DRACO": "MetalRoughSpheres/glTF-Draco/MetalRoughSpheres.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,15]),
+    },
+    {
+        primary: "NORMAL_TANGENTS", 
+        label: "NORMAL_TANGENTS",
+        urls: {
+            "NORMAL_TANGENTS":   "NormalTangentTest/glTF/NormalTangentTest.gltf",
+            "NORMAL_TANGENTS_EMBEDDED":  "NormalTangentTest/glTF-Embedded/NormalTangentTest.gltf",
+            "NORMAL_TANGENTS_BINARY":  "NormalTangentTest/glTF-Binary/NormalTangentTest.glb",
+            "NORMAL_TANGENTS_GLOSSY": "NormalTangentTest/glTF-pbrSpecularGlossiness/NormalTangentTest.gltf",
+            "NORMAL_TANGENTS_DRACO": "NormalTangentTest/glTF-Draco/NormalTangentTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
+    {
+        primary: "ORIENTATION", 
+        label: "ORIENTATION",
+        urls: {
+            "ORIENTATION":   "OrientationTest/glTF/OrientationTest.gltf",
+            "ORIENTATION_EMBEDDED":  "OrientationTest/glTF-Embedded/OrientationTest.gltf",
+            "ORIENTATION_BINARY":  "OrientationTest/glTF-Binary/OrientationTest.glb",
+            "ORIENTATION_GLOSSY": "OrientationTest/glTF-pbrSpecularGlossiness/OrientationTest.gltf",
+            "ORIENTATION_DRACO": "OrientationTest/glTF-Draco/OrientationTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,50]),
+    },
+    {
+        primary: "TEXTURE_COORDINATE", 
+        label: "TEXTURE_COORDINATE",
+        urls: {
+            "TEXTURE_COORDINATE":   "TextureCoordinateTest/glTF/TextureCoordinateTest.gltf",
+            "TEXTURE_COORDINATE_EMBEDDED":  "TextureCoordinateTest/glTF-Embedded/TextureCoordinateTest.gltf",
+            "TEXTURE_COORDINATE_BINARY":  "TextureCoordinateTest/glTF-Binary/TextureCoordinateTest.glb",
+            "TEXTURE_COORDINATE_GLOSSY": "TextureCoordinateTest/glTF-pbrSpecularGlossiness/TextureCoordinateTest.gltf",
+            "TEXTURE_COORDINATE_DRACO": "TextureCoordinateTest/glTF-Draco/TextureCoordinateTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
+    {
+        primary: "TEXTURE_SETTINGS_BINARY", 
+        label: "TEXTURE_SETTINGS",
+        urls: {
+            "TEXTURE_SETTINGS":   "TextureSettingsTest/glTF/TextureSettingsTest.gltf",
+            "TEXTURE_SETTINGS_EMBEDDED":  "TextureSettingsTest/glTF-Embedded/TextureSettingsTest.gltf",
+            "TEXTURE_SETTINGS_BINARY":  "TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb",
+            "TEXTURE_SETTINGS_GLOSSY": "TextureSettingsTest/glTF-pbrSpecularGlossiness/TextureSettingsTest.gltf",
+            "TEXTURE_SETTINGS_DRACO": "TextureSettingsTest/glTF-Draco/TextureSettingsTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,20]),
+    },
+    {
+        primary: "VERTEX_COLOR_BINARY", 
+        label: "VERTEX_COLOR",
+        urls: {
+            "VERTEX_COLOR":   "VertexColorTest/glTF/VertexColorTest.gltf",
+            "VERTEX_COLOR_EMBEDDED":  "VertexColorTest/glTF-Embedded/VertexColorTest.gltf",
+            "VERTEX_COLOR_BINARY":  "VertexColorTest/glTF-Binary/VertexColorTest.glb",
+            "VERTEX_COLOR_GLOSSY": "VertexColorTest/glTF-pbrSpecularGlossiness/VertexColorTest.gltf",
+            "VERTEX_COLOR_DRACO": "VertexColorTest/glTF-Draco/VertexColorTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
 ];
 
 /// END CONFIG

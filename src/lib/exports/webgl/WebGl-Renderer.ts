@@ -70,6 +70,7 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
     const glToggle = (setting: number) => (flag: boolean) => {
         if (!flagMap.has(setting) || flagMap.get(setting) !== flag) {
             flagMap.set(setting, flag);
+
             if (flag) {
                 gl.enable(setting);
             } else {

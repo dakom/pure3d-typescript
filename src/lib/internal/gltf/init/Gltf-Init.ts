@@ -18,9 +18,10 @@ export const prepWebGlRenderer = (renderer: WebGlRenderer) => {
     renderer.getExtension('OES_element_index_uint'); //only for scifi-helmet...
 
     renderer.gl.enable(renderer.gl.DEPTH_TEST);
-
     renderer.gl.depthFunc(renderer.gl.LEQUAL);
 
+    //renderer.gl.enable(renderer.gl.BLEND);
+    renderer.gl.blendFunc(renderer.gl.SRC_ALPHA, renderer.gl.ONE_MINUS_SRC_ALPHA);
     renderer.extras[HAS_PREPPED] = true;
   }
 

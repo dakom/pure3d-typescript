@@ -4,7 +4,6 @@ export enum GltfMaterialAlphaMode {
   OPAQUE = 1, //"OPAQUE" in original
   MASK = 2, //"MASK" in original
   BLEND = 3, //"BLEND" in original
-  OTHER = 4
 }
 export interface GltfMaterial {
   metallicRoughnessValues: NumberArray;

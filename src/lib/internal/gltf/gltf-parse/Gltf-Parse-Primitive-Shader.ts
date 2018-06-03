@@ -1,4 +1,5 @@
 import {
+    GltfMaterialAlphaMode,
     GltfLightNode,
     GltfCameraNode,
     GltfIblScene,    
@@ -32,6 +33,7 @@ import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 
 import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
+import {getShaderHash } from "./Gltf-Parse-Primitive-Shader-Hash";
 
 import vertexShaderSource from "../shaders/Gltf-Shader-Vertex.glsl";
 import fragmentShaderSource from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
@@ -57,130 +59,6 @@ export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfDat
 }
 
 
-//TODO - speed has been optimized but need to test thoroughly for correctness (was roughly tested)
-//https://stackoverflow.com/questions/17398578/hash-algorithm-for-variable-size-boolean-array?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-
-    const baseArray = new Uint8Array(15);
-    const morphsArray = new Uint8Array(30);
-    const skinArray = new Uint8Array(30);
-    const lightsArray = new Uint8Array(30);
-
-
-const hashBooleans32 = (xs:Uint8Array) => 
-{
-    let h = (1 << xs.length);
-    for (let i = 0; i < xs.length; i++)
-    {
-        h = h | ((xs[i]) << (xs.length - i - 1));
-    }
-    return h;
-}
-
-const getShaderKey = (config:GltfShaderConfig):string => {
-
-
-    if(config.hasNormalAttributes) {
-        baseArray[0] = 1;
-    }
-    if(config.hasTangentAttributes) {
-        baseArray[1] = 1;
-    }
-    if(config.hasUvAttributes) {
-        baseArray[2] = 1;
-    }
-    if(config.hasColorAttributes) {
-        baseArray[3] = 1;
-    }
-    if(config.hasBaseColorMap) {
-        baseArray[4] = 1;
-    }
-    if(config.hasNormalMap) {
-        baseArray[5] = 1;
-    }
-    if(config.hasEmissiveMap) {
-        baseArray[6] = 1;
-    }
-    if(config.hasMetalRoughnessMap) {
-        baseArray[7] = 1;
-    }
-    if(config.hasOcclusionMap) {
-        baseArray[8] = 1;
-    }
-    if(config.manualSRGB) {
-        baseArray[9] = 1;
-    }
-    if(config.fastSRGB) {
-        baseArray[10] = 1;
-    }
-
-    if(config.extensions.ibl) {
-        baseArray[11] = 1;
-        if(config.extensions.ibl.useLod) {
-            baseArray[12] = 1;
-        }
-    }
-    if(config.extensions.unlit) {
-        baseArray[13] = 1;
-    }
-
-
-    if(config.extensions.lights) {
-        baseArray[14] = 1;
-        if(config.extensions.lights.hasAmbient) {
-            baseArray[15] = 1;
-        }
-
-
-        //Light instances get their own array - 10 * 3 = 30 possibilities
-            for(let i = 0; i < config.extensions.lights.nDirectionalLights; i++) {
-                lightsArray[i] = 1;
-            }
-
-            for(let i = 0; i < config.extensions.lights.nPointLights; i++) {
-                lightsArray[10 + i] = 1;
-            }
-
-            for(let i = 0; i < config.extensions.lights.nSpotLights; i++) {
-                lightsArray[20 + i] = 1;
-            }
-    }
-
-
-    for(let i = 0; i < config.nPositionMorphs; i++) {
-        morphsArray[i]
-    }
-
-    for(let i = 0; i < config.nNormalMorphs; i++) {
-        morphsArray[8 + i]
-    }
-    for(let i = 0; i < config.nTangentMorphs; i++) {
-        morphsArray[16 + i]
-    }
-    for(let i = 0; i < config.nMorphWeights; i++) {
-        morphsArray[24 + i]
-    }
-
-    for(let i = 0; i < config.nSkinJoints; i++) {
-        skinArray[i] = 1;
-    }
-
-    const shaderKey = 
-        hashBooleans32(baseArray).toString()
-    "-" + hashBooleans32(morphsArray).toString()
-        + "-" + hashBooleans32(skinArray).toString()
-        + "-" + hashBooleans32(lightsArray).toString();
-
-    return shaderKey;
-
-}
-
-const shaderConfigBenchmark = (shaderConfig:GltfShaderConfig) => {
-    const t = performance.now();
-    for(let i = 0; i < 5000; i++) {
-        getShaderKey(shaderConfig);
-    }
-    console.log(performance.now() - t);
-}
 
 export const generateShader = 
     ({renderer, data, primitive}: 
@@ -191,11 +69,9 @@ export const generateShader =
     }) => {
 
 
-   //shaderConfigBenchmark(primitive.shaderConfig); 
-    
-    const shaderKey = getShaderKey(primitive.shaderConfig);
+    const shaderHash = getShaderHash(primitive.shaderConfig);
 
-    if (!data.shaders.has(shaderKey)) {
+    if (!data.shaders.has(shaderHash)) {
         const source = getShaderSource({data, primitive});
 
         const shader = createShader({
@@ -205,13 +81,13 @@ export const generateShader =
             source,
         });
 
-        data.shaders.set(shaderKey, shader);
+        data.shaders.set(shaderHash, shader);
         //console.log(`new shader compiled`);
     } else {
         //console.log(`nice! re-using existing shader`);
     }
 
-    const shader = data.shaders.get(shaderKey);
+    const shader = data.shaders.get(shaderHash);
 
 
     return shader;
@@ -260,6 +136,7 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
         nNormalMorphs,
         nTangentMorphs,
         nSkinJoints,
+        alphaMode: (material && material.alphaMode) ? material.alphaMode : GltfMaterialAlphaMode.OPAQUE,
         hasNormalAttributes: hasAttribute (originalPrimitive) ("NORMAL"),
         hasTangentAttributes: hasAttribute (originalPrimitive) ("TANGENT"),
         hasUvAttributes: hasAttribute (originalPrimitive) ("TEXCOORD_0"),
@@ -337,6 +214,10 @@ const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfP
 
     if(config.nSkinJoints) {
         defines.push("HAS_SKIN");
+    }
+
+    if(config.alphaMode === GltfMaterialAlphaMode.MASK) {
+        defines.push("HAS_ALPHA_CUTOFF");
     }
 
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');

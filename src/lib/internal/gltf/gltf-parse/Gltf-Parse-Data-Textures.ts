@@ -5,17 +5,12 @@ import { GLTF_ORIGINAL, GLTF_ORIGINAL_Sampler } from '../../../Types';
 
 const getColorSpaceForTextureId = ({ renderer, gltf, textureId }: { renderer: WebGlRenderer, gltf: GLTF_ORIGINAL, textureId: number }): number => {
     const defaultColorSpace = WebGlConstants.RGBA;
-    const SRGB =
-        renderer.version > 1
-        ? renderer.gl["SRGB"] //not in type definitions yet
-        : renderer.getExtension('EXT_SRGB')
-        ? renderer.getExtension('EXT_SRGB').SRGB_EXT
-        : defaultColorSpace;
+    const SRGBA = 0x8C42; //SRGB_ALPHA_EXT ... not in type definitions yet and might vary by renderer.version
 
     for (let i = 0; i < gltf.materials.length; i++) {
         const material = gltf.materials[i];
         if (material.emissiveTexture && material.emissiveTexture.index === textureId) {
-            return SRGB;
+            return SRGBA;
         }
 
         if (material.normalTexture && material.normalTexture.index === textureId) {
@@ -28,7 +23,7 @@ const getColorSpaceForTextureId = ({ renderer, gltf, textureId }: { renderer: We
         }
         if (material.pbrMetallicRoughness) {
             if (material.pbrMetallicRoughness.baseColorTexture && material.pbrMetallicRoughness.baseColorTexture.index === textureId) {
-                return SRGB;
+                return SRGBA;
             }
 
             if (material.pbrMetallicRoughness.metallicRoughnessTexture && material.pbrMetallicRoughness.metallicRoughnessTexture.index === textureId) {

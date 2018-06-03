@@ -3,7 +3,22 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
 import { Future } from "fluture";
-import {GltfRendererThunk, Light,GltfShaderConfig, GltfMeshNode, LightNode, LightKind, GltfTextureInfo,Camera,GltfIblScene, DirectionalLight, GltfScene, GltfNode, GltfPrimitive, GltfPrimitiveDrawKind } from "../../../Types";
+import {
+    GltfRendererThunk,
+    Light,
+    GltfShaderConfig,
+    GltfMeshNode,
+    LightNode,
+    LightKind,
+    GltfTextureInfo,
+    Camera,
+    GltfIblScene,
+    DirectionalLight,
+    GltfScene,
+    GltfNode,
+    GltfPrimitive,
+    GltfMaterialAlphaMode,
+    GltfPrimitiveDrawKind } from "../../../Types";
 
 
 export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
@@ -27,6 +42,18 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     activateShader(shaderId);
 
+
+    if(material && material.alphaMode === GltfMaterialAlphaMode.BLEND) {
+        renderer.glToggle(WebGlConstants.BLEND) (true);
+    } else {
+        renderer.glToggle(WebGlConstants.BLEND) (false);
+    }
+
+    if(material && material.doubleSided) {
+        renderer.glToggle(WebGlConstants.CULL_FACE) (false);
+    } else {
+        renderer.glToggle(WebGlConstants.CULL_FACE) (true);
+    }
     /*
         Set the IBL uniforms
     */
@@ -123,7 +150,6 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     }
 
 
-    renderer.glToggle(WebGlConstants.CULL_FACE)((material === undefined || material.doubleSided === undefined) ? true : false);
 
     if (material) {
       uniform2fv("u_MetallicRoughnessValues")(material.metallicRoughnessValues);
@@ -131,6 +157,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
       if(material.baseColorSamplerIndex !== undefined) {
         assignMeshTexture("u_BaseColorSampler")(material.baseColorSamplerIndex);
+
       }
       if(material.metallicRoughnessSamplerIndex !== undefined) {
         assignMeshTexture("u_MetallicRoughnessSampler")(material.metallicRoughnessSamplerIndex);
@@ -154,13 +181,14 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         uniform3fv("u_EmissiveFactor")(material.emissiveFactor);
       }
 
-      if (material.alphaMode !== undefined) {
-        //https://github.com/KhronosGroup/glTF-WebGL-PBR/issues/25
-      }
+        if(material.alphaMode === GltfMaterialAlphaMode.MASK) {
+            const alphaCutoff = (material.alphaMode === GltfMaterialAlphaMode.MASK)
+                ?   material.alphaCutoff
+                :   1.0;
+
+            uniform1f("u_AlphaCutoff") (alphaCutoff);
+        }
     
-      if (material.alphaCutoff !== undefined) {
-        //https://github.com/KhronosGroup/glTF-WebGL-PBR/issues/25
-      }
     }
 
     /*

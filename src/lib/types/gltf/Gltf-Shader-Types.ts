@@ -1,4 +1,4 @@
-import {WebGlShader, GltfUnlitShaderConfig, GltfLightsShaderConfig, GltfIblShaderConfig} from "../../Types";
+import {WebGlShader, GltfMaterialAlphaMode, GltfUnlitShaderConfig, GltfLightsShaderConfig, GltfIblShaderConfig} from "../../Types";
 
 export interface GltfShaderConfig {
     nMorphWeights: number;
@@ -17,6 +17,7 @@ export interface GltfShaderConfig {
     hasOcclusionMap: boolean;
     manualSRGB: boolean;
     fastSRGB: boolean;
+    alphaMode: GltfMaterialAlphaMode;
 
     extensions: {
         ibl?: GltfIblShaderConfig;

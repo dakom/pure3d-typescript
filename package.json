@@ -1,6 +1,6 @@
 {
   "name": "pure3d",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "pure3d",
   "main": "dist/lib.cjs.js",
   "module": "dist/lib.esm.js",

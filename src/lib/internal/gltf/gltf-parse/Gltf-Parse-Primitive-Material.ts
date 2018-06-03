@@ -59,16 +59,15 @@ export const GLTF_PARSE_createMaterialForPrimitive = ({gltf, materialId, data}:{
 
   if(_m.alphaMode) {
     switch(_m.alphaMode) {
-      case "OPAQUE": material.alphaMode = GltfMaterialAlphaMode.OPAQUE; break;
       case "BLEND":  material.alphaMode = GltfMaterialAlphaMode.BLEND; break;
       case "MASK": material.alphaMode = GltfMaterialAlphaMode.MASK; break;
-      default: material.alphaMode = GltfMaterialAlphaMode.OTHER; break;
+      default: material.alphaMode = GltfMaterialAlphaMode.OPAQUE; break;
     }
   }
   
 
-  material.doubleSided = _m.doubleSided;
-  material.alphaCutoff = _m.alphaCutoff;
+  material.doubleSided = _m.doubleSided ? true : false;
+  material.alphaCutoff = _m.alphaCutoff === undefined ? .5 : _m.alphaCutoff;
   
   return material;
 }
