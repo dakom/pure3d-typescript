@@ -16,7 +16,7 @@
 - [x] Complex
 - [x] Animations 
 - [x] Pbr Set 1
-- [ ] Pbr Set 2
+- [x] Pbr Set 2
 - [ ] Feature Test
 
 ## Remaining Features

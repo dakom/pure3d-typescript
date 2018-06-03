@@ -15,6 +15,7 @@ export const prepWebGlRenderer = (renderer: WebGlRenderer) => {
     renderer.getExtension('OES_standard_derivatives');
     renderer.getExtension('EXT_shader_texture_lod');
     renderer.getExtension('EXT_SRGB');
+    renderer.getExtension('OES_element_index_uint'); //only for scifi-helmet...
 
     renderer.gl.enable(renderer.gl.DEPTH_TEST);
 

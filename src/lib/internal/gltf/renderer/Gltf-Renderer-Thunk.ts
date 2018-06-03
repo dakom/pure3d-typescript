@@ -21,6 +21,8 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     const { uniform1i, uniform1f, uniform1fv, uniform1iv, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv } = uniforms.setters;
     const vaoId = data.attributes.vaoIdLookup.get(primitive.vaoId);
 
+
+
     let samplerIndex = 0;
 
     activateShader(shaderId);

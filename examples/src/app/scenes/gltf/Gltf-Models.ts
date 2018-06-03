@@ -427,8 +427,45 @@ export const MODEL_LIST_PBR2:Array<Model> = [
         },
         cameraPosition: Float64Array.from([0,0,5]),
     },
+    {
+        primary: "SUZANNE", 
+        label: "SUZANNE",
+        urls: {
+            "SUZANNE":   "Suzanne/glTF/Suzanne.gltf",
+            "SUZANNE_EMBEDDED":  "Suzanne/glTF-Embedded/Suzanne.gltf",
+            "SUZANNE_BINARY":  "Suzanne/glTF-Binary/Suzanne.glb",
+            "SUZANNE_GLOSSY": "Suzanne/glTF-pbrSpecularGlossiness/Suzanne.gltf",
+            "SUZANNE_DRACO": "Suzanne/glTF-Draco/Suzanne.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
+    {
+        primary: "SCIFI_HELMET", 
+        label: "SCIFI_HELMET",
+        urls: {
+            "SCIFI_HELMET":   "SciFiHelmet/glTF/SciFiHelmet.gltf",
+            "SCIFI_HELMET_EMBEDDED":  "SciFiHelmet/glTF-Embedded/SciFiHelmet.gltf",
+            "SCIFI_HELMET_BINARY":  "SciFiHelmet/glTF-Binary/SciFiHelmet.glb",
+            "SCIFI_HELMET_GLOSSY": "SciFiHelmet/glTF-pbrSpecularGlossiness/SciFiHelmet.gltf",
+            "SCIFI_HELMET_DRACO": "SciFiHelmet/glTF-Draco/SciFiHelmet.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
 ];
-export const MODEL_LIST_FEATURETEST:Array<Model> = [];
+export const MODEL_LIST_FEATURETEST:Array<Model> = [
+    {
+        primary: "ALPHA_BLEND_MODE", 
+        label: "ALPHA_BLEND_MODE",
+        urls: {
+            "ALPHA_BLEND_MODE":   "AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf",
+            "ALPHA_BLEND_MODE_EMBEDDED":  "AlphaBlendModeTest/glTF-Embedded/AlphaBlendModeTest.gltf",
+            "ALPHA_BLEND_MODE_BINARY":  "AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb",
+            "ALPHA_BLEND_MODE_GLOSSY": "AlphaBlendModeTest/glTF-pbrSpecularGlossiness/AlphaBlendModeTest.gltf",
+            "ALPHA_BLEND_MODE_DRACO": "AlphaBlendModeTest/glTF-Draco/AlphaBlendModeTest.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,7]),
+    },
+];
 
 /// END CONFIG
 //

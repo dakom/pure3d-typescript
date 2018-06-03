@@ -61,6 +61,7 @@ const isAttribute = ({gltf, accessorId}:{gltf:GLTF_ORIGINAL, accessorId:number})
         return false;
     }
 
+
     return gltf.nodes.some(node => 
         node.mesh === undefined ? false :
         gltf.meshes[node.mesh].primitives.some(primitive =>
@@ -75,6 +76,7 @@ const isAttribute = ({gltf, accessorId}:{gltf:GLTF_ORIGINAL, accessorId:number})
                 ))
         )
     );
+
 }
 
 export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>, renderer: WebGlRenderer }): GltfAttributes => {
@@ -98,8 +100,10 @@ export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf:
     }
 
     gltf.accessors
-        .filter((accessor, accessorId) => isAttribute({gltf, accessorId}))
-        .forEach((accessor, accessorId) => {
+        .map((accessor, accessorId) => ({accessor, accessorId}))
+        .filter(({accessorId}) => isAttribute({gltf, accessorId}))
+        .forEach(({accessor, accessorId}) => {
+
             const isElements = indicesList.indexOf(accessorId) === -1 ? false: true;
             const info = GLTF_PARSE_getAccessorDataInfo({gltf, accessorId });
             const strategy = getAccessorStrategy({gltf, accessor, info});
