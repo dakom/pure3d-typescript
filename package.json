@@ -1,6 +1,6 @@
 {
   "name": "pure3d",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "pure3d",
   "main": "dist/lib.cjs.js",
   "module": "dist/lib.esm.js",
@@ -72,7 +72,6 @@
   "dependencies": {
     "binary-search-curryed": "1.0.1",
     "fluture-loaders": "^2.1.2",
-    "gl-matrix": "^2.5.1",
-    "text-encoding-shim": "^1.0.0"
+    "gl-matrix": "^2.5.1"
   }
 }
