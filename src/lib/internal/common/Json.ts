@@ -1,5 +1,7 @@
 //https://stackoverflow.com/a/41798356/784519
 const utf8ArrayToStr = (function () {
+
+
     var charCache = new Array(128);  // Preallocate the cache for the common single byte chars
     var charFromCodePt = String.fromCodePoint || String.fromCharCode;
     var result = [];
@@ -34,8 +36,8 @@ const utf8ArrayToStr = (function () {
 })();
 export const getJsonFromArrayBuffer = (aBuffer:ArrayBuffer) => {
     const bytes = new Uint8Array(aBuffer);
-    
-    const str = TextDecoder
+
+    const str = window["TextDecoder"]
         ?   new TextDecoder('utf-8').decode(bytes)
         :   utf8ArrayToStr(bytes);
     //console.log(str);
