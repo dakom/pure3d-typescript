@@ -5,14 +5,13 @@ src/
 rollup.config.js
 tsconfig.json
 
-#gitignore below
+#gitignore below - except for dist
 
 # rollup-plugin-typescript2
 .rpt2_cache
 
 # node
 npm-debug.log
-dist
 node_modules
 
 # Visual Studio Code
