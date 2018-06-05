@@ -114,10 +114,35 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
 
     const textureSwitcher = createTextureSwitcher(gl);
 
+    const globalAttributeLocations = new Set<string>();
+
+    //For of wasn't working across typescript and things...
+    //This is a little ugly but it's fine (maybe even a bit faster in most use cases)
+    const _attributeLookup = new Map<string, number>();
+    const getGlobalAttributeLocation = (aName:string):number => {
+        if(!_attributeLookup.has(aName)) {
+            let idx = 0;
+            globalAttributeLocations.forEach(val => {
+                if(!_attributeLookup.has(val)) {
+                    _attributeLookup.set(val, idx);
+                }
+                idx++;
+            })
+        }
+
+        const loc = _attributeLookup.has(aName)
+            ?   _attributeLookup.get(aName)
+            :   -1;
+
+        return loc;
+    }
+
     return {
         resize,
         canvas,
         gl,
+        globalAttributeLocations,
+        getGlobalAttributeLocation,
         buffers,
         ...textureSwitcher,
         glToggle,

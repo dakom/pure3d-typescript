@@ -35,6 +35,9 @@ export const Home = withRouter(withStyles(styles) (({classes, history}:{history:
                     <Grid item>
                         <Button size="large" variant="raised" color="primary" onClick={() => history.push("/basic")}>Basic</Button>
                     </Grid>
+                    <Grid item> 
+                        <Button size="large" variant="raised" color="primary" onClick={() => history.push("/combined")}>Combined</Button>
+                    </Grid>
                 </Grid>
             </Grid>
     </Grid>

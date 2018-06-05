@@ -64,6 +64,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
         bufferId: accessorLookup.get(accessorId).rendererBufferId,
         ...accessorLookup.get(accessorId).strategy
     });
+    
 
   });
 
@@ -93,7 +94,6 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
   const sym = Symbol();
   data.attributes.vaoIdLookup.set(vaoId, sym); 
   data.attributes.vertexArrays.assign(sym)(vao);
-  data.attributes.vertexArrays.release();
 
   return vaoId;
 }

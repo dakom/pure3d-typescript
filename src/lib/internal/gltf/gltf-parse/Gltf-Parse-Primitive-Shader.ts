@@ -31,7 +31,7 @@ import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-P
 
 import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 
-import { GLTF_PARSE_getAttributeLocation, GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
+import {GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 import {getShaderHash } from "./Gltf-Parse-Primitive-Shader-Hash";
 
@@ -77,7 +77,6 @@ export const generateShader =
         const shader = createShader({
             shaderId: Symbol(),
             renderer,
-            interruptHandler: setAttributeLocations,
             source,
         });
 
@@ -289,11 +288,3 @@ const getShaderSource = ({data, primitive}:{data:GltfData, primitive:GltfPrimiti
             getCoreShaderSource({data, primitive})
         );
 
-//For making sure attributes have the same number between shaders
-//Passed to the core WebGlShader creator
-const setAttributeLocations = gl => program => {
-        GLTF_PARSE_attributeNames.forEach(aName => {
-            const location = GLTF_PARSE_getAttributeLocation(aName);
-            gl.bindAttribLocation(program, location, aName);
-        });
-    }

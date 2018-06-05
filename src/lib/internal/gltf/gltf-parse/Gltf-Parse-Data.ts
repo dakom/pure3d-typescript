@@ -8,7 +8,6 @@ import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
-import {createVertexArrays} from "../../../exports/webgl/WebGl-VertexArrays";
 
 //Pure data loaders
 
@@ -68,7 +67,9 @@ export const GLTF_PARSE_CreateData = ({ gltf, assets, renderer, config }: { conf
     const {imageElements, buffers} = assets;
 
     const textures = GLTF_PARSE_createTextures({ renderer, gltf, imageElements });
+
     const attributes = GLTF_PARSE_createAttributes({ gltf, buffers, renderer });
+    
     const animations = GLTF_PARSE_createAnimations({ gltf, buffers});
 
     const shaders = new Map<string, WebGlShader>();

@@ -1,19 +1,14 @@
 import {WebGlAttributeActivateOptions, WebGlBufferInfo, WebGlShader, WebGlVertexArrays, WebGlVertexArrayData, WebGlRenderer, WebGlBufferData, WebGlVertexData, WebGlConstants } from "../../Types";
 
 
-
-export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRenderer, getAttributeLocation: (aName:string) => number}) => {
+const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRenderer, getAttributeLocation: (aName:string) => number}) => {
   const _cache = new Map<Symbol, any>();
   const {gl, version} = renderer;
   let currentSym:Symbol;
-    let ext;
 
   const _create = ():any => {
     if(version === 1) {
-      if(ext === undefined || ext === null) {
-        ext = gl.getExtension("OES_vertex_array_object");
-      }
-      return ext.createVertexArrayOES();
+      return renderer.getExtension("OES_vertex_array_object").createVertexArrayOES();
     } else {
       return (gl as any).createVertexArray();
     }
@@ -21,10 +16,7 @@ export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:We
 
   const _bind = (target):void => {
     if(version === 1) {
-      if(ext === undefined || ext === null) {
-        ext = gl.getExtension("OES_vertex_array_object");
-      }
-      return ext.bindVertexArrayOES(target);
+      return renderer.getExtension("OES_vertex_array_object").bindVertexArrayOES(target);
     } else {
       return (gl as any).bindVertexArray(target);
     }
@@ -54,7 +46,8 @@ export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:We
         
         const location = getAttributeLocation(attributeName);
         const bufferInfo = renderer.buffers.get(bufferId);
-  
+ 
+
         //there's no cache checks in the case of VAO - the set as a whole is toggled on/off
         renderer.buffers.bind(bufferId);
         gl.vertexAttribPointer( 
@@ -67,6 +60,8 @@ export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:We
   
         gl.enableVertexAttribArray(location);
       });
+
+      release();
   }
 
   
@@ -81,6 +76,9 @@ export const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:We
   return {activate, release, assign}
 }
 
+
+export const createVertexArraysForRenderer = (renderer:WebGlRenderer) =>
+    createVertexArrays({renderer, getAttributeLocation: renderer.getGlobalAttributeLocation});
 
 export const createVertexArraysForShader = ({renderer, shader}:{renderer:WebGlRenderer, shader:WebGlShader}) =>
     createVertexArrays({renderer, getAttributeLocation: shader.attributes.getLocation})

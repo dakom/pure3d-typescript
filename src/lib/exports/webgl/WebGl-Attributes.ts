@@ -4,21 +4,24 @@ export const createAttributes = ({renderer, program}:{renderer:WebGlRenderer, pr
   let currentBuffer:Symbol;
   let currentTarget:number;
 
-  const _locationCache = new Map<string, number>();
   const {gl} = renderer;
 
-  const forceLocation = ({aName, location}:{aName:string, location:number}) => {
-    gl.bindAttribLocation(program, location, aName);
-    _locationCache.set(aName, gl.getAttribLocation(program, aName));
-  }
+  const _localCache = new Map<string, number>();
+
 
   const getLocation = (aName:string):number => {
 
-    if(!_locationCache.has(aName)) {
-      _locationCache.set(aName, gl.getAttribLocation(program, aName));
+    if(!_localCache.has(aName)) {
+        const globalIndex = renderer.getGlobalAttributeLocation(aName);
+
+        _localCache.set(aName, 
+                globalIndex !== -1
+                ?   globalIndex 
+                :   gl.getAttribLocation(program, aName)
+        );
     }
 
-    return _locationCache.get(aName);
+    return _localCache.get(aName);
   }
 
   const activateElements = (bufferId:Symbol):void => {
@@ -48,7 +51,7 @@ export const createAttributes = ({renderer, program}:{renderer:WebGlRenderer, pr
   
   }
 
-  return {getLocation, activateElements, activateData, forceLocation};
+  return {getLocation, activateElements, activateData };
 }
 
 

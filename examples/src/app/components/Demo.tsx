@@ -1,9 +1,9 @@
 import * as React from "react";
 import {TopMenu, GltfMenu } from "./Menu";
 import {Container} from "./Container";
-import {SCENE_MENUS} from "../scenes/basic/Basic-Scenes";
+import {BASIC_MENUS} from "../scenes/basic/Basic-Scenes";
 import {MODEL_MENUS} from "../scenes/gltf/Gltf-Models";
-
+import {COMBINED_MENUS} from "../scenes/combined/Combined-Scenes";
 
 const gltfAlertMessage =
 `
@@ -15,13 +15,15 @@ Different formats, where available, are set via adding or removing "_BINARY" and
 
 
 const buttons = {
-    basic: SCENE_MENUS,
-    gltf: MODEL_MENUS
+    basic: BASIC_MENUS,
+    gltf: MODEL_MENUS,
+    combined: COMBINED_MENUS,
 }
 
 const alertMessage = {
     basic: "These tests are for basic webgl functionality",
-    gltf: gltfAlertMessage
+    gltf: gltfAlertMessage,
+    combined: "These are integration tests for combining everything together"
 }
 
 

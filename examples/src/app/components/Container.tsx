@@ -6,6 +6,7 @@ import {startCombinedTextures} from "../scenes/basic/combined-textures/CombinedT
 import {startSpriteSheet} from "../scenes/basic/spritesheet/Spritesheet-Demo";
 import {startVideo} from "../scenes/basic/video/Video-Demo";
 import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
+import {startCombo1} from "../scenes/combined/combo1/Combo1";
 import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";
@@ -20,26 +21,33 @@ const _loadScene = ({renderer, section, scene, menuOptions}
     const mapReturn = xf => 
         Array.isArray(xf) ? S.Just(xf) : S.Just([xf, () => {}]);
 
+    const basicPath = !isProduction ? WEBGL_DEV_ASSET_PATH : WEBGL_PRODUCTION_ASSET_PATH;
+    const gltfPath = !isProduction ? GLTF_DEV_ASSET_PATH : GLTF_PRODUCTION_ASSET_PATH;
+
     if(section === "basic") {
-        const path = !isProduction ? WEBGL_DEV_ASSET_PATH : WEBGL_PRODUCTION_ASSET_PATH;
         switch(scene) {
             case "BOX_BASIC": return startBox(renderer) ("basic").map(mapReturn);
             case "BOX_VAO": return startBox (renderer) ("vao").map(mapReturn);
-            case "QUAD":    return startQuad (renderer) (path).map(mapReturn); 
+            case "QUAD":    return startQuad (renderer) (basicPath).map(mapReturn); 
             case "TEXTURES_COMBINED": return startCombinedTextures (renderer).map(mapReturn);
-            case "SPRITESHEET": return startSpriteSheet (renderer) (path).map(mapReturn);
-            case "VIDEO_QUAD": return startVideo (renderer) (path).map(mapReturn); 
+            case "SPRITESHEET": return startSpriteSheet (renderer) (basicPath).map(mapReturn);
+            case "VIDEO_QUAD": return startVideo (renderer) (basicPath).map(mapReturn); 
         }
-    } else {
-        const path = !isProduction ? GLTF_DEV_ASSET_PATH : GLTF_PRODUCTION_ASSET_PATH;
+    } else if(section === "gltf") {
         const modelInfo = getModel(scene);
         if(modelInfo) {
             return startGltf(renderer) ({
-                modelPath: path + modelInfo.url,
+                modelPath: gltfPath + modelInfo.url,
                 modelInfo,
                 menuOptions
             }).map(mapReturn);
         }
+    } else if(section === "combined") {
+        switch(scene) {
+            case "COMBO1":
+                return startCombo1 (renderer) ({basicPath, gltfPath, menuOptions}).map(mapReturn);
+        }
+
     }
 
     return Future.of(S.Nothing);

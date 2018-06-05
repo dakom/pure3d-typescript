@@ -94,6 +94,10 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
     renderer.glBlendFunc(renderer.gl.SRC_ALPHA) (renderer.gl.ONE_MINUS_SRC_ALPHA);
 
     //Render calls are sorted by alpha and then shader.
+    //The thunks themselves will assign vaos
+    //Conceptually it is possible that there could be a bug and the thunks should release
+    //every time - but I think that'd only be if there's a mix of indexed + non-indexed or something
+    //Leaving it for now...
     if(shaderGroupByAlpha.has(GltfMaterialAlphaMode.OPAQUE)) {
         shaderGroupByAlpha.get(GltfMaterialAlphaMode.OPAQUE)
             .forEach(xs => xs.forEach(fn => fn()));
@@ -107,4 +111,7 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
         shaderGroupByAlpha.get(GltfMaterialAlphaMode.BLEND)
             .forEach(xs => xs.forEach(fn => fn()));
     }
+
+    //Not doing this causes bugs with multiple renderers
+    data.attributes.vertexArrays.release();
 }

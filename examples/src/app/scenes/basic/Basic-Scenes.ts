@@ -5,7 +5,7 @@ const convertMenu = (list:Array<{label: string, items: Array<string>}>) =>
         items: items.map(item => [item, item])
     }));
 
-export const SCENE_MENUS = convertMenu([
+export const BASIC_MENUS = convertMenu([
     {
         label: "Geometry",
         items: [

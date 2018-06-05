@@ -28,6 +28,9 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
 
     const {shaderId, uniforms } = shader;
 
+
+    //See wiki and compare to "combo 1" example for per-renderer / global approach
+    
     const vertexArrays = createVertexArraysForShader({renderer, shader});
 
     activateShader(shaderId);
@@ -71,6 +74,6 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
 
         vertexArrays.activate(VERTEX_ID);
         gl.drawElements(gl.TRIANGLES, nElements, gl.UNSIGNED_BYTE, 0);
-
+        vertexArrays.release();
     }
 }

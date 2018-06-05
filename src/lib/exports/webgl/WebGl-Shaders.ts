@@ -1,15 +1,16 @@
 import {WebGlAttributeActivateOptions, WebGlBufferData, WebGlRenderer, WebGlShader, WebGlBufferInfo, WebGlShaderSource, WebGlShaderInterruptHandler} from "../../Types";
 import { createUniforms } from "./WebGl-Uniforms";
-import {createVertexArrays} from "./WebGl-VertexArrays";
 import {createAttributes} from "./WebGl-Attributes";
 
 //the "any" here is actually WebGlShader but defining it as such would cause a circular reference
 let current: any; 
 const shaders = new Map<Symbol, WebGlShader>();
 
-const _compileShader = ({gl, source, interruptHandler}:{gl: WebGLRenderingContext, source: WebGlShaderSource, interruptHandler?:WebGlShaderInterruptHandler}): WebGLProgram => {
+const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: WebGlShaderSource}): WebGLProgram => {
     let vShader: WebGLShader | Error;
     let fShader: WebGLShader | Error;
+
+    const {gl} = renderer;
     const program = gl.createProgram();
 
     const dispose = () => {
@@ -52,9 +53,11 @@ const _compileShader = ({gl, source, interruptHandler}:{gl: WebGLRenderingContex
         return fShader;
     }
 
-    if(interruptHandler) {
-        interruptHandler (gl) (program);
-    }
+    let location = 0;
+    renderer.globalAttributeLocations.forEach(aName => {
+        gl.bindAttribLocation(program, location, aName);
+        location++;
+    });
 
     gl.linkProgram(program)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -79,15 +82,14 @@ export const activateShader = (shaderId: Symbol) =>
 
 
 
-export const createShader = ({renderer, shaderId, source, interruptHandler}: {renderer:WebGlRenderer,shaderId: Symbol,source: WebGlShaderSource, interruptHandler?:WebGlShaderInterruptHandler}) => {
-    const {gl} = renderer;
+export const createShader = ({renderer, shaderId, source}: {renderer:WebGlRenderer,shaderId: Symbol,source: WebGlShaderSource }) => {
 
-    const program = _compileShader({source, gl, interruptHandler});
+    const program = _compileShader({source, renderer});
 
     const attributes = createAttributes({renderer, program});
 
     const shader = {
-        gl,
+        gl: renderer.gl,
         shaderId,
         program,
         uniforms: createUniforms({renderer, activateShader: () => _activateShader(shaderId)}),
