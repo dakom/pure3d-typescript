@@ -81,23 +81,25 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
      * Set the generic lighting uniforms
     */
 
-
+    //Lighting is not implemented in the shader yet, even though the nodes are
+    //Exception is the Directional light though the actual direction is hardcoded
    
     if(scene.light) {
-        //TODO set uniform, should be in ifdef for lighting
+        //TODO set uniform, and maybe only if there's no IBL... not sure though 
     }
 
     lightList.forEach(lightNode => {
         const {light} = lightNode;
 
 
+        if(light.kind === LightKind.Directional) {
+            //Just for now - TODO - get from lightNode.transform.trs.rotation
+            //Hardcoding the position so we can see it - on the left
+            uniform3fv("u_LightDirection")([-0.5825, -0.1357, -0.8014]);
+            uniform3fv("u_LightColor")(light.color);
+        }
         //TODO - allow multiple lights, point lights, etc.
         if(light.kind === LightKind.Spot) {
-
-            //console.log("SPOT");
-
-            //uniform3fv("u_LightDirection")(light.);
-            //uniform3fv("u_LightColor")(light.color);
         }
     })
     

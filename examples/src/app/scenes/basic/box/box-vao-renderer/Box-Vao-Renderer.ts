@@ -74,6 +74,5 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
 
         renderer.vertexArrays.activate(VERTEX_ID);
         gl.drawElements(gl.TRIANGLES, nElements, gl.UNSIGNED_BYTE, 0);
-        renderer.vertexArrays.release();
     }
 }

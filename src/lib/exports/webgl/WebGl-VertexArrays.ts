@@ -21,8 +21,8 @@ export const createVertexArrays = ({getExtension, gl, version, buffers}:{buffers
     }
   }
 
-  const activate = (sym:Symbol):void => {
-    if(currentSym === sym) {
+  const _activate = (force:boolean) => (sym:Symbol):void => {
+    if(!force && currentSym === sym) {
       return;
     }
 
@@ -36,7 +36,7 @@ export const createVertexArrays = ({getExtension, gl, version, buffers}:{buffers
   }
 
   const assign = (sym:Symbol) => (v:WebGlVertexArrayData):void => {
-      activate(sym);
+      _activate (true) (sym);
 
       if(v.elementBufferId) {
         buffers.bind(v.elementBufferId);
@@ -71,7 +71,7 @@ export const createVertexArrays = ({getExtension, gl, version, buffers}:{buffers
     }
   }
 
-  return {activate, release, assign}
+  return {activate: _activate(false), release, assign}
 }
 
 /*

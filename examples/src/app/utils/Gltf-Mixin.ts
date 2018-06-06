@@ -23,17 +23,17 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
     const addExtension = (name:string) => (meta:any) => (gltf:GLTF_ORIGINAL):GLTF_ORIGINAL => 
         Object.assign({}, gltf, {
             extensionsUsed:
-            gltf.extensionsUsed
-            ?   gltf.extensionsUsed.concat([name])
-            :   [name],
-            extensions:
-            gltf.extensions
-            ?   Object.assign({}, gltf.extensions, {
-                [name]: meta
-            })
-            :   {
-                [name]: meta
-            }
+                gltf.extensionsUsed
+                    ?   gltf.extensionsUsed.concat([name])
+                    :   [name],
+                extensions:
+                    gltf.extensions
+                    ?   Object.assign({}, gltf.extensions, {
+                            [name]: meta
+                        })
+                    :   {
+                            [name]: meta
+                        }
         });
 
     const addIbl = (gltf:GLTF_ORIGINAL) => {
@@ -82,6 +82,14 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
                         1.0
                     ],
                     "type": "spot"
+                },
+                {
+                    "color": [
+                        .2,
+                        .2,
+                        .2
+                    ],
+                    "type": "directional"
                 }
             ]
         }
@@ -93,7 +101,15 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
                     "light" : 1
                 }
             }
-        })
+        },
+        {
+            "extensions" : {
+                "KHR_lights" : {
+                    "light" : 2
+                }
+            }
+        }
+        )
 
         if(gltf.scenes) {
             gltf.scenes[0].nodes.push(gltf.nodes.length-1)

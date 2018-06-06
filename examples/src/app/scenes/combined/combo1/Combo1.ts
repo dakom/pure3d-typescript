@@ -126,7 +126,8 @@ export const startCombo1 = (renderer:WebGlRenderer) => ({basicPath, gltfPath, me
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
                         renderers
-                            //.filter((fn, idx) => idx) //skip cubemap
+                            //.filter((fn, idx) => idx) //skip skybox
+                            //.filter((fn, idx) => !idx) //skip models
                             .forEach(render => 
                                 render (camera) (frameTs)
                             );

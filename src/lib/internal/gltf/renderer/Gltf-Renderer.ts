@@ -114,7 +114,6 @@ const _render = (renderer:WebGlRenderer) => (shaderGroups:Map<GltfMaterialAlphaM
         }
         shaderGroups.get(alphaMode)
             .forEach(xs => {
-                renderer.vertexArrays.release();
                 xs.forEach(fn => fn())
             });
     }
