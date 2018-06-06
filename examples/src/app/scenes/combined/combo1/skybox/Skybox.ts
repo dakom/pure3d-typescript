@@ -10,7 +10,7 @@ import {mat4} from "gl-matrix";
 import { S } from "../../../../utils/Sanctuary";
 import {parallel, Future} from "fluture";
 import {fetchImage} from "fluture-loaders";
-import {ELEMENTS_BUFFER_ID, uploadData, GEOMETRY_BUFFER_ID, COLORS_BUFFER_ID, nElements} from "./SkyBox-Data";
+import {ELEMENTS_BUFFER_ID, uploadData, GEOMETRY_BUFFER_ID, COLORS_BUFFER_ID, nElements} from "./Skybox-Data";
 import vertexShader from "./Skybox-Shader-Vertex.glsl";
 import fragmentShader from "./Skybox-Shader-Fragment.glsl";
 
