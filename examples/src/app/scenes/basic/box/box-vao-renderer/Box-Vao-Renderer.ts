@@ -3,7 +3,6 @@ import {
     WebGlRenderer,
     createShader,
     activateShader,
-    createVertexArraysForShader,
 } from 'lib/Lib';
 import { mat4 } from 'gl-matrix';
 import {BoxElement} from "../Box-Element";
@@ -26,29 +25,28 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
         fragment: fragmentShader
     }});
 
-    const {shaderId, uniforms } = shader;
+    const {shaderId, uniforms, program} = shader;
 
 
-    //See wiki and compare to "combo 1" example for per-renderer / global approach
     
-    const vertexArrays = createVertexArraysForShader({renderer, shader});
 
     activateShader(shaderId);
 
 
     const {uniform1i, uniform1f, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv} = uniforms.setters;
     
-    vertexArrays.assign(VERTEX_ID) ({
+    renderer.vertexArrays.assign(VERTEX_ID) ({
       elementBufferId: ELEMENTS_BUFFER_ID,
       data: [
         {
-            attributeName: "a_Vertex",
+            //See wiki and compare to "combo 1" example for per-renderer / global approach
+            location: renderer.attributes.getLocationInShader (program) ("a_Vertex"),
             bufferId: GEOMETRY_BUFFER_ID,
             size: 3,
             type: gl.FLOAT
         },
         {
-            attributeName: "a_Color",
+            location: renderer.attributes.getLocationInShader (program) ("a_Color"),
             bufferId: COLORS_BUFFER_ID,
             size: 3,
             type: gl.FLOAT
@@ -67,13 +65,15 @@ export const createBoxVaoRenderer = (renderer:WebGlRenderer) => {
 
         activateShader(shaderId);
         
+        renderer.glToggle(WebGlConstants.DEPTH_TEST) (true);
+        
         mat4.fromScaling(sizeMatrix, [width, height, depth]);
 
         uniformMatrix4fv("u_Size") (false) (sizeMatrix);
         uniformMatrix4fv("u_Transform") (false) (clipSpace);
 
-        vertexArrays.activate(VERTEX_ID);
+        renderer.vertexArrays.activate(VERTEX_ID);
         gl.drawElements(gl.TRIANGLES, nElements, gl.UNSIGNED_BYTE, 0);
-        vertexArrays.release();
+        renderer.vertexArrays.release();
     }
 }

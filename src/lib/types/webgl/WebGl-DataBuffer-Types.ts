@@ -10,3 +10,9 @@ export interface WebGlBufferData {
     data: WebGlVertexData,
 }
 
+export interface WebGlBuffers {
+    bind: (sym:Symbol) => void;
+    assign: (sym:Symbol) => (bData:WebGlBufferData) => void;
+    get: (sym:Symbol) => WebGlBufferInfo;
+}
+

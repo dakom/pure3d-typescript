@@ -1,4 +1,4 @@
-import {WebGlRenderer, WebGlBufferData, WebGlBufferInfo} from "../../../Types";
+import {WebGlVertexArrayData, WebGlAttributeActivateOptions, WebGlRenderer, WebGlBufferData, WebGlBufferInfo} from "../../../Types";
 
 import {GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 const HAS_PREPPED = Symbol();
@@ -13,7 +13,7 @@ export const prepWebGlRenderer = (renderer: WebGlRenderer) => {
     }
     
     GLTF_PARSE_attributeNames.forEach(aName => {
-        renderer.globalAttributeLocations.add(aName);
+        renderer.attributes.globalLocations.add(aName);
     });
 
     renderer.getExtension('OES_standard_derivatives');

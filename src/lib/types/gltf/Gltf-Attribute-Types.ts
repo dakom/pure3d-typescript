@@ -11,5 +11,4 @@ export interface GltfAttributes {
         rendererBufferId: Symbol;
     }>;
 
-    vertexArrays: WebGlVertexArrays;
 }

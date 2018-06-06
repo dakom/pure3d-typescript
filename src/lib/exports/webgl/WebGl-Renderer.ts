@@ -1,8 +1,9 @@
 import { createWebGlBuffers} from './WebGl-DataBuffers';
-import { createShader} from './WebGl-Shaders';
 import { createTextureSwitcher} from './WebGl-Textures';
+import { createVertexArrays} from './WebGl-VertexArrays';
+import { createAttributes} from './WebGl-Attributes';
 import {getMajorVersion} from "./WebGl-Version";
-import {WebGlBufferInfo,WebGlBufferData, WebGlRendererOptions} from "../../Types";
+import {WebGlVertexArrayData, WebGlAttributeActivateOptions, WebGlBufferInfo,WebGlBufferData, WebGlRendererOptions} from "../../Types";
 
 
 export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
@@ -114,36 +115,26 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
 
     const textureSwitcher = createTextureSwitcher(gl);
 
-    const globalAttributeLocations = new Set<string>();
 
-    //For of wasn't working across typescript and things...
-    //This is a little ugly but it's fine (maybe even a bit faster in most use cases)
-    const _attributeLookup = new Map<string, number>();
-    const getGlobalAttributeLocation = (aName:string):number => {
-        if(!_attributeLookup.has(aName)) {
-            let idx = 0;
-            globalAttributeLocations.forEach(val => {
-                if(!_attributeLookup.has(val)) {
-                    _attributeLookup.set(val, idx);
-                }
-                idx++;
-            })
-        }
+    const attributes = createAttributes({
+        gl,
+        buffers,
+    });
 
-        const loc = _attributeLookup.has(aName)
-            ?   _attributeLookup.get(aName)
-            :   -1;
-
-        return loc;
-    }
+    const vertexArrays = createVertexArrays({
+        getExtension,
+        gl, 
+        version,
+        buffers
+    });
 
     return {
         resize,
         canvas,
         gl,
-        globalAttributeLocations,
-        getGlobalAttributeLocation,
         buffers,
+        attributes,
+        vertexArrays,
         ...textureSwitcher,
         glToggle,
         glDepthFunc,

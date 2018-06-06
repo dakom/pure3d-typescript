@@ -1,10 +1,9 @@
-import { WebGlAttributeActivateOptions, WebGlConstants, WebGlRenderer, WebGlBufferData, WebGlBufferInfo } from '../../../Types';
+import { WebGlVertexArrayData, WebGlAttributeActivateOptions, WebGlConstants, WebGlRenderer, WebGlBufferData, WebGlBufferInfo } from '../../../Types';
 
 import { GLTF_ORIGINAL, GltfAttributes, GltfAccessorDataInfo, TypedNumberArray, GLTF_ORIGINAL_Accessor, GLTF_ORIGINAL_AccessorSparse, GLTF_ORIGINAL_BufferView } from '../../../Types';
 import { GLTF_PARSE_ACCESSOR_TYPE_SIZE, GLTF_PARSE_COMPONENT_BYTE_SIZE } from './Gltf-Parse-Data-Constants';
 import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
 import {GLTF_PARSE_getAccessorDataInfo} from "./Gltf-Parse-Data-Info";
-import {createVertexArraysForRenderer} from "../../../exports/webgl/WebGl-VertexArrays";
 
 export const GLTF_PARSE_attributeNames = [
     "a_Position",
@@ -136,7 +135,6 @@ export const GLTF_PARSE_createAttributes = ({ gltf, buffers, renderer }: { gltf:
         });
 
     const vaoIdLookup = new Map<number, Symbol>();
-    const vertexArrays = createVertexArraysForRenderer( renderer);
-    return { accessorLookup, vertexArrays, vaoIdLookup}
+    return { accessorLookup, vaoIdLookup}
 
 }

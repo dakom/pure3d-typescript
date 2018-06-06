@@ -2,7 +2,7 @@ import { Future, parallel } from 'fluture';
 import { fetchArrayBufferUrl, fetchImage, loadImageFromArrayBuffer } from 'fluture-loaders';
 import { GltfInitConfig, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
 
-import { GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
+import { WebGlVertexArrayData, WebGlAttributeActivateOptions,GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
 import { prepWebGlRenderer } from '../init/Gltf-Init';
 import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';

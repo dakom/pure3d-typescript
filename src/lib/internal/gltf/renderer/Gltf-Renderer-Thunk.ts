@@ -32,7 +32,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
 
     const {material, drawMode} = primitive;
     
-    const { uniforms, attributes, shaderId } = shader; 
+    const { uniforms, shaderId } = shader; 
     const { uniform1i, uniform1f, uniform1fv, uniform1iv, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv } = uniforms.setters;
     const vaoId = data.attributes.vaoIdLookup.get(primitive.vaoId);
 
@@ -189,7 +189,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Draw
     */
 
-    data.attributes.vertexArrays.activate(vaoId);
+    renderer.vertexArrays.activate(vaoId);
 
     if(primitive.drawKind === GltfPrimitiveDrawKind.ELEMENTS) {
       const elementsAccessor = gltf.accessors[primitive.elementsId];

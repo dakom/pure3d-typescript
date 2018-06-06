@@ -19,7 +19,7 @@ export const createBoxBasicRenderer = (renderer:WebGlRenderer) => {
     const sizeMatrix = mat4.create();
 
     const {gl, buffers} = renderer;
-    const {shaderId, uniforms, attributes} = createShader({renderer, shaderId: SHADER_ID, source: {
+    const {shaderId, uniforms, program} = createShader({renderer, shaderId: SHADER_ID, source: {
         vertex: vertexShader,
         fragment: fragmentShader
     }});
@@ -27,6 +27,8 @@ export const createBoxBasicRenderer = (renderer:WebGlRenderer) => {
 
     activateShader(shaderId);
 
+    const activateAttributeData = (aName:string) =>
+        renderer.attributes.activateData(renderer.attributes.getLocationInShader(program) (aName));
 
     const {uniform1i, uniform1f, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv} = uniforms.setters;
     
@@ -42,17 +44,19 @@ export const createBoxBasicRenderer = (renderer:WebGlRenderer) => {
 
         activateShader(shaderId);
         
+        renderer.glToggle(WebGlConstants.DEPTH_TEST) (true);
+        
         mat4.fromScaling(sizeMatrix, [width, height, depth]);
 
         uniformMatrix4fv("u_Size") (false) (sizeMatrix);
         uniformMatrix4fv("u_Transform") (false) (clipSpace);
 
-        attributes.activateElements(ELEMENTS_BUFFER_ID);
-        attributes.activateData("a_Vertex") (GEOMETRY_BUFFER_ID) ({
+        renderer.attributes.activateElements(ELEMENTS_BUFFER_ID);
+        activateAttributeData("a_Vertex") (GEOMETRY_BUFFER_ID) ({
             size: 3,
             type: gl.FLOAT
         });
-        attributes.activateData("a_Color") (COLORS_BUFFER_ID) ({
+        activateAttributeData("a_Color") (COLORS_BUFFER_ID) ({
             size: 3,
             type: gl.FLOAT
         });

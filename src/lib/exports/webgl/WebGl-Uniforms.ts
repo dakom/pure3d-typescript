@@ -1,4 +1,4 @@
-import {NumberArray, WebGlBufferInfo,WebGlBufferData,WebGlRenderer, TypedNumberArray} from "../../Types";
+import {WebGlVertexArrayData, WebGlAttributeActivateOptions,NumberArray, WebGlBufferInfo,WebGlBufferData,WebGlRenderer, TypedNumberArray} from "../../Types";
 
 enum UNIFORM_TYPE {
     FLOAT,

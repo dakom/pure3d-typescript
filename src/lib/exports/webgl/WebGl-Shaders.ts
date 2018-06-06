@@ -1,6 +1,5 @@
-import {WebGlAttributeActivateOptions, WebGlBufferData, WebGlRenderer, WebGlShader, WebGlBufferInfo, WebGlShaderSource, WebGlShaderInterruptHandler} from "../../Types";
+import {WebGlVertexArrayData, WebGlAttributeActivateOptions, WebGlBufferData, WebGlRenderer, WebGlShader, WebGlBufferInfo, WebGlShaderSource, WebGlShaderInterruptHandler} from "../../Types";
 import { createUniforms } from "./WebGl-Uniforms";
-import {createAttributes} from "./WebGl-Attributes";
 
 //the "any" here is actually WebGlShader but defining it as such would cause a circular reference
 let current: any; 
@@ -54,7 +53,7 @@ const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: Web
     }
 
     let location = 0;
-    renderer.globalAttributeLocations.forEach(aName => {
+    renderer.attributes.globalLocations.forEach(aName => {
         gl.bindAttribLocation(program, location, aName);
         location++;
     });
@@ -86,14 +85,12 @@ export const createShader = ({renderer, shaderId, source}: {renderer:WebGlRender
 
     const program = _compileShader({source, renderer});
 
-    const attributes = createAttributes({renderer, program});
 
     const shader = {
         gl: renderer.gl,
         shaderId,
         program,
         uniforms: createUniforms({renderer, activateShader: () => _activateShader(shaderId)}),
-        attributes,
     };
 
     shaders.set(shaderId, shader);

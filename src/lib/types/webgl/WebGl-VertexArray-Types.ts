@@ -8,7 +8,7 @@ export interface WebGlVertexArrayData {
   elementBufferId?: Symbol,
 
   data: Array<{
-    attributeName: string, 
+    location: number,
     bufferId: Symbol,
     size:GLint,  
     usagePattern?: GLenum, 

@@ -1,4 +1,4 @@
-import { WebGlShader, WebGlVertexArrayData } from '../../../Types';
+import { WebGlAttributeActivateOptions, WebGlBufferData, WebGlBufferInfo, WebGlShader, WebGlRenderer, WebGlVertexArrayData } from '../../../Types';
 
 import { GLTF_ORIGINAL_MeshPrimitive, GltfData } from '../../../Types';
 
@@ -37,7 +37,7 @@ export const GLTF_PARSE_primitiveHasAttribute = (attributeName: string) => (orig
 export const GLTF_PARSE_getPrimitiveAttributeKeys = (originalPrimitive: GLTF_ORIGINAL_MeshPrimitive): Array<string> =>
   GLTF_PARSE_sortPrimitiveAttributeKeys(Object.keys(originalPrimitive.attributes));
 
-export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }: { originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, data: GltfData }) => {
+export const GLTF_PARSE_createPrimitiveAttributes = ({ renderer, originalPrimitive, data }: { renderer: WebGlRenderer, originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, data: GltfData }) => {
   const vao = { data: [] } as WebGlVertexArrayData;
     
     const accessorLookup = data.attributes.accessorLookup;
@@ -60,7 +60,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
     }
 
     vao.data.push({
-        attributeName,
+        location: renderer.attributes.getLocationInRenderer(attributeName),
         bufferId: accessorLookup.get(accessorId).rendererBufferId,
         ...accessorLookup.get(accessorId).strategy
     });
@@ -79,7 +79,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
         //console.log(aMorph,  data.accessors.get(accessorId).strategy.offset);
         
         vao.data.push({
-          attributeName: aMorph,
+            location: renderer.attributes.getLocationInRenderer(aMorph),
           bufferId: accessorLookup.get(accessorId).rendererBufferId,
           ...accessorLookup.get(accessorId).strategy
         });
@@ -93,7 +93,7 @@ export const GLTF_PARSE_createPrimitiveAttributes = ({ originalPrimitive, data }
   const vaoId = _vaoIdCounter++;
   const sym = Symbol();
   data.attributes.vaoIdLookup.set(vaoId, sym); 
-  data.attributes.vertexArrays.assign(sym)(vao);
+  renderer.vertexArrays.assign(sym)(vao);
 
   return vaoId;
 }

@@ -1,4 +1,5 @@
 import {
+    WebGlVertexArrayData, 
     GltfMaterialAlphaMode,
     GltfLightNode,
     GltfCameraNode,

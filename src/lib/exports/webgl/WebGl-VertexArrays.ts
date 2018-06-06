@@ -1,14 +1,13 @@
-import {WebGlAttributeActivateOptions, WebGlBufferInfo, WebGlShader, WebGlVertexArrays, WebGlVertexArrayData, WebGlRenderer, WebGlBufferData, WebGlVertexData, WebGlConstants } from "../../Types";
+import {WebGlBuffers, WebGlAttributeActivateOptions, WebGlBufferInfo, WebGlShader, WebGlVertexArrays, WebGlVertexArrayData, WebGlRenderer, WebGlBufferData, WebGlVertexData, WebGlConstants } from "../../Types";
 
 
-const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRenderer, getAttributeLocation: (aName:string) => number}) => {
+export const createVertexArrays = ({getExtension, gl, version, buffers}:{buffers: WebGlBuffers, getExtension: (str:string) => any, gl: WebGLRenderingContext, version: number}) => {
   const _cache = new Map<Symbol, any>();
-  const {gl, version} = renderer;
   let currentSym:Symbol;
 
   const _create = ():any => {
     if(version === 1) {
-      return renderer.getExtension("OES_vertex_array_object").createVertexArrayOES();
+      return getExtension("OES_vertex_array_object").createVertexArrayOES();
     } else {
       return (gl as any).createVertexArray();
     }
@@ -16,7 +15,7 @@ const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRend
 
   const _bind = (target):void => {
     if(version === 1) {
-      return renderer.getExtension("OES_vertex_array_object").bindVertexArrayOES(target);
+      return getExtension("OES_vertex_array_object").bindVertexArrayOES(target);
     } else {
       return (gl as any).bindVertexArray(target);
     }
@@ -40,16 +39,15 @@ const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRend
       activate(sym);
 
       if(v.elementBufferId) {
-        renderer.buffers.bind(v.elementBufferId);
+        buffers.bind(v.elementBufferId);
       }
-      v.data.forEach(({attributeName, usagePattern, bufferId, size, type, normalized, stride, offset}) => {
+      v.data.forEach(({location, usagePattern, bufferId, size, type, normalized, stride, offset}) => {
         
-        const location = getAttributeLocation(attributeName);
-        const bufferInfo = renderer.buffers.get(bufferId);
+        const bufferInfo = buffers.get(bufferId);
  
 
         //there's no cache checks in the case of VAO - the set as a whole is toggled on/off
-        renderer.buffers.bind(bufferId);
+        buffers.bind(bufferId);
         gl.vertexAttribPointer( 
             location, 
             size, 
@@ -76,9 +74,10 @@ const createVertexArrays = ({renderer, getAttributeLocation}:{renderer:WebGlRend
   return {activate, release, assign}
 }
 
-
+/*
 export const createVertexArraysForRenderer = (renderer:WebGlRenderer) =>
     createVertexArrays({renderer, getAttributeLocation: renderer.getGlobalAttributeLocation});
 
 export const createVertexArraysForShader = ({renderer, shader}:{renderer:WebGlRenderer, shader:WebGlShader}) =>
     createVertexArrays({renderer, getAttributeLocation: shader.attributes.getLocation})
+    */

@@ -1,6 +1,6 @@
 import {  WebGlConstants, WebGlRenderer, WebGlBufferData, WebGlBufferInfo } from '../../../Types';
 import {createTextureFromTarget} from "../../../exports/webgl/WebGl-Textures";
-import { GLTF_ORIGINAL, GLTF_ORIGINAL_Sampler } from '../../../Types';
+import { WebGlVertexArrayData, WebGlAttributeActivateOptions,GLTF_ORIGINAL, GLTF_ORIGINAL_Sampler } from '../../../Types';
 
 
 const getColorSpaceForTextureId = ({ renderer, gltf, textureId }: { renderer: WebGlRenderer, gltf: GLTF_ORIGINAL, textureId: number }): number => {

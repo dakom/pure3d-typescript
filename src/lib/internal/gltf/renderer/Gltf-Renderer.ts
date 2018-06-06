@@ -6,6 +6,8 @@ import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
 import {
+    WebGlVertexArrayData,
+    WebGlAttributeActivateOptions,
     GltfNodeKind,
     NodeKind,
     GltfRendererThunk,
@@ -93,25 +95,27 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
     renderer.glDepthFunc(renderer.gl.LEQUAL);
     renderer.glBlendFunc(renderer.gl.SRC_ALPHA) (renderer.gl.ONE_MINUS_SRC_ALPHA);
 
-    //Render calls are sorted by alpha and then shader.
-    //The thunks themselves will assign vaos
-    //Conceptually it is possible that there could be a bug and the thunks should release
-    //every time - but I think that'd only be if there's a mix of indexed + non-indexed or something
-    //Leaving it for now...
-    if(shaderGroupByAlpha.has(GltfMaterialAlphaMode.OPAQUE)) {
-        shaderGroupByAlpha.get(GltfMaterialAlphaMode.OPAQUE)
-            .forEach(xs => xs.forEach(fn => fn()));
-    }
-    if(shaderGroupByAlpha.has(GltfMaterialAlphaMode.MASK)) {
-        shaderGroupByAlpha.get(GltfMaterialAlphaMode.MASK)
-            .forEach(xs => xs.forEach(fn => fn()));
-    }
-    if(shaderGroupByAlpha.has(GltfMaterialAlphaMode.BLEND)) {
-        renderer.glToggle(WebGlConstants.BLEND) (true);
-        shaderGroupByAlpha.get(GltfMaterialAlphaMode.BLEND)
-            .forEach(xs => xs.forEach(fn => fn()));
-    }
+    const render = _render (renderer) (shaderGroupByAlpha);
 
-    //Not doing this causes bugs with multiple renderers
-    data.attributes.vertexArrays.release();
+    render(GltfMaterialAlphaMode.OPAQUE);
+    render(GltfMaterialAlphaMode.MASK);
+    render(GltfMaterialAlphaMode.BLEND);
+
+}
+
+
+//Render calls are sorted by alpha and then shader.
+//The thunks themselves will assign vaos
+//They are released by shader groupo
+const _render = (renderer:WebGlRenderer) => (shaderGroups:Map<GltfMaterialAlphaMode, Set<RenderGroup>>) => (alphaMode:GltfMaterialAlphaMode) => {
+    if(shaderGroups.has(alphaMode)) {
+        if(alphaMode === GltfMaterialAlphaMode.BLEND) {
+            renderer.glToggle(WebGlConstants.BLEND) (true);
+        }
+        shaderGroups.get(alphaMode)
+            .forEach(xs => {
+                renderer.vertexArrays.release();
+                xs.forEach(fn => fn())
+            });
+    }
 }

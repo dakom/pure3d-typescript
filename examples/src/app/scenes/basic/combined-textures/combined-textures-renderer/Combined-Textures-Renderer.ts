@@ -19,12 +19,15 @@ export const createCombinedTexturesRenderer = (renderer:WebGlRenderer) => {
 
     const {gl, buffers} = renderer;
 
-    const {shaderId, uniforms, attributes} = createShader({renderer, shaderId: SHADER_ID, source: {
+    const {shaderId, uniforms, program} = createShader({renderer, shaderId: SHADER_ID, source: {
         vertex: vertexShader,
         fragment: fragmentShader
     }});
 
     activateShader(shaderId);
+    
+    const activateAttributeData = (aName:string) =>
+        renderer.attributes.activateData(renderer.attributes.getLocationInShader(program) (aName));
     
     const {uniform1i, uniform1f, uniform2fv, uniform3fv, uniform4fv, uniformMatrix4fv} = uniforms.setters;
     
@@ -42,7 +45,7 @@ export const createCombinedTexturesRenderer = (renderer:WebGlRenderer) => {
         ])
     });
 
-    const activateVertexBuffer = () => attributes.activateData("a_Vertex") (BUFFER_ID) ({
+    const activateVertexBuffer = () => activateAttributeData("a_Vertex") (BUFFER_ID) ({
         size: 2,
         type: gl.FLOAT
     });

@@ -1,32 +1,46 @@
-import {WebGlBufferInfo,WebGlBufferData, WebGlAttributeActivateOptions, WebGlRenderer} from "../../Types";
+import {WebGlBufferInfo,WebGlBufferData, WebGlBuffers, WebGlAttributeActivateOptions, WebGlRenderer} from "../../Types";
 
-export const createAttributes = ({renderer, program}:{renderer:WebGlRenderer, program: WebGLProgram}) => {
+export const createAttributes = ({gl, buffers}:{gl: WebGLRenderingContext, buffers:WebGlBuffers}) => {
   let currentBuffer:Symbol;
   let currentTarget:number;
 
-  const {gl} = renderer;
+  const globalLocations = new Set<string>();
 
-  const _localCache = new Map<string, number>();
+  const _perShaderCache = new Map<WebGLProgram, Map<string, number>>(); 
+  const _globalCache = new Map<string, number>();
 
+  const getLocationInShader = (program:WebGLProgram) => (aName:string):number => {
+      if(!_perShaderCache.has(program)) {
+          _perShaderCache.set(program, new Map<string, number>());
+      }
+      const cache = _perShaderCache.get(program);
+      if(!cache.has(aName)) {
+          cache.set(aName, gl.getAttribLocation(program, aName));
+      }
 
-  const getLocation = (aName:string):number => {
+      return cache.get(aName);
+  }
 
-    if(!_localCache.has(aName)) {
-        const globalIndex = renderer.getGlobalAttributeLocation(aName);
+  const getLocationInRenderer = (aName:string):number => {
+      if(!_globalCache.has(aName)) {
+            //For-of wasn't working across typescript and things...
+            //This is a little ugly but it's totally fine since it's only on init
+            //And by far most use-cases will be a cache hit
+            let idx = 0;
+            globalLocations.forEach(val => {
+                if(!_globalCache.has(val)) {
+                    _globalCache.set(val, idx);
+                }
+                idx++;
+            })
+      }
 
-        _localCache.set(aName, 
-                globalIndex !== -1
-                ?   globalIndex 
-                :   gl.getAttribLocation(program, aName)
-        );
-    }
-
-    return _localCache.get(aName);
+      return _globalCache.get(aName);
   }
 
   const activateElements = (bufferId:Symbol):void => {
     
-    const info = renderer.buffers.get(bufferId);
+    const info = buffers.get(bufferId);
     
     
     if(currentBuffer !== bufferId || currentTarget !== info.target) {
@@ -36,10 +50,8 @@ export const createAttributes = ({renderer, program}:{renderer:WebGlRenderer, pr
     }
   }
 
-  const activateData =  (aName:string) => (bufferId:Symbol) =>(opts:WebGlAttributeActivateOptions):void => {
+  const activateData =  (location:number) => (bufferId:Symbol) =>(opts:WebGlAttributeActivateOptions):void => {
     activateElements(bufferId); //isn't really elements here, but nicer than having a superfluous alias
-    const location = getLocation(aName);
-
     gl.vertexAttribPointer( location, 
                             opts.size, 
                             opts.type, 
@@ -51,7 +63,7 @@ export const createAttributes = ({renderer, program}:{renderer:WebGlRenderer, pr
   
   }
 
-  return {getLocation, activateElements, activateData };
+  return {globalLocations, getLocationInShader, getLocationInRenderer, activateElements, activateData };
 }
 
 

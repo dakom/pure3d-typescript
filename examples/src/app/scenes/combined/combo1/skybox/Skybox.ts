@@ -1,6 +1,5 @@
 import {
     WebGlRenderer,
-    createVertexArraysForRenderer,
     activateShader,
     createShader,
     Camera,
@@ -61,9 +60,8 @@ export const createSkybox = (renderer:WebGlRenderer) =>
 
             //This must come first here since we're also working with gltf
             //See wiki and compare to "basic vao" example for per-shader / automatic approach
-            renderer.globalAttributeLocations.add("a_Vertex");
-            renderer.globalAttributeLocations.add("a_Color");
-            const vertexArrays = createVertexArraysForRenderer(renderer);
+            renderer.attributes.globalLocations.add("a_Vertex");
+            renderer.attributes.globalLocations.add("a_Color");
             
             uploadData(renderer);
             
@@ -78,11 +76,11 @@ export const createSkybox = (renderer:WebGlRenderer) =>
             activateShader(shaderId);
 
 
-            vertexArrays.assign(vaoId) ({
+            renderer.vertexArrays.assign(vaoId) ({
                 elementBufferId: ELEMENTS_BUFFER_ID,
                 data: [
                     {
-                        attributeName: "a_Vertex",
+                        location: renderer.attributes.getLocationInRenderer("a_Vertex"),
                         bufferId: GEOMETRY_BUFFER_ID,
                         size: 3,
                         type: gl.FLOAT,
@@ -91,7 +89,7 @@ export const createSkybox = (renderer:WebGlRenderer) =>
                         offset: 0
                     },
                     {
-                        attributeName: "a_Color",
+                        location: renderer.attributes.getLocationInRenderer("a_Color"),
                         bufferId: COLORS_BUFFER_ID,
                         size: 3,
                         type: gl.FLOAT,
@@ -117,9 +115,9 @@ export const createSkybox = (renderer:WebGlRenderer) =>
                 const cameraMatrix = mat4.multiply(mat4.create(), camera.projection, camera.view);
                 uniformMatrix4fv("u_Transform") (false) (cameraMatrix);
 
-                vertexArrays.activate(vaoId);
+                renderer.vertexArrays.activate(vaoId);
                 gl.drawElements(gl.TRIANGLES, nElements, gl.UNSIGNED_BYTE, 0);
-                vertexArrays.release();
+                renderer.vertexArrays.release();
             }
 
             return render;
