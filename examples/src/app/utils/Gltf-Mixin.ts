@@ -64,11 +64,10 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
             lights: [
 
                 {
-                    "color": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
+                    //"color": [1.0, 0.0, 0.0],
+                    "color": [1.0, 1.0, 1.0],
+                    //"intensity": 1,
+                    "intensity": .3,
                     "type": "ambient"
                 },
                 {

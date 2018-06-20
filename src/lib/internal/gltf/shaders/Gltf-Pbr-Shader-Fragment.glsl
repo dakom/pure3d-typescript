@@ -1,8 +1,12 @@
 precision highp float;
 precision highp int;
 
-#ifdef USE_LIGHTING
-%LIGHTING_VARS%
+#ifdef USE_KHR_LIGHTS
+    #ifdef KHR_LIGHTS_AMBIENT
+        uniform float u_KhrLight_Ambient_Intensity;
+        uniform vec3 u_KhrLight_Ambient_Color;
+    #endif
+%KHR_LIGHTS_VARS%
 #endif
 
 //
@@ -183,6 +187,22 @@ vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
 }
 #endif
 
+#ifdef USE_KHR_LIGHTS
+vec3 getKhrLightingContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
+{
+    vec3 diffuse = pbrInputs.diffuseColor;
+    vec3 specular = pbrInputs.specularColor;
+
+    #ifdef KHR_LIGHTS_AMBIENT 
+        vec3 nAmbient = (u_KhrLight_Ambient_Color * u_KhrLight_Ambient_Intensity);
+        diffuse *= nAmbient; 
+        specular *= nAmbient; 
+    #endif
+
+    return diffuse + specular;
+}
+#endif
+
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
 // See also [1], Equation 1
@@ -325,6 +345,10 @@ void main()
     color += getIBLContribution(pbrInputs, n, reflection);
 #endif
 
+#ifdef USE_KHR_LIGHTS
+    color += getKhrLightingContribution(pbrInputs, n, reflection);
+#endif
+
     // Apply optional PBR terms for additional (optional) shading
 #ifdef HAS_OCCLUSIONMAP
     float ao = texture2D(u_OcclusionSampler, v_UV).r;
@@ -336,8 +360,9 @@ void main()
     color += emissive;
 #endif
 
-#ifdef USE_LIGHTING
-%LIGHTING_FUNCS%
+
+#ifdef USE_KHR_LIGHTS
+%KHR_LIGHTS_FUNCS%
 #endif
     // This section uses mix to override final color for reference app visualization
     // of various parameters in the lighting equation.

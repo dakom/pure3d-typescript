@@ -35,7 +35,7 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
 
         this.state = {
             menuOptions: {
-                ibl: true,
+                //ibl: true,
                 lights: true,
                 cameras: [],
                 selectedCamera: -1

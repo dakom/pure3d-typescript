@@ -196,33 +196,42 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
 
 const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => {
 
-    let LIGHTING_VARS = '';
-    let LIGHTING_FUNCS = '';
+    let LIGHTS_VARS = '';
+    let LIGHTS_FUNCS = '';
 
-    return vs.replace("%LIGHTING_VARS%", LIGHTING_VARS).replace("%LIGHTING_FUNCS%", LIGHTING_FUNCS); 
+    return vs.replace("%KHR_LIGHTS_VARS%", LIGHTS_VARS).replace("%KHR_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
 }
 
 const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string => {
 
-    let LIGHTING_VARS = '';
-    let LIGHTING_FUNCS = '';
+    let LIGHTS_VARS = '';
+    let LIGHTS_FUNCS = '';
 
-    return fs.replace("%LIGHTING_VARS%", LIGHTING_VARS).replace("%LIGHTING_FUNCS%", LIGHTING_FUNCS); 
+    if(primitive.shaderConfig.extensions.lights.nDirectionalLights) {
+    }
+
+    return fs.replace("%KHR_LIGHTS_VARS%", LIGHTS_VARS).replace("%KHR_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
 }
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
 
-
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];
         
-        const {nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
+        const {hasAmbient, nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
         if(nPointLights > 10 || nDirectionalLights > 10 || nSpotLights > 10) {
             console.warn("Only 10 lights of each kind are supported");
         }
 
-        defines.push("USE_LIGHTING");
+        if(!hasAmbient && !nPointLights && !nDirectionalLights && !nSpotLights) {
+            return source;
+        }
 
+        defines.push("USE_KHR_LIGHTS");
+
+        if(hasAmbient) {
+            defines.push("KHR_LIGHTS_AMBIENT");
+        }
 
         const defineString = defines.map(value => `#define ${value} 1\n`).join('');
         return Object.assign({}, source, {
