@@ -85,6 +85,8 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     //Exception is the Directional light though the actual direction is hardcoded
    
     if(scene.light) {
+
+
         uniform3fv("u_KhrLight_Ambient_Color") (scene.light.color);
         uniform1f("u_KhrLight_Ambient_Intensity") (scene.light.intensity);
     }

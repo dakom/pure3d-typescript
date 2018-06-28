@@ -49,7 +49,7 @@ export const GLTF_PARSE_getInitialShaderConfig = ({data, primitive }:{data:GltfD
         );
 
 export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}):GltfPrimitive=> {
-   
+  
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig)
         .reduce((acc, val) => (acc = val ({data, scene, primitive}) (acc), acc), 

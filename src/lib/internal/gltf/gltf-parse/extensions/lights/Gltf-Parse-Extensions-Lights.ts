@@ -49,8 +49,8 @@ import {getBasePath} from "../../../../common/Basepath";
 
 const getConfig = (gltf:GLTF_ORIGINAL):Array<GLTF_PARSE_Extension_Light> => {
 
-
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfLightsExtensionName) !== -1) {
+
         return gltf.extensions[GltfLightsExtensionName].lights as Array<GLTF_PARSE_Extension_Light>
     }
     return null; 
@@ -106,6 +106,7 @@ const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) 
     if(!config || !sceneConfig) {
         return scene;
     }
+
 
     const light = getLight(config[sceneConfig.light]);
 
@@ -214,6 +215,7 @@ const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string
 }
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
+
 
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];

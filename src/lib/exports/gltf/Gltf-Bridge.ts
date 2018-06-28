@@ -13,7 +13,7 @@ import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
 import {GltfExtensions} from "../../internal/gltf/gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createVec3} from "../common/array/Array";
-import {updateNodeListTransforms} from "../common/nodes/Nodes";
+import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
 import {forEachNodes, findNode, countNodes } from "../common/nodes/Nodes";
 import {updateCameraWithTransform, getCameraView, getCameraProjection} from "../common/camera/Camera";
@@ -100,20 +100,21 @@ function createGltfBridge(renderer:WebGlRenderer) {
     }
 
     const updatePrimitives = (scene:GltfScene) => (mapper: (primitive:GltfPrimitive) => GltfPrimitive):GltfScene => {
-            
+
         return Object.assign({}, scene, {
-            nodes: scene.nodes.map(node =>
+            nodes: mapNodes<GltfNode>(node => 
                 node.kind === GltfNodeKind.MESH
                 ?   Object.assign({}, node, {
                             primitives: node.primitives.map(primitive => mapper(primitive))
                     })
                 :   node
-            )
+            ) (scene.nodes)
         }) as GltfScene;
     }
 
-
     const updateShaderConfigs = (scene:GltfScene):GltfScene => {
+
+
         return updatePrimitives (scene) (primitive => updateRuntimeShaderConfig({
                     data: _data,
                     primitive,
