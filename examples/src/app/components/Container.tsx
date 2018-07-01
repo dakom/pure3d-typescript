@@ -45,7 +45,7 @@ const _loadScene = ({renderer, section, scene, menuOptions}
     } else if(section === "combined") {
         switch(scene) {
             case "COMBO1":
-                return startCombo1 (renderer) ({basicPath, gltfPath, menuOptions}).map(mapReturn);
+                return startCombo1 (renderer) ({basicPath, gltfPath, menuOptions: menuOptions.gltf}).map(mapReturn);
         }
 
     }

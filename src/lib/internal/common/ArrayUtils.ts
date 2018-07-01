@@ -6,3 +6,10 @@ export const pushNumbersToArray = (src:NumberArray) => (dest:Array<number>) => {
         dest.push(src[i]);
     }
 }
+
+
+export const setNumbersOnArrayFrom = (src:NumberArray) => (offset:number) => (dest:NumberArray) => {
+    for(let i = 0; i < src.length; i++) {
+        dest[i + offset] = src[i];
+    }
+}

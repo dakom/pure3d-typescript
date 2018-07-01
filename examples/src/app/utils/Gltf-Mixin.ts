@@ -61,6 +61,12 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
 
                 {
                     "color": [ 1.0, 1.0, 1.0 ],
+                    "intensity": 100.0,
+                    "type": "point"
+                },
+                {
+                    "color": [ 1.0, 0.0, 1.0 ],
+                    "intensity": 5.0,
                     "type": "directional"
                 },
                 {
@@ -79,8 +85,9 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
         }
 
 
-        gltf.nodes.push({
-            "translation": [1,1,1],
+        gltf.nodes.push(
+        {
+            "translation": [-3,3,3],
             "extensions" : {
                 [GltfLightsExtensionName]: {
                     "light" : 0
@@ -88,15 +95,25 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
             }
         },
         {
+            "translation": [3,3,3],
             "extensions" : {
                 [GltfLightsExtensionName]: {
                     "light" : 1
+                }
+            }
+        },
+        {
+            //"translation": [3,3,3],
+            "extensions" : {
+                [GltfLightsExtensionName]: {
+                    "light" : 2
                 }
             }
         }
         )
 
         if(gltf.scenes) {
+            gltf.scenes[0].nodes.push(gltf.nodes.length-3);
             gltf.scenes[0].nodes.push(gltf.nodes.length-2);
             gltf.scenes[0].nodes.push(gltf.nodes.length-1);
         }

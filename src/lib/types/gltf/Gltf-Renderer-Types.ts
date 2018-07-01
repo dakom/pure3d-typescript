@@ -13,22 +13,9 @@ export interface GltfRendererThunk {
 }
 
 export interface GltfRendererLightList {
-    directional?: {
-        direction: Float32Array;
-        color: Float32Array;
-        intensity: Float32Array
-    }
-    
-    point?: {
-        direction: Float32Array;
-        color: Float32Array;
-        intensity: Float32Array
-    }
-    
-    spot?: {
-        direction: Float32Array;
-        color: Float32Array;
-        intensity: Float32Array
-    }
+    position: Float32Array;
+    color: Float32Array;
+    intensity: Float32Array;
+    //TODO - spotlight extras...
 }
 

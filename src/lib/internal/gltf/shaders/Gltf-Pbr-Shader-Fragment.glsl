@@ -78,7 +78,7 @@ uniform sampler2D u_brdfLUT;
 
 #ifdef HAS_BASECOLORMAP
 uniform sampler2D u_BaseColorSampler;
-uniform float u_AlphaCutoff; //PURE3D - Added
+uniform float u_AlphaCutoff; 
 #endif
 #ifdef HAS_NORMALMAP
 uniform sampler2D u_NormalSampler;
@@ -218,7 +218,6 @@ Pbr getPbr() {
     #endif
 
     #ifdef HAS_ALPHA_CUTOFF
-    //Pure3d added
     if(baseColor.a < u_AlphaCutoff) {
         discard;
     }
@@ -299,7 +298,7 @@ vec3 getNormal()
 //Directional light based on normal and dynamic light info
 Light getDirectionalLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity) {
     vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = normalize(v_Position - lightPosition);   // Light Direction 
+    vec3 l = normalize(lightPosition - v_Position);   // Light Direction 
     vec3 h = normalize(l+v);                          // Half vector between both l and v
     vec3 reflection = -normalize(reflect(v, normal));
 
@@ -323,27 +322,12 @@ Light getDirectionalLight(vec3 normal, vec3 lightPosition, vec3 color, float int
 
 //Point light
 Light getPointLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity) {
-    vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = normalize(v_Position - lightPosition);   // Light Direction 
-    vec3 h = normalize(l+v);                          // Half vector between both l and v
-    vec3 reflection = -normalize(reflect(v, normal));
+    Light light = getDirectionalLight(normal, lightPosition, color, intensity);
 
-    float NdotL = clamp(dot(normal, l), 0.001, 1.0);
-    float NdotV = abs(dot(normal, v)) + 0.001;
-    float NdotH = clamp(dot(normal, h), 0.0, 1.0);
-    float LdotH = clamp(dot(l, h), 0.0, 1.0);
-    float VdotH = clamp(dot(v, h), 0.0, 1.0);
-
-    return Light(
-        normal,
-        NdotL,
-        NdotV,
-        NdotH,
-        LdotH,
-        VdotH,
-        reflection,
-        color 
-    );
+    float distance    = length(lightPosition - v_Position);
+    float attenuation = 1.0 / (distance * distance);
+    light.color *= attenuation;    
+    return light;
 }
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
@@ -387,10 +371,6 @@ vec3 getColor(Pbr pbr, Light light) {
     // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     vec3 color = light.NdotL * light.color * (diffuseContrib + specContrib);
     
-    #ifdef USE_IBL
-        // Calculate lighting contribution from image based lighting source (IBL)
-        color += getIBLContribution(pbr, light);
-    #endif
 
     return color;
 }
@@ -401,22 +381,43 @@ void main()
     vec3 normal = getNormal();
 
     vec3 color = vec3(0.0, 0.0, 0.0);
+    Light light;
     #ifdef USE_PUNCTUAL_LIGHTS
         //Actual implementation will dynamically write the code here
         %PUNCTUAL_LIGHTS_FUNCS%
-        
-        //But for now, manual testing...
-        vec3 tmpPosition = vec3(0,0,-10);
-        vec3 tmpColor = vec3(1.0, 1.0, 1.0);
-        float tmpIntensity = 5.0;
 
-        //color = getColor(pbr, getDirectionalLight(normal, tmpPosition, tmpColor, tmpIntensity));
-        color = getColor(pbr, getPointLight(normal, tmpPosition, tmpColor, tmpIntensity));
-    #else
-        vec3 defaultPosition = vec3(-0.5825, -0.1357, -0.8014);
-        vec3 defaultColor = vec3(0.3, 0.3, 0.3);
-        float defaultIntensity = 5.0;
-        color = getColor(pbr, getDirectionalLight(normal, defaultPosition, defaultColor, defaultIntensity));
+        
+        //Manual example
+        /*
+        light = getDirectionalLight(
+                    normal,
+                    vec3(3,3,3),
+                    vec3(1.0, 0, 1.0),
+                    5.0
+        );
+
+        color += getColor(pbr, light);
+
+        light = getPointLight(
+                    normal,
+                    vec3(-3,3,3),
+                    vec3(1.0, 1.0, 1.0),
+                    100.0
+        );
+
+        color += getColor(pbr, light);
+        */
+    #endif
+
+    #ifdef USE_IBL
+
+        //TODO - figure out how to calculate IBL _without_ a directional light
+        vec3 defaultPosition = vec3(-1, 1, 1);
+        vec3 defaultColor = vec3(1.0, 1, 1);
+        float defaultIntensity = 1.0;
+        light = getDirectionalLight(normal, defaultPosition, defaultColor, defaultIntensity);
+        // Calculate lighting contribution from image based lighting source (IBL)
+        color += getColor(pbr, light) + getIBLContribution(pbr, light);
     #endif
 
     // Apply optional PBR terms for additional (optional) shading

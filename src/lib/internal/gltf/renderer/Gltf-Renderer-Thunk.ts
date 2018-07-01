@@ -74,11 +74,11 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
      * Set the node-based lighting uniforms
     */
 
-    //TODO: WORK-IN-PROGRESS
-    if(lightList.directional) {
-        uniform3fv("u_LightD_Direction") (lightList.directional.direction);
-        uniform3fv("u_LightD_Color") (lightList.directional.color);
-        uniform1fv("u_LightD_Intensity") (lightList.directional.intensity);
+    if(lightList.intensity.length) {
+
+        uniform3fv("u_Light_Position") (lightList.position);
+        uniform3fv("u_Light_Color") (lightList.color);
+        uniform1fv("u_Light_Intensity") (lightList.intensity);
     }
 
     

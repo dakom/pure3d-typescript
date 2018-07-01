@@ -176,20 +176,31 @@ const getDynamicFragmentShader = (data:GltfData) => (primitive:GltfPrimitive) =>
     let LIGHTS_VARS = '';
     let LIGHTS_FUNCS = '';
 
-
     const dLen = primitive.shaderConfig.extensions.lights.nDirectionalLights;
+    const pLen = primitive.shaderConfig.extensions.lights.nPointLights;
+    const sLen = primitive.shaderConfig.extensions.lights.nSpotLights;
 
-    if(dLen) {
-        LIGHTS_VARS += `uniform vec3 u_LightD_Direction[${dLen}];\n`;
-        LIGHTS_VARS += `uniform vec3 u_LightD_Color[${dLen}];\n`;
-        LIGHTS_VARS += `uniform float u_LightD_Intensity[${dLen}];\n`;
-
-        for(let i = 0; i < dLen; i++) {
-            LIGHTS_FUNCS += `color += getColor(pbr, getLight(normal, u_LightD_Direction[${i}], u_LightD_Color[${i}]));\n`
-        }
+    const tLen = dLen + pLen + sLen;
+    LIGHTS_VARS += `uniform vec3 u_Light_Position[${tLen}];\n`;
+    LIGHTS_VARS += `uniform vec3 u_Light_Color[${tLen}];\n`;
+    LIGHTS_VARS += `uniform float u_Light_Intensity[${tLen}];\n`;
+  
+    let ti = 0;
+    for(let i = 0; i < dLen; i++, ti++) {
+        LIGHTS_FUNCS += `light = getDirectionalLight(normal, u_Light_Position[${ti}], u_Light_Color[${ti}], u_Light_Intensity[${ti}]);\n`;
+        LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
     }
 
-    LIGHTS_FUNCS = ''; //for now, until done debugging
+    for(let i = 0; i < pLen; i++, ti++) {
+        LIGHTS_FUNCS += `light = getPointLight(normal, u_Light_Position[${ti}], u_Light_Color[${ti}], u_Light_Intensity[${ti}]);\n`;
+        LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+    }
+
+    //TODO - Spot light
+
+
+    console.log(LIGHTS_VARS);
+    console.log(LIGHTS_FUNCS);
 
     return fs.replace("%PUNCTUAL_LIGHTS_VARS%", LIGHTS_VARS).replace("%PUNCTUAL_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
 

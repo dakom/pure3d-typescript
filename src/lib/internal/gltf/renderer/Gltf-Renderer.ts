@@ -3,7 +3,7 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import {createRendererThunk} from "./Gltf-Renderer-Thunk";
 import {generateShader} from "../gltf-parse/Gltf-Parse-Primitive-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
-import {pushNumbersToArray} from "../../common/ArrayUtils";
+import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
 
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
@@ -37,25 +37,55 @@ import {
 
 type RenderGroup = Array<() => void>;
 
-const makeTempLightList = () => ({
-    directional: {
-            direction: new Array<number>(),
+const makeTempLightList = () => {
+    const makeList = () => ({
+            position: new Array<number>(),
             color: new Array<number>(),
             intensity: new Array<number>()
-    },
-})
+    });
 
-const getRealLightList = (tempLightList:ReturnType<typeof makeTempLightList>):GltfRendererLightList => {
-
-    const lightList:GltfRendererLightList = {}
-
-    if(tempLightList.directional.direction.length) {
-        lightList.directional = {
-            direction: Float32Array.from(tempLightList.directional.direction),
-            color: Float32Array.from(tempLightList.directional.color),
-            intensity: Float32Array.from(tempLightList.directional.intensity)
-        }
+    return {
+        directional: makeList(),
+        point: makeList(),
+        spot: makeList()
     }
+}
+
+//The real light list that gets uploaded needs to be in strict order
+//Might as well also prepare it in a TypedArray while we're at it
+const getRealLightList = (tempList:ReturnType<typeof makeTempLightList>):GltfRendererLightList => {
+
+    const nDirectional = tempList.directional.intensity.length;
+    const nPoint = tempList.point.intensity.length;
+    const nSpot = tempList.spot.intensity.length;
+
+    const len =  nDirectional + nPoint + nSpot;
+    const lightList:GltfRendererLightList = {
+        position: new Float32Array(len * 3),
+        color: new Float32Array(len * 3),
+        intensity: new Float32Array(len)
+    }
+ 
+    let offset = 0;
+    setNumbersOnArrayFrom(tempList.directional.position) (0) (lightList.position);
+    offset += nDirectional * 3;
+    setNumbersOnArrayFrom(tempList.point.position) (offset) (lightList.position);
+    offset += nPoint * 3;
+    setNumbersOnArrayFrom(tempList.spot.position) (offset) (lightList.position);
+
+    offset = 0;
+    setNumbersOnArrayFrom(tempList.directional.color) (0) (lightList.color);
+    offset += nDirectional * 3;
+    setNumbersOnArrayFrom(tempList.point.color) (offset) (lightList.color);
+    offset += nPoint * 3;
+    setNumbersOnArrayFrom(tempList.spot.color) (offset) (lightList.color);
+   
+    offset = 0;
+    setNumbersOnArrayFrom(tempList.directional.intensity) (0) (lightList.intensity);
+    offset += nDirectional;
+    setNumbersOnArrayFrom(tempList.point.intensity) (offset) (lightList.intensity);
+    offset += nPoint;
+    setNumbersOnArrayFrom(tempList.spot.intensity) (offset) (lightList.intensity);
 
     return lightList;
 }
@@ -73,18 +103,25 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             meshList.push(node as GltfMeshNode);
         } else if(node.kind === NodeKind.LIGHT) {
             const light = node.light;
-            switch(light.kind) {
-                case LightKind.Directional:
-                    pushNumbersToArray (light.color) (tempLightList.directional.color);
-                    pushNumbersToArray (node.transform.trs.translation) (tempLightList.directional.direction);
-                    tempLightList.directional.intensity.push(light.intensity);
+            const color = light.color;
+            const intensity = light.intensity;
+            const position = node.transform.trs.translation;
 
-                    break;
-                case LightKind.Point:
-                    break;
-                case LightKind.Spot:
-                    break;
-            }
+
+            const target = (() => {
+                switch(light.kind) {
+                    case LightKind.Directional:
+                        return tempLightList.directional;
+                    case LightKind.Point:
+                        return tempLightList.point;
+                    case LightKind.Spot:
+                        return tempLightList.spot;
+                }
+            })();
+
+            pushNumbersToArray (color) (target.color);
+            pushNumbersToArray (position) (target.position);
+            target.intensity.push(intensity);
         } 
     }) (scene.nodes);
 
