@@ -39,7 +39,7 @@ const _loadScene = ({renderer, section, scene, menuOptions}
             return startGltf(renderer) ({
                 modelPath: gltfPath + modelInfo.url,
                 modelInfo,
-                menuOptions
+                menuOptions: menuOptions.gltf
             }).map(mapReturn);
         }
     } else if(section === "combined") {

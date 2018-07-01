@@ -12,7 +12,6 @@ import {
     LightKind,
     GltfTextureInfo,
     Camera,
-    GltfIblScene,
     DirectionalLight,
     GltfScene,
     GltfNode,
@@ -52,7 +51,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Set the IBL uniforms
     */
 
-    if(scene.extensions.ibl) {
+    if(primitive.shaderConfig.extensions.ibl) {
       renderer.switchTexture(samplerIndex)(data.extensions.ibl.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   
@@ -69,42 +68,19 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
       //this is actually just used in fragment shader (e.g. not for transforms), but it's required
    
       uniform3fv("u_Camera")(camera.position);
-
-      
-      uniform4fv("u_ScaleDiffBaseMR")(scene.extensions.ibl.scaleDiffBaseMR);
-      uniform4fv("u_ScaleFGDSpec")(scene.extensions.ibl.scaleFGDSpec);
-      uniform4fv("u_ScaleIBLAmbient")(scene.extensions.ibl.scaleIBLAmbient);
-
     }
 
     /* 
-     * Set the generic lighting uniforms
+     * Set the node-based lighting uniforms
     */
 
-    //Lighting is not implemented in the shader yet, even though the nodes are
-    //Exception is the Directional light though the actual direction is hardcoded
-   
-    if(scene.light) {
-
-
-        uniform3fv("u_KhrLight_Ambient_Color") (scene.light.color);
-        uniform1f("u_KhrLight_Ambient_Intensity") (scene.light.intensity);
+    //TODO: WORK-IN-PROGRESS
+    if(lightList.directional) {
+        uniform3fv("u_LightD_Direction") (lightList.directional.direction);
+        uniform3fv("u_LightD_Color") (lightList.directional.color);
+        uniform1fv("u_LightD_Intensity") (lightList.directional.intensity);
     }
 
-    lightList.forEach(lightNode => {
-        const {light} = lightNode;
-
-
-        if(light.kind === LightKind.Directional) {
-            //Just for now - TODO - get from lightNode.transform.trs.rotation
-            //Hardcoding the position so we can see it - on the left
-            uniform3fv("u_LightDirection")([-0.5825, -0.1357, -0.8014]);
-            uniform3fv("u_LightColor")(light.color);
-        }
-        //TODO - allow multiple lights, point lights, etc.
-        if(light.kind === LightKind.Spot) {
-        }
-    })
     
     /*
       Set the transform uniforms
@@ -130,7 +106,6 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     //console.log(uniforms.getLocation("u_MorphWeights"));
 
     if(node.morphWeights) {
-      
       uniform1fv("u_MorphWeights") (node.morphWeights);
     }
     /*

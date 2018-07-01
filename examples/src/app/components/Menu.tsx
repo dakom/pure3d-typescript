@@ -182,7 +182,14 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
                     />
 
                 {basePage === "gltf" &&
-                    <GltfMenu menuOptions={this.props.menuOptions} onOptions={this.props.onOptions} />
+                    <GltfMenu 
+                        menuOptions={this.props.menuOptions.gltf} 
+                        onChange={
+                            gltf => this.props.onOptions(
+                                Object.assign({}, this.props.menuOptions, {gltf})
+                            )
+                        } 
+                    />
                 }
                 </SwipeableDrawer>
             </div>
@@ -193,13 +200,13 @@ export class _TopMenu extends React.Component<{history, basePage, buttons, alert
 export const TopMenu = withRouter(_TopMenu);
 
 
-const _GltfMenu = ({menuOptions, classes }:{menuOptions: any, classes: any }) => {
+const _GltfMenu = ({menuOptions, classes, onChange}:{menuOptions: any, classes: any, onChange: any}) => {
 
-    const handleCheckboxChange = name => event => menuOptions.onChange(Object.assign({}, menuOptions, {
+    const handleCheckboxChange = name => event => onChange(Object.assign({}, menuOptions, {
         [name]: event.target.checked
     }));
 
-    const handleSelectChange = name => event => menuOptions.onChange(Object.assign({}, menuOptions, {
+    const handleSelectChange = name => event => onChange(Object.assign({}, menuOptions, {
         [name]: event.target.value
     }));
 

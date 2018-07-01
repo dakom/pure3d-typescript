@@ -13,7 +13,6 @@ import {
     GltfNode,
     GltfScene,
     GltfIblExtensionName,
-    GltfIblScene,
     GltfIblDataAssets,
     GltfIblJson,
     GltfIblData,
@@ -25,12 +24,12 @@ import {
     PerspectiveCameraSettings,
     OrthographicCameraSettings,
     LightNode,
-    AmbientLight,
     DirectionalLight,
     PointLight,
     SpotLight,
     BaseCamera,
-    GLTF_PARSE_Extension
+    GLTF_PARSE_Extension,
+    GltfIblConfig
 } from "../../../../../Types"; 
 
 import { Future, parallel } from 'fluture';
@@ -40,7 +39,7 @@ import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
 
 
-const getIblConfig = (gltf:GLTF_ORIGINAL) => {
+const getIblConfig = (gltf:GLTF_ORIGINAL):GltfIblConfig => {
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfIblExtensionName) !== -1) {
         return gltf.extensions[GltfIblExtensionName]
     }
@@ -179,20 +178,8 @@ const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF
 }
 
 
-const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
-    
-    const config = getIblConfig(gltf);
-    const settings = config ? config.settings : undefined;
-
-    if(!settings) {
-        return scene;
-    }
-
-    return Object.assign({}, scene, {extensions:
-        Object.assign({}, scene.extensions, {ibl: settings})
-    });
-
-}
+const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  
+    scene;
 
 const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
     return node;

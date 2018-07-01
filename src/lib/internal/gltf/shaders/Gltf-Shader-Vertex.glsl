@@ -9,10 +9,6 @@ attribute vec4 a_Skin_Weight;
 uniform mat4 u_Skin_Matrices[%SKIN_JOINT_COUNT%];
 #endif
 
-#ifdef USE_KHR_LIGHTS
-%KHR_LIGHTS_VARS%
-#endif
-
 attribute vec4 a_Position;
 #ifdef HAS_NORMALS
 attribute vec4 a_Normal;
@@ -67,9 +63,6 @@ void main()
 #endif
     %MORPH_FUNCS%
 
-    #ifdef USE_KHR_LIGHTS
-    %KHR_LIGHTS_FUNCS%
-    #endif
 
   
   vec4 pos = u_ModelMatrix * m_Position;

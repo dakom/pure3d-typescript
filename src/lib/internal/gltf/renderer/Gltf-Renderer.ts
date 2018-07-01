@@ -3,6 +3,8 @@ import { mat4, vec3, quat } from 'gl-matrix';
 import {createRendererThunk} from "./Gltf-Renderer-Thunk";
 import {generateShader} from "../gltf-parse/Gltf-Parse-Primitive-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
+import {pushNumbersToArray} from "../../common/ArrayUtils";
+
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
 import {
@@ -18,11 +20,9 @@ import {
     LightKind,
     GltfTextureInfo,
     Camera,
-    GltfIblScene,
     DirectionalLight,
     GltfLightNode,
     GltfCameraNode,
-    AmbientLight,
     GltfScene,
     GltfNode,
     GltfPrimitive,
@@ -30,15 +30,41 @@ import {
     GltfData,
     WebGlBufferInfo,
     WebGlBufferData,
-    GltfPrimitiveDrawKind } from "../../../Types";
+    GltfPrimitiveDrawKind,
+    GltfRendererLightList,
+    NumberArray
+} from "../../../Types";
 
 type RenderGroup = Array<() => void>;
+
+const makeTempLightList = () => ({
+    directional: {
+            direction: new Array<number>(),
+            color: new Array<number>(),
+            intensity: new Array<number>()
+    },
+})
+
+const getRealLightList = (tempLightList:ReturnType<typeof makeTempLightList>):GltfRendererLightList => {
+
+    const lightList:GltfRendererLightList = {}
+
+    if(tempLightList.directional.direction.length) {
+        lightList.directional = {
+            direction: Float32Array.from(tempLightList.directional.direction),
+            color: Float32Array.from(tempLightList.directional.color),
+            intensity: Float32Array.from(tempLightList.directional.intensity)
+        }
+    }
+
+    return lightList;
+}
 
 export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene:GltfScene) => {
     const shaderGroupByAlpha = new Map<GltfMaterialAlphaMode, Set<RenderGroup>>();
     const renderThunksByShader = new Map<Symbol, Array<() => void>>();
     const meshList = new Array<GltfMeshNode>();
-    const lightList = new Array<LightNode>();
+    const tempLightList = makeTempLightList();
 
     forEachNodes ((node:GltfNode) => {
         if( node.kind === GltfNodeKind.MESH 
@@ -46,9 +72,23 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             && node.transform.modelViewProjectionMatrix ? true : false) {
             meshList.push(node as GltfMeshNode);
         } else if(node.kind === NodeKind.LIGHT) {
-            lightList.push(node as LightNode);
+            const light = node.light;
+            switch(light.kind) {
+                case LightKind.Directional:
+                    pushNumbersToArray (light.color) (tempLightList.directional.color);
+                    pushNumbersToArray (node.transform.trs.translation) (tempLightList.directional.direction);
+                    tempLightList.directional.intensity.push(light.intensity);
+
+                    break;
+                case LightKind.Point:
+                    break;
+                case LightKind.Spot:
+                    break;
+            }
         } 
     }) (scene.nodes);
+
+    const lightList = getRealLightList (tempLightList);
 
     meshList.forEach(node => {
         let skinMatrices:Float32Array;

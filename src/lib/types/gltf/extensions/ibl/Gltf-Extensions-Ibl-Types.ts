@@ -2,7 +2,12 @@ import {NumberArray} from "../../../common/array/Array-Types";
 
 export const GltfIblExtensionName = "PURE3D_IBL";
 
+
 export type GltfIblCubeMapNames = "diffuse" | "specular";
+
+export interface GltfIblConfig {
+    path: string;
+}
 
 //Assets
 export interface GltfIblDataAssets {
@@ -39,9 +44,3 @@ export interface GltfIblShaderConfig {
     useLod: boolean;
 }
 
-//Scene
-export interface GltfIblScene {
-  scaleDiffBaseMR: NumberArray;
-  scaleFGDSpec: NumberArray;
-  scaleIBLAmbient: NumberArray;
-}

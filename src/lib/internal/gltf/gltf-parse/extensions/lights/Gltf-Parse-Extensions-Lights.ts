@@ -17,7 +17,6 @@ import {
     GltfPrimitive,
     WebGlShaderSource,
     CameraNode,
-    GltfIblScene,
     GltfNode,
     NodeKind,
     GltfLightsExtensionName,
@@ -30,7 +29,6 @@ import {
     LightKind,
     LightNode,
     BaseCamera,
-    AmbientLight,
     DirectionalLight,
     PointLight,
     SpotLight,
@@ -58,7 +56,6 @@ const getConfig = (gltf:GLTF_ORIGINAL):Array<GLTF_PARSE_Extension_Light> => {
 
 const getLight = (originalLight:GLTF_PARSE_Extension_Light):Light => {
     const kindMap = {
-        ambient: LightKind.Ambient,
         directional: LightKind.Directional,
         point: LightKind.Point,
         spot: LightKind.Spot
@@ -96,27 +93,7 @@ const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF
        data
 
 
-const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  {
-    
-    const config = getConfig(gltf);
-    const sceneConfig:GLTF_PARSE_Extension_Lights_Config = originalScene.extensions && originalScene.extensions.hasOwnProperty(GltfLightsExtensionName)
-        ?   originalScene.extensions[GltfLightsExtensionName]
-        :   undefined; 
-
-    if(!config || !sceneConfig) {
-        return scene;
-    }
-
-
-    const light = getLight(config[sceneConfig.light]);
-
-    if(light.kind !== LightKind.Ambient) {
-        throw new Error("scene light is not ambient");
-    }
-
-    return Object.assign({}, scene, {light})
-
-}
+const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  scene;
 
 
 const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
@@ -153,14 +130,10 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
     let nPointLights = 0;
     let nDirectionalLights = 0;
     let nSpotLights = 0;
-    let hasAmbient = scene.light ? true : false;
 
     scene.nodes.forEach(node => {
         if(node.kind === NodeKind.LIGHT) {
             switch(node.light.kind) {
-                case LightKind.Ambient:
-                    hasAmbient = true;
-                    break;
                 case LightKind.Directional:
                     nDirectionalLights++;
                     break;
@@ -180,7 +153,6 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
         nPointLights,
         nDirectionalLights,
         nSpotLights,
-        hasAmbient
     }
 
 
@@ -195,23 +167,32 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
     );
 }
 
-const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => {
+const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => 
+    vs;
+
+
+const getDynamicFragmentShader = (data:GltfData) => (primitive:GltfPrimitive) => (fs:string):string => {
 
     let LIGHTS_VARS = '';
     let LIGHTS_FUNCS = '';
 
-    return vs.replace("%KHR_LIGHTS_VARS%", LIGHTS_VARS).replace("%KHR_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
-}
 
-const getDynamicFragmentShader = (primitive:GltfPrimitive) => (fs:string):string => {
+    const dLen = primitive.shaderConfig.extensions.lights.nDirectionalLights;
 
-    let LIGHTS_VARS = '';
-    let LIGHTS_FUNCS = '';
+    if(dLen) {
+        LIGHTS_VARS += `uniform vec3 u_LightD_Direction[${dLen}];\n`;
+        LIGHTS_VARS += `uniform vec3 u_LightD_Color[${dLen}];\n`;
+        LIGHTS_VARS += `uniform float u_LightD_Intensity[${dLen}];\n`;
 
-    if(primitive.shaderConfig.extensions.lights.nDirectionalLights) {
+        for(let i = 0; i < dLen; i++) {
+            LIGHTS_FUNCS += `color += getColor(pbr, getLight(normal, u_LightD_Direction[${i}], u_LightD_Color[${i}]));\n`
+        }
     }
 
-    return fs.replace("%KHR_LIGHTS_VARS%", LIGHTS_VARS).replace("%KHR_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
+    LIGHTS_FUNCS = ''; //for now, until done debugging
+
+    return fs.replace("%PUNCTUAL_LIGHTS_VARS%", LIGHTS_VARS).replace("%PUNCTUAL_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
+
 }
 
 const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
@@ -220,25 +201,21 @@ const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive
     if(primitive.shaderConfig.extensions.lights) {
         const defines = [];
         
-        const {hasAmbient, nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
+        const {nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
         if(nPointLights > 10 || nDirectionalLights > 10 || nSpotLights > 10) {
             console.warn("Only 10 lights of each kind are supported");
         }
 
-        if(!hasAmbient && !nPointLights && !nDirectionalLights && !nSpotLights) {
+        if(!nPointLights && !nDirectionalLights && !nSpotLights) {
             return source;
         }
 
-        defines.push("USE_KHR_LIGHTS");
-
-        if(hasAmbient) {
-            defines.push("KHR_LIGHTS_AMBIENT");
-        }
+        defines.push("USE_PUNCTUAL_LIGHTS");
 
         const defineString = defines.map(value => `#define ${value} 1\n`).join('');
         return Object.assign({}, source, {
             vertex: getDynamicVertexShader(primitive) (defineString + source.vertex),
-            fragment: getDynamicFragmentShader (primitive) (defineString + source.fragment)
+            fragment: getDynamicFragmentShader (data) (primitive) (defineString + source.fragment)
         })
     } else {
         return source;

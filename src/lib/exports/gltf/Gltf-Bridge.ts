@@ -37,7 +37,6 @@ WebGlRenderer,
     GltfInitConfig,
     GltfData,
     TypedNumberArray,
-    GltfIblScene,
     GltfBridge,
     GltfDataAssets,
 } from '../../Types';

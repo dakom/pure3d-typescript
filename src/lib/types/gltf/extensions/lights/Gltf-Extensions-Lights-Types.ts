@@ -1,12 +1,11 @@
 import {NumberArray} from "../../../common/array/Array-Types";
 
-export const GltfLightsExtensionName = "KHR_lights";
+export const GltfLightsExtensionName = "KHR_lights_punctual";
 
 export interface GltfLightsShaderConfig {
     nPointLights: number;
     nDirectionalLights: number;
     nSpotLights: number;
-    hasAmbient: boolean;
 }
 
 export interface GLTF_PARSE_Extension_Lights_Config {
@@ -21,5 +20,5 @@ export interface GLTF_PARSE_Extension_Light {
         innerConeAngle?: number;
         outerConeAngle?: number;
     };
-    type: "directional" | "point" | "spot" | "ambient"
+    type: "directional" | "point" | "spot" 
 }

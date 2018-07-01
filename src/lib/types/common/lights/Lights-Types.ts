@@ -1,23 +1,18 @@
 
 import {NumberArray} from "../array/Array-Types";
 
-export type Light = AmbientLight | DirectionalLight | PointLight | SpotLight;
+export type Light = DirectionalLight | PointLight | SpotLight;
 
 export enum LightKind {
-    Ambient = 1,
-    Directional = 2,
-    Point = 3,
-    Spot = 4
+    Directional = 1,
+    Point,
+    Spot
 
 }
 
 export interface BaseLight {
     color: NumberArray;
     intensity: number;
-}
-
-export interface AmbientLight extends BaseLight {
-    kind: LightKind.Ambient; 
 }
 
 export interface DirectionalLight extends BaseLight {

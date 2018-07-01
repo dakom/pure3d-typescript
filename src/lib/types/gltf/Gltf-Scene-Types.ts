@@ -1,11 +1,9 @@
-import {GltfIblScene, Camera, Light, AmbientLight, GltfNode, TypedNumberArray} from "../../Types";
+import {Camera, Light, GltfNode, TypedNumberArray} from "../../Types";
 
 export type GltfScene = Readonly<{
 	nodes: Array<GltfNode>;
         camera: Camera;
-        light: AmbientLight;
         extensions: {
-            ibl?: GltfIblScene
         }
 }>
 

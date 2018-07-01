@@ -18,10 +18,8 @@ WebGlRenderer,
     GltfInitConfig,
     GltfData,
     TypedNumberArray,
-    GltfIblScene,
     GltfBridge,
     GltfDataAssets,
-    AmbientLight,
 } from '../../Types';
 
 import {updateRuntimeShaderConfig} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";

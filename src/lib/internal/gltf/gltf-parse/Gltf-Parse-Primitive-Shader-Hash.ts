@@ -2,13 +2,11 @@ import {
     GltfMaterialAlphaMode,
     GltfLightNode,
     GltfCameraNode,
-    GltfIblScene,    
     GltfMeshNode,
     OrthographicCameraSettings,
     BaseCamera,
     CameraNode,
     PerspectiveCameraSettings,
-    AmbientLight,
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_Material,
     GLTF_ORIGINAL_MeshPrimitive,
@@ -29,7 +27,7 @@ import {
 //TODO - speed has been optimized but need to test thoroughly for correctness (was roughly tested)
 //https://stackoverflow.com/questions/17398578/hash-algorithm-for-variable-size-boolean-array?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 
-    const baseArray = new Uint8Array(19);
+    const baseArray = new Uint8Array(18);
     const morphsArray = new Uint8Array(30);
     const skinArray = new Uint8Array(30);
     const lightsArray = new Uint8Array(30);
@@ -81,27 +79,24 @@ export const getShaderHash = (config:GltfShaderConfig):string => {
         baseArray[10] = 1;
     }
 
+    baseArray[11] = config.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
+    baseArray[12] = config.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
+    baseArray[13] = config.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
+    
     if(config.extensions.ibl) {
-        baseArray[11] = 1;
+        baseArray[14] = 1;
         if(config.extensions.ibl.useLod) {
-            baseArray[12] = 1;
+            baseArray[15] = 1;
         }
     }
     if(config.extensions.unlit) {
-        baseArray[13] = 1;
+        baseArray[16] = 1;
     }
 
 
-    baseArray[14] = config.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
-    baseArray[15] = config.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
-    baseArray[16] = config.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
 
     if(config.extensions.lights) {
         baseArray[17] = 1;
-        if(config.extensions.lights.hasAmbient) {
-            baseArray[18] = 1;
-        }
-
 
         //Light instances get their own array - 10 * 3 = 30 possibilities
             for(let i = 0; i < config.extensions.lights.nDirectionalLights; i++) {

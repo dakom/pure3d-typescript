@@ -13,7 +13,8 @@ import {
     GltfBridge,
     gltf_load, 
     WebGlConstants,
-    WebGlRenderer} from "lib/Lib";
+    WebGlRenderer,
+} from "lib/Lib";
 import {ModelInfo, Model} from "../scenes/gltf/Gltf-Models";
 import {updateCamera, getInitialGltfCamera} from "./Camera";
 import {PointerEventStatus} from "input-senders";
@@ -44,11 +45,6 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
 
         const meta = {
             path: "static/world/world.json",
-            settings: {
-                scaleDiffBaseMR: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
-                scaleFGDSpec: Float64Array.from([0.0, 0.0, 0.0, 0.0]),
-                scaleIBLAmbient: Float64Array.from([1.0, 1.0, 0.0, 0.0]),
-            }
         }
 
         return addExtension (GltfIblExtensionName) (meta) (gltf);
@@ -64,11 +60,8 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
             lights: [
 
                 {
-                    //"color": [1.0, 0.0, 0.0],
-                    "color": [1.0, 1.0, 1.0],
-                    //"intensity": 1,
-                    "intensity": .3,
-                    "type": "ambient"
+                    "color": [ 1.0, 1.0, 1.0 ],
+                    "type": "directional"
                 },
                 {
                     "spot": {
@@ -82,46 +75,30 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
                     ],
                     "type": "spot"
                 },
-                {
-                    "color": [
-                        .2,
-                        .2,
-                        .2
-                    ],
-                    "type": "directional"
-                }
             ]
         }
 
 
         gltf.nodes.push({
+            "translation": [1,1,1],
             "extensions" : {
-                "KHR_lights" : {
-                    "light" : 1
+                [GltfLightsExtensionName]: {
+                    "light" : 0
                 }
             }
         },
         {
             "extensions" : {
-                "KHR_lights" : {
-                    "light" : 2
+                [GltfLightsExtensionName]: {
+                    "light" : 1
                 }
             }
         }
         )
 
         if(gltf.scenes) {
-            gltf.scenes[0].nodes.push(gltf.nodes.length-1)
-           
-            if(!gltf.scenes[0].extensions) {
-                gltf.scenes[0].extensions = {}
-            }
-
-            Object.assign(gltf.scenes[0].extensions, {
-                "KHR_lights": {
-                    "light": 0
-                }
-            });
+            gltf.scenes[0].nodes.push(gltf.nodes.length-2);
+            gltf.scenes[0].nodes.push(gltf.nodes.length-1);
         }
 
         return addExtension (GltfLightsExtensionName) (meta) (gltf);

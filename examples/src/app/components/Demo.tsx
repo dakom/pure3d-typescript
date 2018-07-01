@@ -35,32 +35,35 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
 
         this.state = {
             menuOptions: {
-                ibl: true,
-                //lights: true,
-                lights: false,
-                cameras: [],
-                selectedCamera: -1
+                gltf: {
+                    //ibl: true,
+                    //ibl: true,
+                    lights: true,
+                    //lights: false,
+                    cameras: [],
+                    selectedCamera: -1
 
+                }
             }
         }
 
-        this.onOptions = this.onOptions.bind(this);
     }
 
-    onOptions(menuOptions) {
-        this.setState({menuOptions});
-    }
     render() {
         const {section, scene} = this.props.match.params;
 
-        const menuOptions = Object.assign({}, this.state.menuOptions, {
-            onChange: this.onOptions
-        });
+        const {menuOptions} = this.state;
 
         return (
             <React.Fragment>
             <Container section={section} scene={scene} menuOptions={menuOptions} /> 
-            <TopMenu menuOptions={menuOptions} basePage={section} buttons={buttons[section]} alertMessage={alertMessage[section]} /> 
+            <TopMenu 
+                menuOptions={menuOptions} 
+                basePage={section} 
+                buttons={buttons[section]} 
+                alertMessage={alertMessage[section]}
+                onOptions={menuOptions => this.setState({menuOptions})}
+            /> 
             </React.Fragment>
         )
     }
