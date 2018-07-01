@@ -37,8 +37,8 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
             menuOptions: {
                 gltf: {
                     //ibl: true,
-                    //ibl: true,
-                    lights: true,
+                    ibl: true,
+                    lights: false,
                     //lights: false,
                     cameras: [],
                     selectedCamera: -1
