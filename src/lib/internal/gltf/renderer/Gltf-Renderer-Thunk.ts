@@ -6,7 +6,6 @@ import { Future } from "fluture";
 import {
     GltfRendererThunk,
     Light,
-    GltfShaderConfig,
     GltfMeshNode,
     LightNode,
     LightKind,
@@ -51,7 +50,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
         Set the IBL uniforms
     */
 
-    if(primitive.shaderConfig.extensions.ibl) {
+    if(scene.shaderConfig.ibl) {
       renderer.switchTexture(samplerIndex)(data.extensions.ibl.brdf);
       uniform1i("u_brdfLUT")(samplerIndex++);
   

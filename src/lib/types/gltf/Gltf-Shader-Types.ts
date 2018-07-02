@@ -1,6 +1,6 @@
 import {WebGlShader, GltfMaterialAlphaMode, GltfUnlitShaderConfig, GltfLightsShaderConfig, GltfIblShaderConfig} from "../../Types";
 
-export interface GltfShaderConfig {
+export interface GltfShaderConfig_Primitive {
     nMorphWeights: number;
     nPositionMorphs:number;
     nNormalMorphs: number;
@@ -18,11 +18,10 @@ export interface GltfShaderConfig {
     manualSRGB: boolean;
     fastSRGB: boolean;
     alphaMode: GltfMaterialAlphaMode;
-
-    extensions: {
-        ibl?: GltfIblShaderConfig;
-        unlit?: GltfUnlitShaderConfig;
-        lights?: GltfLightsShaderConfig;
-    }
 }
 
+export interface GltfShaderConfig_Scene {
+    ibl?: GltfIblShaderConfig;
+    unlit?: GltfUnlitShaderConfig;
+    lights?: GltfLightsShaderConfig;
+}

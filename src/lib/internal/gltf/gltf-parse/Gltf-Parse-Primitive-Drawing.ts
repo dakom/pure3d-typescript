@@ -1,6 +1,6 @@
 import { WebGlConstants, WebGlShader } from '../../../Types';
 
-import { GLTF_ORIGINAL_MeshPrimitive, GltfData, GltfShaderConfig, GltfPrimitive, GltfMaterial, GltfPrimitiveArrayDraw, GltfPrimitiveElementsDraw, GltfPrimitiveDrawKind } from '../../../Types';
+import { GLTF_ORIGINAL_MeshPrimitive, GltfData, GltfShaderConfig_Primitive, GltfPrimitive, GltfMaterial, GltfPrimitiveArrayDraw, GltfPrimitiveElementsDraw, GltfPrimitiveDrawKind } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys } from './Gltf-Parse-Primitive-Attributes';
 
 export const GLTF_PARSE_getPrimitiveDrawing = ({ originalPrimitive, data }: { originalPrimitive: GLTF_ORIGINAL_MeshPrimitive, data: GltfData }) => {

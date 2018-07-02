@@ -4,7 +4,7 @@
 
 ## **WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
 
-## [DEMO](https://dakom.github.io/pure3d/#/combined/COMBO1)
+## [DEMO](https://dakom.github.io/pure3d)
 
 ## Remaining Features
 

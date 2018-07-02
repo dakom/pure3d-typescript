@@ -9,6 +9,8 @@ WebGlRenderer,
     LightNode,
     GltfMeshNode,
     GltfPrimitive,
+    GltfShaderConfig_Scene,
+    GltfShaderConfig_Primitive,
     GltfNodeKind,
     GLTF_ORIGINAL,
     GLTF_ORIGINAL_Scene,
@@ -22,7 +24,7 @@ WebGlRenderer,
     GltfDataAssets,
 } from '../../Types';
 
-import {updateRuntimeShaderConfig} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitive-Shader";
+import {updateRuntimeShaderConfig_Primitive} from "../../internal/gltf/gltf-parse/Gltf-Parse-Shader";
 
-export const gltf_updatePrimitiveShaderConfig = updateRuntimeShaderConfig; 
+export const gltf_updatePrimitiveShaderConfig = updateRuntimeShaderConfig_Primitive; 
 

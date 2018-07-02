@@ -1,11 +1,11 @@
-import {WebGlShader, GltfMaterial, GltfShaderConfig} from "../../Types";
+import {WebGlShader, GltfMaterial, GltfShaderConfig_Primitive} from "../../Types";
 
 export enum GltfPrimitiveDrawKind {
 	ELEMENTS = 1, //"elements" in original
 	ARRAY = 2, //"array" in original
 }
 export type GltfPrimitive = (GltfPrimitiveElementsDraw | GltfPrimitiveArrayDraw) & {
-        shaderConfig: GltfShaderConfig;
+        shaderConfig: GltfShaderConfig_Primitive;
         vaoId: number;
 	drawMode: number;
 	material?: GltfMaterial;

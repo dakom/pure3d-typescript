@@ -9,8 +9,10 @@ import {
     GltfDataAssets,
     CameraNode,
     WebGlRenderer,
-    GltfShaderConfig,
-    WebGlShaderSource
+    GltfShaderConfig_Primitive,
+    GltfShaderConfig_Scene,
+    WebGlShaderSource,
+    GltfPrimitive
 } from "../../../Types"; 
 import {Future} from "fluture";
 
@@ -19,7 +21,9 @@ export interface GLTF_PARSE_Extension {
     createData : ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData) => GltfData;
     createScene : (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene) => GltfScene;
     createNode : (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode) => GltfNode; 
-    initialShaderConfig: ({data:GltfData, primitive:GltfPrimitive }) => (shaderConfig:GltfShaderConfig) => GltfShaderConfig;
-    runtimeShaderConfig: ({data:GltfData, scene: GltfScene, primitive: GltfPrimitive }) => (shaderConfig:GltfShaderConfig) => GltfShaderConfig;
-    shaderSource: ({data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource) => WebGlShaderSource; 
+    initialShaderConfig_Primitive: (data:GltfData) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
+    runtimeShaderConfig_Primitive: (data:GltfData) => (scene: GltfScene) => (primitive: GltfPrimitive ) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
+    initialShaderConfig_Scene: (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
+    runtimeShaderConfig_Scene: (data:GltfData) => (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
+    shaderSource: (data:GltfData) => (scene:GltfScene) => (primitive: GltfPrimitive) => (source:WebGlShaderSource) => WebGlShaderSource; 
 }

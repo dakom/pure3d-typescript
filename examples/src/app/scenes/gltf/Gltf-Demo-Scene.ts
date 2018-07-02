@@ -41,7 +41,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
         renderer, 
         path: modelPath, 
         config: { },
-        mapper: addGltfExtensions ({model: modelInfo.model, menuOptions})
+        mapper: addGltfExtensions (menuOptions) (modelInfo.model) 
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
     .map(bridge => {

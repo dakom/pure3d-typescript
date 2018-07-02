@@ -19,7 +19,7 @@ import {ModelInfo, Model} from "../scenes/gltf/Gltf-Models";
 import {updateCamera, getInitialGltfCamera} from "./Camera";
 import {PointerEventStatus} from "input-senders";
 import {S} from "./Sanctuary";
-export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOptions}) => {
+export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (model:Model) => {
 
     const addExtension = (name:string) => (meta:any) => (gltf:GLTF_ORIGINAL):GLTF_ORIGINAL => 
         Object.assign({}, gltf, {
@@ -39,7 +39,7 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
 
     const addIbl = (gltf:GLTF_ORIGINAL) => {
 
-        if(!menuOptions.ibl) {
+        if(!options.ibl) {
             return gltf;
         }
 
@@ -52,7 +52,7 @@ export const addGltfExtensions = ({model, menuOptions}: {model:Model, menuOption
 
 
     const addLights = (gltf:GLTF_ORIGINAL) => {
-        if(!menuOptions.lights) {
+        if(!options.lights) {
             return gltf;
         }
 

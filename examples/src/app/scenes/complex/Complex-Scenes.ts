@@ -4,11 +4,17 @@ const convertMenu = (list:Array<{label: string, items: Array<string>}>) =>
         items: items.map(item => [item, item])
     }));
 
-export const COMBINED_MENUS = convertMenu([
+export const COMPLEX_MENUS = convertMenu([
     {
-        label: "COMBOS",
+        label: "COMBINED MODELS",
         items: [
-            "COMBO1"
+            "DUAL_GLTF",
+        ]
+    },
+    {
+        label: "LIGHTING",
+        items: [
+            "LIGHTING_PUNCTUAL"
         ]
     },
 ]);

@@ -12,7 +12,8 @@ import {
     GLTF_ORIGINAL_MeshPrimitive,
     GltfNode,
     GltfData,
-    GltfShaderConfig,
+    GltfShaderConfig_Primitive,
+    GltfShaderConfig_Scene,
     GltfInitConfig,
     WebGlRenderer,
     WebGlBufferInfo,
@@ -42,92 +43,94 @@ const hashBooleans32 = (xs:Uint8Array) =>
     }
     return h;
 }
-export const getShaderHash = (config:GltfShaderConfig):string => {
+
+export const getShaderHash = (sceneConfig:GltfShaderConfig_Scene) => (primitiveConfig:GltfShaderConfig_Primitive):string => {
 
 
-    if(config.hasNormalAttributes) {
+    if(primitiveConfig.hasNormalAttributes) {
         baseArray[0] = 1;
     }
-    if(config.hasTangentAttributes) {
+    if(primitiveConfig.hasTangentAttributes) {
         baseArray[1] = 1;
     }
-    if(config.hasUvAttributes) {
+    if(primitiveConfig.hasUvAttributes) {
         baseArray[2] = 1;
     }
-    if(config.hasColorAttributes) {
+    if(primitiveConfig.hasColorAttributes) {
         baseArray[3] = 1;
     }
-    if(config.hasBaseColorMap) {
+    if(primitiveConfig.hasBaseColorMap) {
         baseArray[4] = 1;
     }
-    if(config.hasNormalMap) {
+    if(primitiveConfig.hasNormalMap) {
         baseArray[5] = 1;
     }
-    if(config.hasEmissiveMap) {
+    if(primitiveConfig.hasEmissiveMap) {
         baseArray[6] = 1;
     }
-    if(config.hasMetalRoughnessMap) {
+    if(primitiveConfig.hasMetalRoughnessMap) {
         baseArray[7] = 1;
     }
-    if(config.hasOcclusionMap) {
+    if(primitiveConfig.hasOcclusionMap) {
         baseArray[8] = 1;
     }
-    if(config.manualSRGB) {
+    if(primitiveConfig.manualSRGB) {
         baseArray[9] = 1;
     }
-    if(config.fastSRGB) {
+    if(primitiveConfig.fastSRGB) {
         baseArray[10] = 1;
     }
 
-    baseArray[11] = config.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
-    baseArray[12] = config.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
-    baseArray[13] = config.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
-    
-    if(config.extensions.ibl) {
+    baseArray[11] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
+    baseArray[12] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
+    baseArray[13] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
+   
+
+    if(sceneConfig.ibl) {
         baseArray[14] = 1;
-        if(config.extensions.ibl.useLod) {
+        if(sceneConfig.ibl.useLod) {
             baseArray[15] = 1;
         }
     }
-    if(config.extensions.unlit) {
+    if(sceneConfig.unlit) {
         baseArray[16] = 1;
     }
 
 
 
-    if(config.extensions.lights) {
+    if(sceneConfig.lights) {
         baseArray[17] = 1;
 
         //Light instances get their own array - 10 * 3 = 30 possibilities
-            for(let i = 0; i < config.extensions.lights.nDirectionalLights; i++) {
+            for(let i = 0; i < sceneConfig.lights.nDirectionalLights; i++) {
                 lightsArray[i] = 1;
             }
 
-            for(let i = 0; i < config.extensions.lights.nPointLights; i++) {
+            for(let i = 0; i < sceneConfig.lights.nPointLights; i++) {
                 lightsArray[10 + i] = 1;
             }
 
-            for(let i = 0; i < config.extensions.lights.nSpotLights; i++) {
+            for(let i = 0; i < sceneConfig.lights.nSpotLights; i++) {
                 lightsArray[20 + i] = 1;
             }
     }
 
 
-    for(let i = 0; i < config.nPositionMorphs; i++) {
+    for(let i = 0; i < primitiveConfig.nPositionMorphs; i++) {
         morphsArray[i]
     }
 
-    for(let i = 0; i < config.nNormalMorphs; i++) {
+    for(let i = 0; i < primitiveConfig.nNormalMorphs; i++) {
         morphsArray[8 + i]
     }
-    for(let i = 0; i < config.nTangentMorphs; i++) {
+    for(let i = 0; i < primitiveConfig.nTangentMorphs; i++) {
         morphsArray[16 + i]
     }
-    for(let i = 0; i < config.nMorphWeights; i++) {
+    for(let i = 0; i < primitiveConfig.nMorphWeights; i++) {
         morphsArray[24 + i]
     }
 
-    for(let i = 0; i < config.nSkinJoints; i++) {
+    for(let i = 0; i < primitiveConfig.nSkinJoints; i++) {
         skinArray[i] = 1;
     }
 
@@ -141,10 +144,10 @@ export const getShaderHash = (config:GltfShaderConfig):string => {
 
 }
 
-export const shaderConfigBenchmark = (shaderConfig:GltfShaderConfig) => {
+export const shaderConfigBenchmark = (sceneConfig:GltfShaderConfig_Scene) => (primitiveConfig:GltfShaderConfig_Primitive) => {
     const t = performance.now();
     for(let i = 0; i < 5000; i++) {
-        getShaderHash(shaderConfig);
+        getShaderHash(sceneConfig);
     }
     console.log(performance.now() - t);
 }

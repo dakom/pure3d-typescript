@@ -12,7 +12,8 @@ import {
     GLTF_ORIGINAL_Node,
     GLTF_ORIGINAL_Scene,
     GltfData,
-    GltfShaderConfig,
+    GltfShaderConfig_Primitive,
+    GltfShaderConfig_Scene,
     GltfLightsShaderConfig,
     GltfPrimitive,
     WebGlShaderSource,
@@ -121,15 +122,21 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
 
 }
 
-const initialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
-    return shaderConfig;
-}
+const initialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
+    shaderConfig;
 
-const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:GltfPrimitive, scene: GltfScene}) => (shaderConfig:GltfShaderConfig):GltfShaderConfig => {
+const initialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => 
+    shaderConfig;
+
+const runtimeShaderConfig_Primitive = (data:GltfData) => (scene: GltfScene) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
+    shaderConfig;
+
+const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => {
 
     let nPointLights = 0;
     let nDirectionalLights = 0;
     let nSpotLights = 0;
+
 
     scene.nodes.forEach(node => {
         if(node.kind === NodeKind.LIGHT) {
@@ -147,8 +154,6 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
         }
     });
 
-
-
     const config:GltfLightsShaderConfig = {
         nPointLights,
         nDirectionalLights,
@@ -156,29 +161,21 @@ const runtimeShaderConfig = ({data, scene, primitive}:{data:GltfData, primitive:
     }
 
 
-    return Object.assign({}, shaderConfig, 
-        {
-            extensions: Object.assign({}, shaderConfig.extensions, 
-                {
-                    lights: config
-                }
-            )
-        }
-    );
+    return Object.assign({}, shaderConfig, { lights: config });
 }
 
 const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => 
     vs;
 
 
-const getDynamicFragmentShader = (data:GltfData) => (primitive:GltfPrimitive) => (fs:string):string => {
+const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primitive:GltfPrimitive) => (fs:string):string => {
 
     let LIGHTS_VARS = '';
     let LIGHTS_FUNCS = '';
 
-    const dLen = primitive.shaderConfig.extensions.lights.nDirectionalLights;
-    const pLen = primitive.shaderConfig.extensions.lights.nPointLights;
-    const sLen = primitive.shaderConfig.extensions.lights.nSpotLights;
+    const dLen = scene.shaderConfig.lights.nDirectionalLights;
+    const pLen = scene.shaderConfig.lights.nPointLights;
+    const sLen = scene.shaderConfig.lights.nSpotLights;
 
     const tLen = dLen + pLen + sLen;
     LIGHTS_VARS += `uniform vec3 u_Light_Position[${tLen}];\n`;
@@ -206,13 +203,11 @@ const getDynamicFragmentShader = (data:GltfData) => (primitive:GltfPrimitive) =>
 
 }
 
-const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive}) => (source:WebGlShaderSource):WebGlShaderSource => {
-
-
-    if(primitive.shaderConfig.extensions.lights) {
+const shaderSource = (data:GltfData) => (scene:GltfScene) =>  (primitive: GltfPrimitive) => (source:WebGlShaderSource):WebGlShaderSource => {
+    if(scene.shaderConfig.lights) {
         const defines = [];
         
-        const {nPointLights, nDirectionalLights, nSpotLights} = primitive.shaderConfig.extensions.lights;
+        const {nPointLights, nDirectionalLights, nSpotLights} = scene.shaderConfig.lights;
         if(nPointLights > 10 || nDirectionalLights > 10 || nSpotLights > 10) {
             console.warn("Only 10 lights of each kind are supported");
         }
@@ -226,7 +221,7 @@ const shaderSource = ({data, primitive}:{data:GltfData, primitive: GltfPrimitive
         const defineString = defines.map(value => `#define ${value} 1\n`).join('');
         return Object.assign({}, source, {
             vertex: getDynamicVertexShader(primitive) (defineString + source.vertex),
-            fragment: getDynamicFragmentShader (data) (primitive) (defineString + source.fragment)
+            fragment: getDynamicFragmentShader (data) (scene) (primitive) (defineString + source.fragment)
         })
     } else {
         return source;
@@ -238,7 +233,9 @@ export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
     createData,
     createScene,
     createNode,
-    initialShaderConfig,
-    runtimeShaderConfig,
+    initialShaderConfig_Primitive,
+    runtimeShaderConfig_Primitive,
+    initialShaderConfig_Scene,
+    runtimeShaderConfig_Scene,
     shaderSource
 };

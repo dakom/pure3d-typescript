@@ -6,7 +6,8 @@ import {startCombinedTextures} from "../scenes/basic/combined-textures/CombinedT
 import {startSpriteSheet} from "../scenes/basic/spritesheet/Spritesheet-Demo";
 import {startVideo} from "../scenes/basic/video/Video-Demo";
 import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
-import {startCombo1} from "../scenes/combined/combo1/Combo1";
+import {startDualGltf} from "../scenes/complex/scenes/dual-gltf/DualGltf";
+import {startLightingPunctual} from "../scenes/complex/scenes/lighting-punctual/LightingPunctual";
 import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";
@@ -42,10 +43,12 @@ const _loadScene = ({renderer, section, scene, menuOptions}
                 menuOptions: menuOptions.gltf
             }).map(mapReturn);
         }
-    } else if(section === "combined") {
+    } else if(section === "complex") {
         switch(scene) {
-            case "COMBO1":
-                return startCombo1 (renderer) ({basicPath, gltfPath, menuOptions: menuOptions.gltf}).map(mapReturn);
+            case "DUAL_GLTF":
+                return startDualGltf (renderer) ({basicPath, gltfPath}).map(mapReturn);
+            case "LIGHTING_PUNCTUAL":
+                return startLightingPunctual (renderer) ({basicPath, gltfPath}).map(mapReturn);
         }
 
     }

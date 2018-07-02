@@ -3,7 +3,7 @@ import {TopMenu, GltfMenu } from "./Menu";
 import {Container} from "./Container";
 import {BASIC_MENUS} from "../scenes/basic/Basic-Scenes";
 import {MODEL_MENUS} from "../scenes/gltf/Gltf-Models";
-import {COMBINED_MENUS} from "../scenes/combined/Combined-Scenes";
+import {COMPLEX_MENUS} from "../scenes/complex/Complex-Scenes";
 
 const gltfAlertMessage =
 `
@@ -17,13 +17,13 @@ Different formats, where available, are set via adding or removing "_BINARY" and
 const buttons = {
     basic: BASIC_MENUS,
     gltf: MODEL_MENUS,
-    combined: COMBINED_MENUS,
+    complex: COMPLEX_MENUS,
 }
 
 const alertMessage = {
     basic: "These tests are for basic webgl functionality",
     gltf: gltfAlertMessage,
-    combined: "These are integration tests for combining everything together"
+    complex: "These are integration tests for combining everything together"
 }
 
 
@@ -38,7 +38,7 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
                 gltf: {
                     //ibl: true,
                     ibl: true,
-                    lights: false,
+                    lights: true,
                     //lights: false,
                     cameras: [],
                     selectedCamera: -1

@@ -1,7 +1,7 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
 import {createRendererThunk} from "./Gltf-Renderer-Thunk";
-import {generateShader} from "../gltf-parse/Gltf-Parse-Primitive-Shader";
+import {generateShader} from "../gltf-parse/Gltf-Parse-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
 import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
 
@@ -13,8 +13,9 @@ import {
     GltfNodeKind,
     NodeKind,
     GltfRendererThunk,
+    GltfShaderConfig_Scene,
+    GltfShaderConfig_Primitive,
     Light,
-    GltfShaderConfig,
     GltfMeshNode,
     LightNode,
     LightKind,
@@ -134,17 +135,14 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
         }
 
         node.primitives.forEach(primitive => {
-            const shader = generateShader({ 
-                renderer, 
-                data,
-                primitive,
-            });
+            const shader = generateShader({renderer, data}) (scene) (primitive);
 
             if (!renderThunksByShader.has(shader.shaderId)) {
                 renderThunksByShader.set(shader.shaderId, []);
             }
 
             const shaderGroup = renderThunksByShader.get(shader.shaderId);
+
 
             shaderGroup.push(createRendererThunk({ 
                 skinMatrices,

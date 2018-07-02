@@ -13,7 +13,8 @@ import {
     GLTF_ORIGINAL_MeshPrimitive,
     GltfNode,
     GltfData,
-    GltfShaderConfig,
+    GltfShaderConfig_Primitive,
+    GltfShaderConfig_Scene,
     GltfInitConfig,
     WebGlRenderer,
     WebGlBufferInfo,
@@ -32,66 +33,79 @@ import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 
 import {GLTF_PARSE_attributeNames} from "../gltf-parse/Gltf-Parse-Data-Attributes";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
-import {getShaderHash } from "./Gltf-Parse-Primitive-Shader-Hash";
+import {getShaderHash } from "./Gltf-Parse-Shader-Hash";
 
 import vertexShaderSource from "../shaders/Gltf-Shader-Vertex.glsl";
 import fragmentShaderSource from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
 //import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
 //These need to be called via bridge/setup somehow
-export const GLTF_PARSE_getInitialShaderConfig = ({data, primitive }:{data:GltfData, primitive:GltfPrimitive }):GltfShaderConfig => 
+export const GLTF_PARSE_getInitialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => 
     GltfExtensions
-        .map(ext => ext.initialShaderConfig)
-        .reduce((acc, val) => (acc = val ({data, primitive}) (acc), acc), 
-            getCoreInitialShaderConfig({data, primitive})
+        .map(ext => ext.initialShaderConfig_Primitive)
+        .reduce((acc, val) => (acc = val (data) (primitive) (acc), acc), 
+            getCoreInitialShaderConfig_Primitive(data) (primitive)
         );
 
-export const updateRuntimeShaderConfig = ({data, primitive, scene}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}):GltfPrimitive=> {
+export const GLTF_PARSE_getInitialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene):GltfShaderConfig_Scene =>  
+    GltfExtensions
+        .map(ext => ext.initialShaderConfig_Scene)
+        .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
+            getCoreInitialShaderConfig_Scene(data) (scene)
+        );
+export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData, scene:GltfScene}) => (primitive:GltfPrimitive):GltfPrimitive=> {
   
     const shaderConfig = GltfExtensions
-        .map(ext => ext.runtimeShaderConfig)
-        .reduce((acc, val) => (acc = val ({data, scene, primitive}) (acc), acc), 
-            getCoreRuntimeShaderConfig({data, scene, primitive}) 
+        .map(ext => ext.runtimeShaderConfig_Primitive)
+        .reduce((acc, val) => (acc = val (data) (scene) (primitive) (acc), acc), 
+            primitive.shaderConfig
         );
 
     return Object.assign({}, primitive, {shaderConfig});
 }
 
 
+export const updateRuntimeShaderConfig_Scene = (data:GltfData) => (scene:GltfScene):GltfScene => {
+  
+    const shaderConfig = GltfExtensions
+        .map(ext => ext.runtimeShaderConfig_Scene)
+        .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
+            scene.shaderConfig
+        );
 
-export const generateShader = 
-    ({renderer, data, primitive}: 
-    { 
-        data:GltfData, 
-        renderer: WebGlRenderer,
-        primitive: GltfPrimitive,
-    }) => {
-
-
-    const shaderHash = getShaderHash(primitive.shaderConfig);
-
-    if (!data.shaders.has(shaderHash)) {
-        const source = getShaderSource({data, primitive});
-
-        const shader = createShader({
-            shaderId: Symbol(),
-            renderer,
-            source,
-        });
-
-        data.shaders.set(shaderHash, shader);
-        //console.log(`new shader compiled`);
-    } else {
-        //console.log(`nice! re-using existing shader`);
-    }
-
-    const shader = data.shaders.get(shaderHash);
-
-
-    return shader;
+    return Object.assign({}, scene, {shaderConfig});
 }
 
-const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive }):GltfShaderConfig => {
+export const generateShader = ({renderer, data}:{renderer: WebGlRenderer, data: GltfData}) => (scene:GltfScene) => {
+    const getConfigForScene = getShaderHash (scene.shaderConfig);
+
+    return (primitive:GltfPrimitive) => {
+
+        const shaderHash = getConfigForScene (primitive.shaderConfig);
+
+        if (!data.shaders.has(shaderHash)) {
+            const source = getShaderSource(data) (scene) (primitive);
+
+            const shader = createShader({
+                shaderId: Symbol(),
+                renderer,
+                source,
+            });
+
+            data.shaders.set(shaderHash, shader);
+            //console.log(`new shader compiled`);
+        } else {
+            //console.log(`nice! re-using existing shader`);
+        }
+
+        const shader = data.shaders.get(shaderHash);
+
+
+        return shader;
+    }
+}
+
+const getCoreInitialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => {
     const gltf = data.original;
 
     const originalNode = data.original.nodes[primitive.originalNodeId];
@@ -128,7 +142,7 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
             nMorphWeights++;
         })
     }
-    const shaderConfig:GltfShaderConfig = {
+    const shaderConfig:GltfShaderConfig_Primitive = {
         nMorphWeights,
         nPositionMorphs,
         nNormalMorphs,
@@ -147,16 +161,15 @@ const getCoreInitialShaderConfig = ({data, primitive}:{data:GltfData, primitive:
         hasOcclusionMap: material && material.occlusion !== undefined,
         manualSRGB: data.initConfig.manualSRGB === true,
         fastSRGB: data.initConfig.fastSRGB === true,
-        extensions: {}
     }
 
     return shaderConfig;
 }
 
-const getCoreRuntimeShaderConfig = ({data, scene, primitive}:{data:GltfData, scene:GltfScene, primitive:GltfPrimitive}): GltfShaderConfig => {
-    return primitive.shaderConfig; 
-}
 
+const getCoreInitialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene):GltfShaderConfig_Scene => ({
+    
+})
 
 const getCoreShaderSource = ({data, primitive }:{data:GltfData, primitive: GltfPrimitive }):WebGlShaderSource => {
     const gltf = data.original;
@@ -280,10 +293,10 @@ const getCoreVertexShader = ({data, primitive }:{data:GltfData, primitive: GltfP
 
 const getCoreFragmentShader = (fs:string):string => fs;
 
-const getShaderSource = ({data, primitive}:{data:GltfData, primitive:GltfPrimitive}): WebGlShaderSource => 
+const getShaderSource = (data:GltfData) => (scene:GltfScene) => (primitive:GltfPrimitive): WebGlShaderSource => 
     GltfExtensions
         .map(ext => ext.shaderSource)
-        .reduce((acc, val) => (acc = val ({data, primitive}) (acc), acc), 
+        .reduce((acc, val) => (acc = val (data) (scene) (primitive) (acc), acc), 
             getCoreShaderSource({data, primitive})
         );
 

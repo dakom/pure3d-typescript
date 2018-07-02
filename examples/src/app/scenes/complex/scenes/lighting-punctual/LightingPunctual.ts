@@ -15,12 +15,12 @@ import {
     NumberArray,
     WebGlRenderer} from "lib/Lib";
 import {Future} from "fluture";
-import {ModelInfo, Model, getModel} from "../../gltf/Gltf-Models";
-import {updateCamera, getInitialBasicCamera} from "../../../utils/Camera";
+import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
+import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
 import {PointerEventStatus} from "input-senders";
-import {S} from "../../../utils/Sanctuary";
-import {addGltfExtensions} from "../../../utils/Gltf-Mixin";
-import {createSkybox} from "./skybox/Skybox";
+import {S} from "../../../../utils/Sanctuary";
+import {addGltfExtensions} from "../../../../utils/Gltf-Mixin";
+import {createSkybox} from "../../skybox/Skybox";
 import * as createControls from "orbit-controls";
 
 
@@ -39,15 +39,12 @@ const getCameraList = (gltf:GLTF_ORIGINAL) => {
     });
 }
 
-const _getBridge = ({renderer, menuOptions, gltfPath, modelName, translate}:
-    {renderer:WebGlRenderer, menuOptions:any, gltfPath:string, modelName:string, translate: NumberArray}) => {
+const _getBridge = (renderer:WebGlRenderer) => (path:string) =>  {
 
-    const modelInfo = getModel(modelName); 
     return gltf_load({
         renderer, 
-        path: gltfPath + modelInfo.url,
+        path,
         config: { },
-        mapper: addGltfExtensions ({model: modelInfo.model, menuOptions})
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
     .map(bridge => {
@@ -59,7 +56,6 @@ const _getBridge = ({renderer, menuOptions, gltfPath, modelName, translate}:
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
-                    scene.nodes[0].transform.trs.translation = translate
                 }
                 scene = bridge.updateShaderConfigs(scene);
                 
@@ -84,7 +80,7 @@ const _getBridge = ({renderer, menuOptions, gltfPath, modelName, translate}:
     });
 }
 
-export const startCombo1 = (renderer:WebGlRenderer) => ({basicPath, gltfPath, menuOptions}:{basicPath: string, gltfPath: string, menuOptions: any}) => {
+export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => {
         const cameraPosition = [0,0,4];
         const cameraLook = [0,0,0];
         let camera = getInitialBasicCamera({position: cameraPosition, cameraLook: [0,0,0]});
@@ -96,27 +92,8 @@ export const startCombo1 = (renderer:WebGlRenderer) => ({basicPath, gltfPath, me
 
         return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
             .map(render => ([render]))
-            .chain(xs =>
-                _getBridge({
-                    translate: [0,0,0],
-                    renderer,
-                    menuOptions,
-                    gltfPath,
-                    modelName: "DAMAGED_HELMET_BINARY",
-                })
-                .map(render => xs.concat([render]))
-            )
-            .chain(xs => 
-                _getBridge({
-                    translate: [0,0,1],
-                    renderer,
-                    menuOptions,
-                    gltfPath,
-                    modelName: "CESIUM_MAN_BINARY",
-                })
-                .map(render => xs.concat([render])) 
-            )
-            .map(renderers => {
+            .chain(xs => _getBridge (renderer) (basicPath + "gltf-scenes/lighting-punctual.gltf"))
+            .map(render => {
                 controls.enable();
 
                 return [
@@ -125,13 +102,7 @@ export const startCombo1 = (renderer:WebGlRenderer) => ({basicPath, gltfPath, me
                         camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
-                        renderers
-                            //.filter((fn, idx) => idx) //skip skybox
-                            //.filter((fn, idx) => !idx) //skip models
-                            .forEach(render => 
-                                render (camera) (frameTs)
-                            );
-                        
+                        render (camera) (frameTs)
                     },
                     () => {
                         controls.disable(); 
