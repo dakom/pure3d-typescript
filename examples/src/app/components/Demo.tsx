@@ -37,7 +37,7 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
             menuOptions: {
                 gltf: {
                     //ibl: true,
-                    ibl: true,
+                    //ibl: true,
                     lights: true,
                     //lights: false,
                     cameras: [],
@@ -56,7 +56,12 @@ export class Demo extends React.Component<{match: any }, {menuOptions: any}> {
 
         return (
             <React.Fragment>
-            <Container section={section} scene={scene} menuOptions={menuOptions} /> 
+                <Container 
+                    section={section} 
+                    scene={scene} 
+                    menuOptions={menuOptions} 
+                    onMenuChange={menuOptions => this.setState({menuOptions})}
+                /> 
             <TopMenu 
                 menuOptions={menuOptions} 
                 basePage={section} 

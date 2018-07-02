@@ -1,4 +1,4 @@
-import { mat4, quat} from 'gl-matrix';
+import { mat4, quat, vec3} from 'gl-matrix';
 
 import {createVec3, createVec4, createQuat, createMat4} from "../array/Array";
 import {
@@ -62,3 +62,13 @@ export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatr
     });
 }
 
+//Non-essential helpers
+export const UP_AXIS = Float64Array.from([0,1,0]);
+export const ORIGIN_AXIS = Float64Array.from([0,0,0]);
+
+export const getDirectionFromMatrix = (mat:NumberArray):NumberArray => {
+    const qRot =  mat4.getRotation(createQuat(), mat);
+    const vRes = vec3.transformQuat(createVec3(), [-1,1,0], qRot);
+
+    return vRes; 
+}

@@ -4,9 +4,11 @@ import {createRendererThunk} from "./Gltf-Renderer-Thunk";
 import {generateShader} from "../gltf-parse/Gltf-Parse-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
 import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
-
+import {createVec3, createMat4} from "../../../exports/common/array/Array";
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
+import {getDirectionFromMatrix} from "../../../exports/common/transform/Transform";
+
 import {
     WebGlVertexArrayData,
     WebGlAttributeActivateOptions,
@@ -38,64 +40,40 @@ import {
 
 type RenderGroup = Array<() => void>;
 
-const makeTempLightList = () => {
-    const makeList = () => ({
-            position: new Array<number>(),
-            color: new Array<number>(),
-            intensity: new Array<number>()
-    });
 
-    return {
-        directional: makeList(),
-        point: makeList(),
-        spot: makeList()
-    }
-}
-
-//The real light list that gets uploaded needs to be in strict order
-//Might as well also prepare it in a TypedArray while we're at it
-const getRealLightList = (tempList:ReturnType<typeof makeTempLightList>):GltfRendererLightList => {
-
-    const nDirectional = tempList.directional.intensity.length;
-    const nPoint = tempList.point.intensity.length;
-    const nSpot = tempList.spot.intensity.length;
-
-    const len =  nDirectional + nPoint + nSpot;
-    const lightList:GltfRendererLightList = {
-        position: new Float32Array(len * 3),
-        color: new Float32Array(len * 3),
-        intensity: new Float32Array(len)
-    }
- 
-    let offset = 0;
-    setNumbersOnArrayFrom(tempList.directional.position) (0) (lightList.position);
-    offset += nDirectional * 3;
-    setNumbersOnArrayFrom(tempList.point.position) (offset) (lightList.position);
-    offset += nPoint * 3;
-    setNumbersOnArrayFrom(tempList.spot.position) (offset) (lightList.position);
-
-    offset = 0;
-    setNumbersOnArrayFrom(tempList.directional.color) (0) (lightList.color);
-    offset += nDirectional * 3;
-    setNumbersOnArrayFrom(tempList.point.color) (offset) (lightList.color);
-    offset += nPoint * 3;
-    setNumbersOnArrayFrom(tempList.spot.color) (offset) (lightList.color);
-   
-    offset = 0;
-    setNumbersOnArrayFrom(tempList.directional.intensity) (0) (lightList.intensity);
-    offset += nDirectional;
-    setNumbersOnArrayFrom(tempList.point.intensity) (offset) (lightList.intensity);
-    offset += nPoint;
-    setNumbersOnArrayFrom(tempList.spot.intensity) (offset) (lightList.intensity);
-
-    return lightList;
-}
+const _scratchVec3 = new Float64Array(3); 
 
 export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene:GltfScene) => {
     const shaderGroupByAlpha = new Map<GltfMaterialAlphaMode, Set<RenderGroup>>();
     const renderThunksByShader = new Map<Symbol, Array<() => void>>();
     const meshList = new Array<GltfMeshNode>();
-    const tempLightList = makeTempLightList();
+   
+    const lightList:GltfRendererLightList = 
+        scene.shaderConfig.lights
+            ?   {
+                    directional: {
+                        direction: new Float32Array(scene.shaderConfig.lights.nDirectionalLights * 3),
+                        color: new Float32Array(scene.shaderConfig.lights.nDirectionalLights * 3),
+                        intensity: new Float32Array(scene.shaderConfig.lights.nDirectionalLights),
+                        offset: 0
+                    },
+                    point: {
+                        position: new Float32Array(scene.shaderConfig.lights.nPointLights * 3),
+                        color: new Float32Array(scene.shaderConfig.lights.nPointLights * 3),
+                        intensity: new Float32Array(scene.shaderConfig.lights.nPointLights),
+                        offset: 0
+                    },
+
+                    spot: {
+                        position: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
+                        direction: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
+                        color: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
+                        intensity: new Float32Array(scene.shaderConfig.lights.nSpotLights),
+                        offset: 0
+                    },
+            }
+            :   null;
+
 
     forEachNodes ((node:GltfNode) => {
         if( node.kind === GltfNodeKind.MESH 
@@ -104,29 +82,50 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             meshList.push(node as GltfMeshNode);
         } else if(node.kind === NodeKind.LIGHT) {
             const light = node.light;
-            const color = light.color;
-            const intensity = light.intensity;
-            const position = node.transform.trs.translation;
-
-
+            
             const target = (() => {
                 switch(light.kind) {
                     case LightKind.Directional:
-                        return tempLightList.directional;
+                        return lightList.directional;
                     case LightKind.Point:
-                        return tempLightList.point;
+                        return lightList.point;
                     case LightKind.Spot:
-                        return tempLightList.spot;
+                        return lightList.spot;
                 }
             })();
 
-            pushNumbersToArray (color) (target.color);
-            pushNumbersToArray (position) (target.position);
-            target.intensity.push(intensity);
+            const color = light.color;
+            const intensity = light.intensity;
+            const position = 
+                light.kind === LightKind.Point || light.kind === LightKind.Spot
+                    ?   mat4.getTranslation(_scratchVec3, node.transform.modelMatrix)
+                    :   null;
+            let direction = 
+                light.kind === LightKind.Directional || light.kind === LightKind.Spot
+                    ?   getDirectionFromMatrix(node.transform.modelMatrix) 
+                    :   null;
+
+
+            if(light.kind === LightKind.Directional) {
+                //direction = [0,0,-1];
+            }
+
+            for(let i = 0; i < 3; i++) {
+                const offset = (target.offset * 3) + i;
+                if(position !== null) {
+                    target.position[offset] = position[i];
+                }
+
+                if(direction !== null) {
+                    target.direction[offset] = direction[i];
+                }
+                target.color[offset] = color[i];
+            }
+            target.intensity[target.offset] = intensity;
+            target.offset++;
         } 
     }) (scene.nodes);
 
-    const lightList = getRealLightList (tempLightList);
 
     meshList.forEach(node => {
         let skinMatrices:Float32Array;

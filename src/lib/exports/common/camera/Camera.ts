@@ -48,7 +48,7 @@ export const getCameraPosition = (modelMatrix:NumberArray) =>
 
 export const updateCameraWithTransform = <T extends CameraSettings>(transform:Transform) => (camera:T):T => 
     Object.assign({}, camera, {
-            position: mat4.getTranslation(createVec3(), transform.localMatrix),
+            position: mat4.getTranslation(createVec3(), transform.modelMatrix),
             view: getCameraView(transform.modelMatrix),
             projection: getCameraProjection(camera)
     });

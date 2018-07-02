@@ -15,8 +15,8 @@ import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
 
-const _loadScene = ({renderer, section, scene, menuOptions}
-    :{renderer:WebGlRenderer, scene:string, section:string, menuOptions: any})
+const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
+    :{renderer:WebGlRenderer, scene:string, section:string, menuOptions: any, onMenuChange: any})
     :Future<any,Maybe<[(frameTs:number) => void, () => void]>> => {
    
     const mapReturn = xf => 
@@ -40,7 +40,8 @@ const _loadScene = ({renderer, section, scene, menuOptions}
             return startGltf(renderer) ({
                 modelPath: gltfPath + modelInfo.url,
                 modelInfo,
-                menuOptions: menuOptions.gltf
+                menuOptions: menuOptions.gltf,
+                onMenuChange
             }).map(mapReturn);
         }
     } else if(section === "complex") {
@@ -56,7 +57,7 @@ const _loadScene = ({renderer, section, scene, menuOptions}
     return Future.of(S.Nothing);
 }
 
-export class Container extends React.Component<{section: string, scene:string, menuOptions:any}, {isLoading: boolean}> {
+export class Container extends React.Component<{section: string, scene:string, menuOptions:any, onMenuChange: any}, {isLoading: boolean}> {
     private canvasRef:React.RefObject<HTMLCanvasElement>; 
     private mThunk:Maybe<(ts:number) => void>
     private mTick:Maybe<number>;
@@ -130,12 +131,13 @@ export class Container extends React.Component<{section: string, scene:string, m
             version: 1
         });
     
-        const {scene, section, menuOptions} = this.props;
+        const {scene, section, menuOptions, onMenuChange} = this.props;
         _loadScene({
             renderer,
             section,
             scene,
-            menuOptions
+            menuOptions,
+            onMenuChange
         }).fork(console.error, (mFuncs) => {
             this.setState({isLoading: false});
             this.mThunk = S.map(funcs => funcs[0]) (mFuncs);

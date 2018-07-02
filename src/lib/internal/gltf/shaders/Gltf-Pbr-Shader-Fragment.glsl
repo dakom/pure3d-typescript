@@ -296,9 +296,9 @@ vec3 getNormal()
 }
 
 //Directional light based on normal and dynamic light info
-Light getDirectionalLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity) {
+Light getDirectionalLight(vec3 normal, vec3 lightDirection, vec3 color, float intensity) {
     vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = normalize(lightPosition - v_Position);   // Light Direction 
+    vec3 l = lightDirection;   // Light Direction 
     vec3 h = normalize(l+v);                          // Half vector between both l and v
     vec3 reflection = -normalize(reflect(v, normal));
 
@@ -322,7 +322,27 @@ Light getDirectionalLight(vec3 normal, vec3 lightPosition, vec3 color, float int
 
 //Point light
 Light getPointLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity) {
-    Light light = getDirectionalLight(normal, lightPosition, color, intensity);
+    vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
+    vec3 l = normalize(lightPosition - v_Position);   // Light Direction 
+    vec3 h = normalize(l+v);                          // Half vector between both l and v
+    vec3 reflection = -normalize(reflect(v, normal));
+
+    float NdotL = clamp(dot(normal, l), 0.001, 1.0);
+    float NdotV = abs(dot(normal, v)) + 0.001;
+    float NdotH = clamp(dot(normal, h), 0.0, 1.0);
+    float LdotH = clamp(dot(l, h), 0.0, 1.0);
+    float VdotH = clamp(dot(v, h), 0.0, 1.0);
+
+    Light light = Light(
+        normal,
+        NdotL,
+        NdotV,
+        NdotH,
+        LdotH,
+        VdotH,
+        reflection,
+        color * intensity
+    );
 
     float distance    = length(lightPosition - v_Position);
     float attenuation = 1.0 / (distance * distance);
@@ -385,7 +405,6 @@ void main()
     #ifdef USE_PUNCTUAL_LIGHTS
         //Actual implementation will dynamically write the code here
         %PUNCTUAL_LIGHTS_FUNCS%
-
         
         //Manual example
         /*

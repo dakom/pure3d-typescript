@@ -36,7 +36,7 @@ const getCameraList = (gltf:GLTF_ORIGINAL) => {
     });
 }
 
-export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, menuOptions}:{modelPath:string, modelInfo:ModelInfo, menuOptions: any}) => 
+export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, modelInfo, menuOptions}:{modelPath:string, modelInfo:ModelInfo, menuOptions: any, onMenuChange: any}) => 
     gltf_load({
         renderer, 
         path: modelPath, 
@@ -48,7 +48,11 @@ export const startGltf = (renderer:WebGlRenderer) => ({modelPath, modelInfo, men
 
         const cameras = getCameraList(bridge.getData().original);
         if(cameras.sort().toString() !== menuOptions.cameras.sort().toString()) {
-            menuOptions.onChange(Object.assign({}, menuOptions, {cameras}));
+            onMenuChange(Object.assign({}, 
+                {
+                    gltf: Object.assign({}, menuOptions, {cameras})
+                }
+            ));
             return () => {};
         }
 

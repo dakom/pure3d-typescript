@@ -44,7 +44,7 @@ import { fetchImage, fetchJsonUrl } from 'fluture-loaders';
 import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../../../exports/webgl/WebGl-Textures";
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
-
+import {forEachNodes} from "../../../../../exports/common/nodes/Nodes";
 
 const getConfig = (gltf:GLTF_ORIGINAL):Array<GLTF_PARSE_Extension_Light> => {
 
@@ -138,7 +138,7 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
     let nSpotLights = 0;
 
 
-    scene.nodes.forEach(node => {
+    forEachNodes ((node:GltfNode) => {
         if(node.kind === NodeKind.LIGHT) {
             switch(node.light.kind) {
                 case LightKind.Directional:
@@ -152,14 +152,13 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
                     break;
             }
         }
-    });
+    }) (scene.nodes);
 
     const config:GltfLightsShaderConfig = {
         nPointLights,
         nDirectionalLights,
         nSpotLights,
     }
-
 
     return Object.assign({}, shaderConfig, { lights: config });
 }
@@ -177,27 +176,46 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
     const pLen = scene.shaderConfig.lights.nPointLights;
     const sLen = scene.shaderConfig.lights.nSpotLights;
 
-    const tLen = dLen + pLen + sLen;
-    LIGHTS_VARS += `uniform vec3 u_Light_Position[${tLen}];\n`;
-    LIGHTS_VARS += `uniform vec3 u_Light_Color[${tLen}];\n`;
-    LIGHTS_VARS += `uniform float u_Light_Intensity[${tLen}];\n`;
+    if(dLen) {
+        LIGHTS_VARS += `uniform vec3 u_Light_Directional_Direction[${dLen}];\n`;
+        LIGHTS_VARS += `uniform vec3 u_Light_Directional_Color[${dLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Directional_Intensity[${dLen}];\n`;
   
-    let ti = 0;
-    for(let i = 0; i < dLen; i++, ti++) {
-        LIGHTS_FUNCS += `light = getDirectionalLight(normal, u_Light_Position[${ti}], u_Light_Color[${ti}], u_Light_Intensity[${ti}]);\n`;
-        LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+        for(let i = 0; i < dLen; i++) {
+            LIGHTS_FUNCS += `light = getDirectionalLight(
+                normal, 
+                u_Light_Directional_Direction[${i}],
+                u_Light_Directional_Color[${i}],
+                u_Light_Directional_Intensity[${i}]
+            );\n`
+            LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+        }
     }
 
-    for(let i = 0; i < pLen; i++, ti++) {
-        LIGHTS_FUNCS += `light = getPointLight(normal, u_Light_Position[${ti}], u_Light_Color[${ti}], u_Light_Intensity[${ti}]);\n`;
-        LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+    if(pLen) {
+        LIGHTS_VARS += `uniform vec3 u_Light_Point_Position[${pLen}];\n`;
+        LIGHTS_VARS += `uniform vec3 u_Light_Point_Color[${pLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Point_Intensity[${pLen}];\n`;
+    
+        for(let i = 0; i < pLen; i++) {
+            LIGHTS_FUNCS += `light = getPointLight(
+                normal, 
+                u_Light_Point_Position[${i}], 
+                u_Light_Point_Color[${i}], 
+                u_Light_Point_Intensity[${i}]
+            );\n`
+            LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+        }
     }
 
-    //TODO - Spot light
-
-
-    console.log(LIGHTS_VARS);
-    console.log(LIGHTS_FUNCS);
+    if(sLen) {
+        LIGHTS_VARS += `uniform vec3 u_Light_Spot_Position[${sLen}];\n`;
+        LIGHTS_VARS += `uniform vec3 u_Light_Spot_Direction[${sLen}];\n`;
+        LIGHTS_VARS += `uniform vec3 u_Light_Spot_Color[${sLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Spot_Intensity[${sLen}];\n`;
+    
+        //TODO - Spot light
+    }
 
     return fs.replace("%PUNCTUAL_LIGHTS_VARS%", LIGHTS_VARS).replace("%PUNCTUAL_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
 
