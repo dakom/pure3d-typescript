@@ -13,14 +13,15 @@ See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 ## What it is: 
 
 * For DIY renderers - a generic abstraction to make working with WebGL a bit more more fun and simple, without sacrificing any power.
-* For batteries included - a GLTF renderer with super easy API surface.
+* Or, batteries included - a GLTF renderer with super easy API surface and functional paradigm.
 
 ## How it works
 
 See [Wiki](https://github.com/dakom/pure3d/wiki) for more details
 
 * Generic layer automatically optimizes and skip unnecessary low-level webgl calls.
-* Gltf layer has strong separation of concerns to make interop with functional frameworks, workers, and wasm a bit more organic.
+* Gltf layer has strong separation of concerns and to make interop with functional frameworks, workers, and wasm a bit more organic.
+* Gltf layer also uses an immutable pipeline throughout, with a diffing thing to automagically handle scene changes
 * Some pure functional helpers to drive transform updates and animations (not forced into render pipeline)
 * Fully exported Typescript definitions
 
@@ -28,11 +29,12 @@ See [Wiki](https://github.com/dakom/pure3d/wiki) for more details
 
 * A full game engine (bring your own physics, sound, input, particle emitters, etc.)
 * Bleeding edge / state of the art (e.g. GLTF extensions at the proposal stage are not on the radar)
+* An absolute performance beast on the GLTF side (small sacrifices are made to support the immutable approach)
 
 ## What it hopes to be later:
 
 * WebGL 2 added functionality / speed gains
-* Supporting more GLTF extensions, lighting and shadow techniques, etc.
+* Supporting more GLTF extensions, lighting and shadow techniques, post-processing filters, etc.
 * Some more simple helpers to make piecing together an engine easier (e.g. get bounding boxes, drawInstanced, etc.)
 
 ## Story behind it
@@ -43,4 +45,8 @@ I also wanted something that can work more organically with declarative language
 ## Peer-Dependencies
 
 * Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
+
+## Acknowledgements
+
+* Khronos, Slack ppls, and all the other hackers out there who have made this stuff possible!
 
