@@ -8,6 +8,7 @@ import {startVideo} from "../scenes/basic/video/Video-Demo";
 import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
 import {startDualGltf} from "../scenes/complex/scenes/dual-gltf/DualGltf";
 import {startLightingPunctual} from "../scenes/complex/scenes/lighting-punctual/LightingPunctual";
+import {startInteractiveObjects} from "../scenes/complex/scenes/interactive-objects/InteractiveObjects";
 import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";
@@ -50,6 +51,8 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                 return startDualGltf (renderer) ({basicPath, gltfPath}).map(mapReturn);
             case "LIGHTING_PUNCTUAL":
                 return startLightingPunctual (renderer) ({basicPath, gltfPath}).map(mapReturn);
+            case "INTERACTIVE_OBJECTS":
+                return startInteractiveObjects (renderer) ({basicPath, gltfPath}).map(mapReturn);
         }
 
     }

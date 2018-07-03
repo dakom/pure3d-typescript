@@ -97,11 +97,11 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
         */
 
         {
-            "rotation": [0.707, 0, 0, 0.707], //90, 0, 0
-            //"rotation": [0, 0, -1, 0], //180, 0, 180
-            //"rotation": [   0.354,-0.146, 0.354, 0.854], //45, 0, 45
-            //"rotation": [-0.354, -0.354, -0.854, -0.146], //-45, 45, -180
-            //"rotation": [ 0.099, -0.892, -0.239, 0.370], //-150, -45, -180
+            //"rotation": [0.707, 0, 0, 0.707], //90, 0, 0 - pointing up
+            //"rotation": [0, 0.707,  0, 0.707], //0, 90, 0 - pointing right
+            //"rotation": [0, 0, 0.707,  0.707], //0, 0, 90 
+            //"rotation": [.5, .5, .5, .5], //90, 90, 0
+
             "extensions" : {
                 [GltfLightsExtensionName]: {
                     "light" : 1

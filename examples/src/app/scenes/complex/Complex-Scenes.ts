@@ -6,7 +6,7 @@ const convertMenu = (list:Array<{label: string, items: Array<string>}>) =>
 
 export const COMPLEX_MENUS = convertMenu([
     {
-        label: "COMBINED MODELS",
+        label: "WORLDS",
         items: [
             "DUAL_GLTF",
         ]
@@ -15,6 +15,12 @@ export const COMPLEX_MENUS = convertMenu([
         label: "LIGHTING",
         items: [
             "LIGHTING_PUNCTUAL"
+        ]
+    },
+    {
+        label: "INTERACTIVE",
+        items: [
+            "INTERACTIVE_OBJECTS"
         ]
     },
 ]);

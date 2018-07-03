@@ -410,9 +410,9 @@ void main()
         /*
         light = getDirectionalLight(
                     normal,
-                    vec3(3,3,3),
+                    vec3(-1,-1,-1),
                     vec3(1.0, 0, 1.0),
-                    5.0
+                    3.0
         );
 
         color += getColor(pbr, light);
