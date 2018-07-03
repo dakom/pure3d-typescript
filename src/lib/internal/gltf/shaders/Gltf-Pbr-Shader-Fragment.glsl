@@ -298,7 +298,7 @@ vec3 getNormal()
 //Directional light based on normal and dynamic light info
 Light getDirectionalLight(vec3 normal, vec3 lightDirection, vec3 color, float intensity) {
     vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = lightDirection;   // Light Direction 
+    vec3 l = lightDirection;   // Light Direction
     vec3 h = normalize(l+v);                          // Half vector between both l and v
     vec3 reflection = -normalize(reflect(v, normal));
 

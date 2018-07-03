@@ -7,7 +7,7 @@ import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils
 import {createVec3, createMat4} from "../../../exports/common/array/Array";
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
-import {getDirectionFromMatrix} from "../../../exports/common/transform/Transform";
+import {getLightDirection} from "../../../exports/common/lights/Lights";
 
 import {
     WebGlVertexArrayData,
@@ -102,13 +102,8 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
                     :   null;
             let direction = 
                 light.kind === LightKind.Directional || light.kind === LightKind.Spot
-                    ?   getDirectionFromMatrix(node.transform.modelMatrix) 
+                    ?   getLightDirection(node.transform.modelMatrix) 
                     :   null;
-
-
-            if(light.kind === LightKind.Directional) {
-                //direction = [0,0,-1];
-            }
 
             for(let i = 0; i < 3; i++) {
                 const offset = (target.offset * 3) + i;

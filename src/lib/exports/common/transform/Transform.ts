@@ -62,13 +62,9 @@ export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatr
     });
 }
 
-//Non-essential helpers
-export const UP_AXIS = Float64Array.from([0,1,0]);
-export const ORIGIN_AXIS = Float64Array.from([0,0,0]);
-
-export const getDirectionFromMatrix = (mat:NumberArray):NumberArray => {
-    const qRot =  mat4.getRotation(createQuat(), mat);
-    const vRes = vec3.transformQuat(createVec3(), [-1,1,0], qRot);
+export const rotateVectorByMatrix = (vec:NumberArray) => (matrix:NumberArray):NumberArray => {
+    const qRot =  mat4.getRotation(createQuat(), matrix);
+    const vRes = vec3.transformQuat(createVec3(), vec, qRot);
 
     return vRes; 
 }
