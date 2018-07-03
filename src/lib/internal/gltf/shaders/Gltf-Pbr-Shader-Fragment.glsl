@@ -30,6 +30,14 @@ precision highp int;
 // Structs 
 ///////////////////////////////
 
+struct Fragment 
+{
+    vec3 normal; // fragment normal
+    vec3 vectorToCamera; //normalized vector from surface point to camera
+    vec3 reflection; //reflection vector
+    float NdotV; // cos angle between normal and view direction
+};
+
 struct Pbr 
 {
     vec4 baseColor;
@@ -44,14 +52,11 @@ struct Pbr
 
 struct Light
 {
-    vec3 normal;                 // fragment normal
     float NdotL;                  // cos angle between normal and light direction
-    float NdotV;                  // cos angle between normal and view direction
     float NdotH;                  // cos angle between normal and half vector
     float LdotH;                  // cos angle between light direction and half vector
     float VdotH;                  // cos angle between view direction and half vector
-    vec3 reflection;
-    vec3 color;
+    vec3 color;                   // attenuated color
 };
 
 ///////////////////////////////
@@ -147,14 +152,14 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
 // See also [1], Equation 1
-vec3 diffuse(Pbr pbr, Light light)
+vec3 diffuse(Pbr pbr, Fragment fragment, Light light)
 {
     return pbr.diffuseColor / M_PI;
 }
 
 // The following equation models the Fresnel reflectance term of the spec equation (aka F())
 // Implementation of fresnel from [4], Equation 15
-vec3 specularReflection(Pbr pbr, Light light)
+vec3 specularReflection(Pbr pbr, Fragment fragment, Light light)
 {
     return pbr.reflectance0 + (pbr.reflectance90 - pbr.reflectance0) * pow(clamp(1.0 - light.VdotH, 0.0, 1.0), 5.0);
 }
@@ -163,10 +168,10 @@ vec3 specularReflection(Pbr pbr, Light light)
 // where rougher material will reflect less light back to the viewer.
 // This implementation is based on [1] Equation 4, and we adopt their modifications to
 // alphaRoughness as input as originally proposed in [2].
-float geometricOcclusion(Pbr pbr, Light light)
+float geometricOcclusion(Pbr pbr, Fragment fragment, Light light)
 {
     float NdotL = light.NdotL;
-    float NdotV = light.NdotV;
+    float NdotV = fragment.NdotV;
     float r = pbr.alphaRoughness;
 
     float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
@@ -177,7 +182,7 @@ float geometricOcclusion(Pbr pbr, Light light)
 // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
 // Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
 // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
-float microfacetDistribution(Pbr pbr, Light light)
+float microfacetDistribution(Pbr pbr, Fragment fragment, Light light)
 {
     float roughnessSq = pbr.alphaRoughness * pbr.alphaRoughness;
     float f = (light.NdotH * roughnessSq - light.NdotH) * light.NdotH + 1.0;
@@ -261,6 +266,7 @@ Pbr getPbr() {
 
 // Find the normal for this fragment, pulling either from a predefined normal map
 // or from the interpolated mesh normal and tangent attributes.
+// used only by getFragment()
 vec3 getNormal()
 {
     // Retrieve the tangent space matrix
@@ -295,58 +301,64 @@ vec3 getNormal()
     return n;
 }
 
-//Directional light based on normal and dynamic light info
-Light getDirectionalLight(vec3 normal, vec3 lightDirection, vec3 color, float intensity) {
-    vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = lightDirection;   // Light Direction
-    vec3 h = normalize(l+v);                          // Half vector between both l and v
-    vec3 reflection = -normalize(reflect(v, normal));
+//Get Fragment info
+Fragment getFragment() {
+    vec3 normal = getNormal();
+    vec3 vectorToCamera = normalize(u_Camera - v_Position); 
+    vec3 reflection = -normalize(reflect(vectorToCamera, normal));
+    float NdotV = abs(dot(normal, vectorToCamera)) + 0.001;
+    return Fragment(normal, vectorToCamera, reflection, NdotV);
+}
 
-    float NdotL = clamp(dot(normal, l), 0.001, 1.0);
-    float NdotV = abs(dot(normal, v)) + 0.001;
-    float NdotH = clamp(dot(normal, h), 0.0, 1.0);
-    float LdotH = clamp(dot(l, h), 0.0, 1.0);
-    float VdotH = clamp(dot(v, h), 0.0, 1.0);
+//Directional light based on normal and dynamic light info
+Light getDirectionalLight(Fragment fragment, vec3 lightDirection, vec3 color, float intensity) {
+    vec3 N = fragment.normal;
+    vec3 V = fragment.vectorToCamera;
+    float NdotV = fragment.NdotV;
+
+    vec3 L = lightDirection;   // Light Direction
+    vec3 H = normalize(L+V);                          // Half vector between both l and v
+
+    float NdotL = clamp(dot(N, L), 0.001, 1.0);
+    float NdotH = clamp(dot(N, H), 0.0, 1.0);
+    float LdotH = clamp(dot(L, H), 0.0, 1.0);
+    float VdotH = clamp(dot(V, H), 0.0, 1.0);
 
     return Light(
-        normal,
         NdotL,
-        NdotV,
         NdotH,
         LdotH,
         VdotH,
-        reflection,
         color * intensity
     );
 }
 
 //Point light
-Light getPointLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity) {
-    vec3 v = normalize(u_Camera - v_Position);        // Vector from surface point to camera
-    vec3 l = normalize(lightPosition - v_Position);   // Light Direction 
-    vec3 h = normalize(l+v);                          // Half vector between both l and v
-    vec3 reflection = -normalize(reflect(v, normal));
+Light getPointLight(Fragment fragment, vec3 lightPosition, vec3 color, float intensity) {
 
-    float NdotL = clamp(dot(normal, l), 0.001, 1.0);
-    float NdotV = abs(dot(normal, v)) + 0.001;
-    float NdotH = clamp(dot(normal, h), 0.0, 1.0);
-    float LdotH = clamp(dot(l, h), 0.0, 1.0);
-    float VdotH = clamp(dot(v, h), 0.0, 1.0);
+    vec3 N = fragment.normal;
+    vec3 V = fragment.vectorToCamera;
+    float NdotV = fragment.NdotV;
 
-    Light light = Light(
-        normal,
-        NdotL,
-        NdotV,
-        NdotH,
-        LdotH,
-        VdotH,
-        reflection,
-        color * intensity
-    );
+    vec3 L = normalize(lightPosition - v_Position);   // Light Direction 
+    vec3 H = normalize(L+V);                          // Half vector between both l and v
+
+    float NdotL = clamp(dot(N, L), 0.001, 1.0);
+    float NdotH = clamp(dot(N, H), 0.0, 1.0);
+    float LdotH = clamp(dot(L, H), 0.0, 1.0);
+    float VdotH = clamp(dot(V, H), 0.0, 1.0);
 
     float distance    = length(lightPosition - v_Position);
     float attenuation = 1.0 / (distance * distance);
-    light.color *= attenuation;    
+
+    Light light = Light(
+        NdotL,
+        NdotH,
+        LdotH,
+        VdotH,
+        color * intensity * attenuation
+    );
+
     return light;
 }
 
@@ -354,20 +366,20 @@ Light getPointLight(vec3 normal, vec3 lightPosition, vec3 color, float intensity
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
 // See our README.md on Environment Maps [3] for additional discussion.
 #ifdef USE_IBL
-vec3 getIBLContribution(Pbr pbr, Light light)
+vec3 getIBLContribution(Pbr pbr, Fragment fragment)
 {
     float mipCount = 9.0; // resolution of 512x512
     float lod = (pbr.perceptualRoughness * mipCount);
     // retrieve a scale and bias to F0. See [1], Figure 3
     
-    vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(light.NdotV, 1.0 - pbr.perceptualRoughness))).rgb;
-    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, light.normal)).rgb;
+    vec3 brdf = SRGBtoLINEAR(texture2D(u_brdfLUT, vec2(fragment.NdotV, 1.0 - pbr.perceptualRoughness))).rgb;
+    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, fragment.normal)).rgb;
     
 
     #ifdef USE_TEX_LOD
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, light.reflection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, fragment.reflection, lod)).rgb;
     #else
-    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, light.reflection)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, fragment.reflection)).rgb;
     #endif
 
     vec3 diffuse = diffuseLight * pbr.diffuseColor;
@@ -378,16 +390,16 @@ vec3 getIBLContribution(Pbr pbr, Light light)
 #endif
 
 
-vec3 getColor(Pbr pbr, Light light) {
+vec3 getColor(Pbr pbr, Fragment fragment, Light light) {
 
     // Calculate the shading terms for the microfacet specular shading model
-    vec3 F = specularReflection(pbr, light);
-    float G = geometricOcclusion(pbr, light);
-    float D = microfacetDistribution(pbr, light);
+    vec3 F = specularReflection(pbr, fragment, light);
+    float G = geometricOcclusion(pbr, fragment, light);
+    float D = microfacetDistribution(pbr, fragment, light);
 
     // Calculation of analytical lighting contribution
-    vec3 diffuseContrib = (1.0 - F) * diffuse(pbr, light);
-    vec3 specContrib = F * G * D / (4.0 * light.NdotL * light.NdotV);
+    vec3 diffuseContrib = (1.0 - F) * diffuse(pbr, fragment, light);
+    vec3 specContrib = F * G * D / (4.0 * light.NdotL * fragment.NdotV);
     // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     vec3 color = light.NdotL * light.color * (diffuseContrib + specContrib);
     
@@ -398,7 +410,7 @@ vec3 getColor(Pbr pbr, Light light) {
 void main()
 {
     Pbr pbr = getPbr();
-    vec3 normal = getNormal();
+    Fragment fragment = getFragment();
 
     vec3 color = vec3(0.0, 0.0, 0.0);
     Light light;
@@ -409,34 +421,27 @@ void main()
         //Manual example
         /*
         light = getDirectionalLight(
-                    normal,
+                    fragment,
                     vec3(-1,-1,-1),
                     vec3(1.0, 0, 1.0),
                     3.0
         );
 
-        color += getColor(pbr, light);
-
+        color += getColor(pbr, fragment, light);
         light = getPointLight(
-                    normal,
+                    fragment,
                     vec3(-3,3,3),
                     vec3(1.0, 1.0, 1.0),
                     100.0
         );
 
-        color += getColor(pbr, light);
+        color += getColor(pbr, fragment, light);
         */
     #endif
 
     #ifdef USE_IBL
-
-        //TODO - figure out how to calculate IBL _without_ a directional light
-        vec3 defaultPosition = vec3(-1, 1, 1);
-        vec3 defaultColor = vec3(1.0, 1, 1);
-        float defaultIntensity = 1.0;
-        light = getDirectionalLight(normal, defaultPosition, defaultColor, defaultIntensity);
         // Calculate lighting contribution from image based lighting source (IBL)
-        color += getColor(pbr, light) + getIBLContribution(pbr, light);
+        color += getIBLContribution(pbr, fragment);
     #endif
 
     // Apply optional PBR terms for additional (optional) shading

@@ -183,12 +183,12 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
   
         for(let i = 0; i < dLen; i++) {
             LIGHTS_FUNCS += `light = getDirectionalLight(
-                normal, 
+                fragment,
                 u_Light_Directional_Direction[${i}],
                 u_Light_Directional_Color[${i}],
                 u_Light_Directional_Intensity[${i}]
             );\n`
-            LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
         }
     }
 
@@ -199,12 +199,12 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
     
         for(let i = 0; i < pLen; i++) {
             LIGHTS_FUNCS += `light = getPointLight(
-                normal, 
+                fragment,
                 u_Light_Point_Position[${i}], 
                 u_Light_Point_Color[${i}], 
                 u_Light_Point_Intensity[${i}]
             );\n`
-            LIGHTS_FUNCS += `color += getColor(pbr, light);\n`;
+            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
         }
     }
 
