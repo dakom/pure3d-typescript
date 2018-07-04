@@ -21,6 +21,7 @@ import {PointerEventStatus} from "input-senders";
 import {S} from "../../../../utils/Sanctuary";
 import {addGltfExtensions} from "../../../../utils/Gltf-Mixin";
 import {createSkybox} from "../../skybox/Skybox";
+import {createLinesRenderer, getAxes} from "../../lines/Lines";
 import * as createControls from "orbit-controls";
 
 
@@ -81,6 +82,8 @@ const _getBridge = (renderer:WebGlRenderer) => (path:string) =>  {
 }
 
 export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => {
+        const axes = getAxes (5);
+
         const cameraPosition = [0,0,4];
         const cameraLook = [0,0,0];
         let camera = getInitialBasicCamera({position: cameraPosition, cameraLook: [0,0,0]});
@@ -91,9 +94,15 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
         });
 
         return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
-            .map(render => ([render]))
-            .chain(xs => _getBridge (renderer) (basicPath + "gltf-scenes/lighting-punctual.gltf"))
-            .map(render => {
+            .map(renderSkybox => ({
+                renderSkybox,
+                renderLines: createLinesRenderer(renderer)
+            }))
+            .chain(renderers => 
+                _getBridge (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
+                    .map(renderScene => Object.assign({}, renderers, {renderScene}))
+            )
+            .map(({renderSkybox, renderLines, renderScene}) => {
                 controls.enable();
 
                 return [
@@ -102,7 +111,13 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                         camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
-                        render (camera) (frameTs)
+                        //renderers.map(render => render (camera) (frameTs));
+                        //
+                       
+                        //renderSkybox (camera);
+                        renderLines (camera) (axes);
+                        renderScene (camera) (frameTs);
+
                     },
                     () => {
                         controls.disable(); 

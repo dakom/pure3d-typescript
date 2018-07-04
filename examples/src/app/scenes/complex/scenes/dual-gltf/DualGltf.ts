@@ -100,26 +100,26 @@ export const startDualGltf = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:
         });
 
         return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
-            .map(render => ([render]))
-            .chain(xs =>
+            .map(renderSkybox => ({renderSkybox}))
+            .chain(obj =>
                 _getBridge({
                     translate: [0,0,0],
                     renderer,
                     gltfPath,
                     modelName: "DAMAGED_HELMET_BINARY",
                 })
-                .map(render => xs.concat([render]))
+                .map(render => Object.assign(obj, {renderGltfs: [render]}))
             )
-            .chain(xs => 
+            .chain(obj => 
                 _getBridge({
                     translate: [0,0,1],
                     renderer,
                     gltfPath,
                     modelName: "CESIUM_MAN_BINARY",
                 })
-                .map(render => xs.concat([render])) 
+                .map(render => (obj.renderGltfs.push(render), obj)) 
             )
-            .map(renderers => {
+            .map(({renderSkybox, renderGltfs}) => {
                 controls.enable();
 
                 return [
@@ -128,12 +128,10 @@ export const startDualGltf = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:
                         camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
-                        renderers
-                            //.filter((fn, idx) => idx) //skip skybox
-                            //.filter((fn, idx) => !idx) //skip models
-                            .forEach(render => 
-                                render (camera) (frameTs)
-                            );
+                        renderSkybox (camera);
+                        renderGltfs.forEach(render => 
+                            render (camera) (frameTs)
+                        );
                         
                     },
                     () => {

@@ -88,7 +88,7 @@ export const createSkybox = (renderer:WebGlRenderer) =>
                 ]  
             });
 
-            const render = (camera:Camera) => (frameTs:number) => {
+            const render = (camera:Camera) => { 
                 activateShader(shaderId);
 
 

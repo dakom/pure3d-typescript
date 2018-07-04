@@ -17,11 +17,13 @@ export const COMPLEX_MENUS = convertMenu([
             "LIGHTING_PUNCTUAL"
         ]
     },
-    {
+    /*
+     * {
         label: "INTERACTIVE",
         items: [
             "INTERACTIVE_OBJECTS"
         ]
     },
+    */
 ]);
 
