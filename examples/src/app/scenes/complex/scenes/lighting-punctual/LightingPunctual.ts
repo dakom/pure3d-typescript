@@ -6,6 +6,7 @@ import {
     gltf_updateNodeTransforms,
     Camera,
     GltfNode,
+    NodeKind, LightKind,
     gltf_findNodeById,
     gltf_createAnimator,
     GltfNodeKind,
@@ -40,7 +41,7 @@ const getCameraList = (gltf:GLTF_ORIGINAL) => {
     });
 }
 
-const _getBridge = (renderer:WebGlRenderer) => (path:string) =>  {
+const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
     return gltf_load({
         renderer, 
@@ -57,6 +58,15 @@ const _getBridge = (renderer:WebGlRenderer) => (path:string) =>  {
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
+
+                    /*
+                     * TODO - MIXIN LIGHT
+                    scene.nodes.push({
+                        kind: NodeKind.LIGHT,
+                        transform: {
+                        }
+                    })
+                    */
                 }
                 scene = bridge.updateShaderConfigs(scene);
                 
@@ -99,7 +109,7 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                 renderLines: createLinesRenderer(renderer)
             }))
             .chain(renderers => 
-                _getBridge (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
+                getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
                     .map(renderScene => Object.assign({}, renderers, {renderScene}))
             )
             .map(({renderSkybox, renderLines, renderScene}) => {
