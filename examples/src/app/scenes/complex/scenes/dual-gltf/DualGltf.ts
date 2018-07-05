@@ -93,7 +93,7 @@ export const startDualGltf = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:
         const cameraPosition = [0,0,4];
         const cameraLook = [0,0,0];
         let camera = getInitialBasicCamera({position: cameraPosition, cameraLook: [0,0,0]});
-        camera.zfar = 1000;
+
         const controls = createControls({
             position: cameraPosition, 
             target: cameraLook 
@@ -128,10 +128,9 @@ export const startDualGltf = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:
                         camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
+
                         renderSkybox (camera);
-                        renderGltfs.forEach(render => 
-                            render (camera) (frameTs)
-                        );
+                        renderGltfs.forEach(render => render (camera) (frameTs));
                         
                     },
                     () => {

@@ -4,7 +4,6 @@ import {
     GltfCameraNode,
     GltfMeshNode,
     OrthographicCameraSettings,
-    BaseCamera,
     CameraNode,
     PerspectiveCameraSettings,
     GLTF_ORIGINAL,

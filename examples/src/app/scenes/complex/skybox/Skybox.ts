@@ -51,17 +51,17 @@ export const createSkybox = (renderer:WebGlRenderer) =>
     loadSkybox(renderer)
         .map(texture => { 
 
-
             const shaderId = Symbol();
             const vaoId = Symbol();
             const {gl, buffers} = renderer;
 
             //This must come first here since we're also working with gltf
             //See wiki and compare to "basic vao" example for per-shader / automatic approach
-            renderer.attributes.globalLocations.add("a_Vertex");
+            renderer.attributes.globalLocations.add("a_Position");
             
             const {indices} = uploadData(renderer) (900);
-            
+           
+
             const shader = createShader({renderer, shaderId, source: {
                 vertex: vertexShader,
                 fragment: fragmentShader
@@ -77,7 +77,7 @@ export const createSkybox = (renderer:WebGlRenderer) =>
                 elementBufferId: ELEMENTS_BUFFER_ID,
                 data: [
                     {
-                        location: renderer.attributes.getLocationInRenderer("a_Vertex"),
+                        location: renderer.attributes.getLocationInRenderer("a_Position"),
                         bufferId: GEOMETRY_BUFFER_ID,
                         size: 3,
                         type: gl.FLOAT,
@@ -98,10 +98,9 @@ export const createSkybox = (renderer:WebGlRenderer) =>
                 renderer.switchCubeTexture(0) (texture);
                 uniform1i("u_Sampler") (0);
 
-                //TODO - First get to work, then replace with scene camera
                 const cameraMatrix = mat4.multiply(mat4.create(), camera.projection, camera.view);
-                uniformMatrix4fv("u_Transform") (false) (cameraMatrix);
 
+                uniformMatrix4fv("u_Transform") (false) (cameraMatrix);
                 renderer.vertexArrays.activate(vaoId);
                 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
             }

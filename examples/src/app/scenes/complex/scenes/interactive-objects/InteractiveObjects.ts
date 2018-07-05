@@ -84,7 +84,6 @@ export const startInteractiveObjects = (renderer:WebGlRenderer) => ({basicPath, 
         const cameraPosition = [0,0,4];
         const cameraLook = [0,0,0];
         let camera = getInitialBasicCamera({position: cameraPosition, cameraLook: [0,0,0]});
-        camera.zfar = 1000;
         const controls = createControls({
             position: cameraPosition, 
             target: cameraLook 

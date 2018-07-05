@@ -1,5 +1,5 @@
-import {getTrsFromMatrix, getModelMatrix, getNormalMatrix, getMatrixFromTrs, getViewMatrices, updateTransform } from '../../../exports/common/transform/Transform'; 
-import {GLTF_PARSE_getCamera} from "./Gltf-Parse-Camera";
+import {getTrsFromMatrix, getModelMatrix, getNormalMatrix, getMatrixFromTrs, updateTransform } from '../../../exports/common/transform/Transform'; 
+import {GLTF_PARSE_getCameraSettings} from "./Gltf-Parse-Camera";
 
 import {
     GltfLightNode,
@@ -92,7 +92,11 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: Gl
                 baseNode.morphWeights = morphWeights;
             }
         } else if(baseNode.kind === NodeKind.CAMERA) {
-            baseNode.camera = GLTF_PARSE_getCamera(gltf.cameras[node.camera]) as any;
+            baseNode.camera = {
+                //the actual camera settings depend on view and potentially canvas
+                //so this is just partial
+                settings: GLTF_PARSE_getCameraSettings(gltf.cameras[node.camera]) as any
+            } as Camera
             baseNode.cameraIndex = node.camera; 
         } 
 

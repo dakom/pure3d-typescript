@@ -47,7 +47,8 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
     const shaderGroupByAlpha = new Map<GltfMaterialAlphaMode, Set<RenderGroup>>();
     const renderThunksByShader = new Map<Symbol, Array<() => void>>();
     const meshList = new Array<GltfMeshNode>();
-   
+
+
     const lightList:GltfRendererLightList = 
         scene.shaderConfig.lights
             ?   {

@@ -1,8 +1,8 @@
-import {Transform, CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
+import {Transform, Camera, CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
 import {createVec3, createMat4} from "../array/Array";
 import {mat4} from "gl-matrix";
 
-const getOrthographicProjection = (cam:OrthographicCameraSettings) => {
+export const getOrthographicProjection = (cam:Partial<OrthographicCameraSettings>) => {
     const values = createMat4(); 
     const r = cam.xmag;
     const t = cam.ymag;
@@ -18,7 +18,7 @@ const getOrthographicProjection = (cam:OrthographicCameraSettings) => {
     return values; 
 }
 
-const getPerspectiveProjection = (cam:PerspectiveCameraSettings) => {
+export const getPerspectiveProjection = (cam:Partial<PerspectiveCameraSettings>) => {
     const values = createMat4(); 
     const a = cam.aspectRatio;
     const y = cam.yfov;
@@ -40,16 +40,22 @@ export const getCameraProjection = (cam:CameraSettings) =>
     ?   getOrthographicProjection(cam)
     :   getPerspectiveProjection(cam);
 
-export const getCameraView = (modelMatrix:NumberArray) => 
+const getCameraView = (modelMatrix:NumberArray) => 
     mat4.invert(createMat4(),modelMatrix);
 
-export const getCameraPosition = (modelMatrix:NumberArray) =>
+const getCameraPosition = (modelMatrix:NumberArray) =>
     mat4.getTranslation(createVec3(), modelMatrix) as NumberArray; 
 
-export const updateCameraWithTransform = <T extends CameraSettings>(transform:Transform) => (camera:T):T => 
-    Object.assign({}, camera, {
+export const updateCameraWithTransform = (transform:Transform) => (camera:Camera):Camera => {
+    const update = Object.assign({}, camera, {
             position: mat4.getTranslation(createVec3(), transform.modelMatrix),
-            view: getCameraView(transform.modelMatrix),
-            projection: getCameraProjection(camera)
+            view: getCameraView(transform.modelMatrix)
     });
+
+    if(camera.settings) {
+        update.projection = getCameraProjection(camera.settings);
+    };
+
+    return update; 
+}
 

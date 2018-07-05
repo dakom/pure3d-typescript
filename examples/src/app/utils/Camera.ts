@@ -1,9 +1,8 @@
 
 import {getCameraProjection,
     updateCameraWithTransform,
-    PerspectiveCameraSettings,
     OrthographicCameraSettings,
-    PerspectiveCamera,
+    PerspectiveCameraSettings,
     GltfScene,
     CameraKind,
     NumberArray,
@@ -30,14 +29,10 @@ export const updateCamera = ({isControlled, controls, cameraNode}:{controls: any
 
         const view = mat4.lookAt(createMat4(), controls.position, controls.direction, controls.up);
 
-        //this usually isn't needed, but it helps to debug
-        const projection = getCameraProjection(camera); 
 
-
-
-        return Object.assign({}, camera, {position: controls.position, view, projection});
+        return Object.assign({}, camera, {position: controls.position, view });
     } else {
-        return updateCameraWithTransform<Camera>(cameraNode.transform) (camera);
+        return updateCameraWithTransform(cameraNode.transform) (camera);
     }
 }
 
@@ -47,7 +42,7 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
         yfov: 45.0 * Math.PI / 180,
         aspectRatio: window.innerWidth / window.innerHeight,
         znear: .01,
-        zfar: 100
+        zfar: 1000
     }
 
 
@@ -56,7 +51,7 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
     const view = mat4.lookAt(createMat4(), position, cameraLook,cameraUp);
 
     return {
-        ...settings,
+        settings,
         position,
         view,
         projection

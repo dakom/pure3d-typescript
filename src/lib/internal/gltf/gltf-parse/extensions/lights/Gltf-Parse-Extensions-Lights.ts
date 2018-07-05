@@ -29,7 +29,6 @@ import {
     Light,
     LightKind,
     LightNode,
-    BaseCamera,
     DirectionalLight,
     PointLight,
     SpotLight,

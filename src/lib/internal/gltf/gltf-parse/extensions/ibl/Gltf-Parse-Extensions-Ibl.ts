@@ -28,7 +28,6 @@ import {
     DirectionalLight,
     PointLight,
     SpotLight,
-    BaseCamera,
     GLTF_PARSE_Extension,
     GltfIblConfig
 } from "../../../../../Types"; 

@@ -1,16 +1,14 @@
 import {NumberArray} from "../array/Array-Types";
 
-export type Camera = OrthographicCamera | PerspectiveCamera;
 export type CameraSettings = OrthographicCameraSettings | PerspectiveCameraSettings;
-export type PerspectiveCamera = BaseCamera & PerspectiveCameraSettings 
-export type OrthographicCamera = BaseCamera & OrthographicCameraSettings 
 
 export enum CameraKind {
     PERSPECTIVE,
     ORTHOGRAPHIC
 }
 
-export interface BaseCamera {
+export interface Camera {
+    settings?:CameraSettings;
     position?: NumberArray;
     view: NumberArray; 
     projection: NumberArray;

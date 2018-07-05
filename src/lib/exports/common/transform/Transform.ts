@@ -38,7 +38,7 @@ export const getNormalMatrix = (modelMatrix:NumberArray):NumberArray =>
 export const getViewMatrices = (camera:Camera) => (modelMatrix:NumberArray):{modelViewMatrix: NumberArray, modelViewProjectionMatrix: NumberArray} => {
     const modelViewMatrix = mat4.multiply(mat4.create(), camera.view, modelMatrix);
     const modelViewProjectionMatrix = mat4.multiply(mat4.create(), camera.projection, modelViewMatrix);
-    
+   
     return {
         modelViewMatrix,
         modelViewProjectionMatrix

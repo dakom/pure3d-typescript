@@ -14,7 +14,12 @@ import {
     gltf_load, 
     WebGlConstants,
     NumberArray,
-    WebGlRenderer} from "lib/Lib";
+    WebGlRenderer,
+    getOrthographicProjection,
+    getPerspectiveProjection,
+    CameraKind,
+    createMat4
+} from "lib/Lib";
 import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
 import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
@@ -23,23 +28,8 @@ import {S} from "../../../../utils/Sanctuary";
 import {addGltfExtensions} from "../../../../utils/Gltf-Mixin";
 import {createSkybox} from "../../skybox/Skybox";
 import {createLinesRenderer, getAxes} from "../../lines/Lines";
-import * as createControls from "orbit-controls";
-
-
-const getCameraList = (gltf:GLTF_ORIGINAL) => {
-
-    if(!gltf.cameras || !gltf.cameras.length) {
-        return []
-    }
-
-    return gltf.cameras.map((camera, idx) => {
-        let str = idx.toString();
-        if(camera.name) {
-            str += " " + camera.name;
-        }
-        return str;
-    });
-}
+import {mat4} from "gl-matrix";
+import * as createOrbitCamera from "orbit-camera";
 
 const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
@@ -94,15 +84,17 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => {
         const axes = getAxes (5);
 
-        const cameraPosition = [0,0,4];
-        const cameraLook = [0,0,0];
-        let camera = getInitialBasicCamera({position: cameraPosition, cameraLook: [0,0,0]});
-        camera.zfar = 1000;
-        const controls = createControls({
-            position: cameraPosition, 
-            target: cameraLook 
-        });
+        const cameraControl = createOrbitCamera ([5,0,7], [0,0,0], [0,1,0]);
+        const projection = getPerspectiveProjection({
+            yfov: 45.0 * Math.PI / 180,
+            aspectRatio: window.innerWidth / window.innerHeight,
+            znear: .01,
+            zfar: 1000
+        })  
 
+        const view = createMat4();
+
+        const camera = getInitialBasicCamera({position: [0, 0, -7], cameraLook: [0, 0, 0]});
         return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
             .map(renderSkybox => ({
                 renderSkybox,
@@ -113,24 +105,36 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                     .map(renderScene => Object.assign({}, renderers, {renderScene}))
             )
             .map(({renderSkybox, renderLines, renderScene}) => {
-                controls.enable();
 
                 return [
                     (frameTs:number) => {
 
-                        camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
+                        //camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
                         //renderers.map(render => render (camera) (frameTs));
                         //
-                       
+            
+                        //const camera = { view, projection} //position
+        
+                        //camera.position[0] += .01;
+                        //camera.position[1] += .01;
+                        //camera.position[2] += .09;
+                        camera.view = mat4.targetTo(camera.view, 
+                            camera.position,
+                            [0,0,0], 
+                            [0,1,0]);
+
+                        
+                        //cameraControl.pan([.001, 0, 0])
+                        //cameraControl.view(camera.view);
+
                         //renderSkybox (camera);
                         renderLines (camera) (axes);
                         renderScene (camera) (frameTs);
 
                     },
                     () => {
-                        controls.disable(); 
                     }
                 ]
 
