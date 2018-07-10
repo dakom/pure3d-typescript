@@ -29,7 +29,6 @@ import {addGltfExtensions} from "../../../../utils/Gltf-Mixin";
 import {createSkybox} from "../../skybox/Skybox";
 import {createLinesRenderer, getAxes} from "../../lines/Lines";
 import {mat4} from "gl-matrix";
-import * as createOrbitCamera from "orbit-camera";
 
 const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
@@ -59,7 +58,7 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
                     */
                 }
                 scene = bridge.updateShaderConfigs(scene);
-                
+               
                
                 const nodes = animate (frameTs) (scene.nodes)
                  scene = Object.assign({}, scene, {
@@ -84,17 +83,19 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => {
         const axes = getAxes (5);
 
-        const cameraControl = createOrbitCamera ([5,0,7], [0,0,0], [0,1,0]);
+        
         const projection = getPerspectiveProjection({
             yfov: 45.0 * Math.PI / 180,
-            aspectRatio: window.innerWidth / window.innerHeight,
+            aspectRatio: renderer.canvas.clientWidth / renderer.canvas.clientHeight,
             znear: .01,
             zfar: 1000
         })  
 
         const view = createMat4();
+        
+        mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
 
-        const camera = getInitialBasicCamera({position: [0, 0, -7], cameraLook: [0, 0, 0]});
+        const camera = {projection, view}
         return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
             .map(renderSkybox => ({
                 renderSkybox,
@@ -105,7 +106,6 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                     .map(renderScene => Object.assign({}, renderers, {renderScene}))
             )
             .map(({renderSkybox, renderLines, renderScene}) => {
-
                 return [
                     (frameTs:number) => {
 
@@ -115,20 +115,6 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                         //renderers.map(render => render (camera) (frameTs));
                         //
             
-                        //const camera = { view, projection} //position
-        
-                        //camera.position[0] += .01;
-                        //camera.position[1] += .01;
-                        //camera.position[2] += .09;
-                        camera.view = mat4.targetTo(camera.view, 
-                            camera.position,
-                            [0,0,0], 
-                            [0,1,0]);
-
-                        
-                        //cameraControl.pan([.001, 0, 0])
-                        //cameraControl.view(camera.view);
-
                         //renderSkybox (camera);
                         renderLines (camera) (axes);
                         renderScene (camera) (frameTs);
