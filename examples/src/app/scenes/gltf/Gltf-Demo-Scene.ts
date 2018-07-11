@@ -82,6 +82,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
                 
                 scene = Object.assign({}, scene, {
                     camera:  updateCamera 
+                                (bridge.renderer)
                                 ({
                                     isControlled,
                                     controls,
@@ -92,6 +93,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
                         updateLocal: true,
                         updateModel: true,
                         updateView: true,
+                        updateLightDirection: true,
                         camera: scene.camera
                     })
                     (nodes)

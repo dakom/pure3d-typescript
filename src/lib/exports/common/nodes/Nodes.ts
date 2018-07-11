@@ -1,6 +1,7 @@
 import {updateTransform} from "../transform/Transform";
-import {NumberArray, TransformUpdateOptions, _Node} from "../../../Types";
-
+import {NumberArray, NodeTransformUpdateOptions, _Node, CameraNode, LightNode, LightKind, NodeKind} from "../../../Types";
+import {getLightDirectionFromMatrix} from "../lights/Lights";
+import {mat4} from "gl-matrix";
 
 //filter stuff could use some testing
 export const filterNodeDeep = <T extends _Node> (fn: (node:T) => boolean) => (node:T | undefined):T | undefined => {
@@ -84,15 +85,30 @@ export const mapNodes = <T extends _Node> (fn: (node:T) => T) => (nodes:Array<T>
 
     
 //Specific use-cases
-export const updateNodeTransforms = <T extends _Node>(opts:TransformUpdateOptions) => (parent:T) => (node:T):T => 
+export const updateNodeTransforms = <T extends _Node>(opts:NodeTransformUpdateOptions) => (parent:T) => (node:T):T => 
     mapNodeWithParent((_parent:T) => (_node:T) => {
         const pModelMatrix = _parent ? _parent.transform.modelMatrix : undefined;
 
+        const beforeModel = _node.transform.modelMatrix;
         const t = updateTransform(opts) (pModelMatrix) (_node.transform)
-        return Object.assign({}, _node, {transform: t});
+        const afterModel = t.modelMatrix;
+
+        const result = Object.assign({}, _node, {transform: t});
+      
+        //not ideal for typescript, but meh
+        if(opts.updateLightDirection && (result as any).kind === NodeKind.LIGHT) {
+            const lightKind:LightKind = (result as any).light.kind;
+            if(lightKind === LightKind.Directional || lightKind === LightKind.Spot) {
+                //only update if the model matrix is different
+                if((result as any).light.direction === undefined || !mat4.equals(beforeModel, afterModel)) {
+                    (result as any).light.direction = getLightDirectionFromMatrix (t.modelMatrix);
+                }             
+            }
+        }
+        return result;
     })
     (parent)
     (node);
 
-export const updateNodeListTransforms = <T extends _Node>(opts:TransformUpdateOptions) => (parent:T) => (nodes:Array<T>):Array<T> => 
+export const updateNodeListTransforms = <T extends _Node>(opts:NodeTransformUpdateOptions) => (parent:T) => (nodes:Array<T>):Array<T> => 
     mapNodesWithParent<T>(updateNodeTransforms (opts)) (parent) (nodes);

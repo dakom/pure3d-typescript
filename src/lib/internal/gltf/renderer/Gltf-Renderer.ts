@@ -7,7 +7,6 @@ import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils
 import {createVec3, createMat4} from "../../../exports/common/array/Array";
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import { Future } from "fluture";
-import {getLightDirection} from "../../../exports/common/lights/Lights";
 
 import {
     WebGlVertexArrayData,
@@ -35,7 +34,9 @@ import {
     WebGlBufferData,
     GltfPrimitiveDrawKind,
     GltfRendererLightList,
-    NumberArray
+    GltfRendererLight,
+    NumberArray,
+    GltfLights_MAX
 } from "../../../Types";
 
 type RenderGroup = Array<() => void>;
@@ -43,37 +44,70 @@ type RenderGroup = Array<() => void>;
 
 const _scratchVec3 = new Float64Array(3); 
 
+const _cacheLights: {
+    directional: Array<GltfRendererLight>;
+    point: Array<GltfRendererLight>;
+    spot: Array<GltfRendererLight>;
+} = {
+    directional: [undefined],
+    point: [undefined],
+    spot: [undefined] 
+};
+
+for(let i = 1; i < GltfLights_MAX; i++) {
+    _cacheLights.directional.push({
+        direction: new Float32Array(i * 3),
+        color: new Float32Array(i * 3),
+        intensity: new Float32Array(i),
+    });
+
+
+    _cacheLights.point.push({
+        position: new Float32Array(i * 3),
+        color: new Float32Array(i * 3),
+        intensity: new Float32Array(i),
+    });
+
+
+    _cacheLights.spot.push({
+        position: new Float32Array(i * 3),
+        direction: new Float32Array(i * 3),
+        color: new Float32Array(i * 3),
+        intensity: new Float32Array(i),
+        angleScale: new Float32Array(i),
+        angleOffset: new Float32Array(i),
+    })
+}
+
+const getLightList = (scene:GltfScene) => {
+    const cache = {
+        directional: _cacheLights.directional[scene.shaderConfig.lights.nDirectionalLights],
+        point: _cacheLights.point[scene.shaderConfig.lights.nPointLights],
+        spot: _cacheLights.spot[scene.shaderConfig.lights.nSpotLights]
+    }
+
+    if(cache.directional) {
+        cache.directional.offset = 0;
+    }
+    if(cache.point) {
+        cache.point.offset = 0;
+    }
+    if(cache.spot) {
+        cache.spot.offset = 0;
+    }
+
+    return cache;
+}
+
 export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene:GltfScene) => {
     const shaderGroupByAlpha = new Map<GltfMaterialAlphaMode, Set<RenderGroup>>();
     const renderThunksByShader = new Map<Symbol, Array<() => void>>();
     const meshList = new Array<GltfMeshNode>();
 
-
     const lightList:GltfRendererLightList = 
         scene.shaderConfig.lights
-            ?   {
-                    directional: {
-                        direction: new Float32Array(scene.shaderConfig.lights.nDirectionalLights * 3),
-                        color: new Float32Array(scene.shaderConfig.lights.nDirectionalLights * 3),
-                        intensity: new Float32Array(scene.shaderConfig.lights.nDirectionalLights),
-                        offset: 0
-                    },
-                    point: {
-                        position: new Float32Array(scene.shaderConfig.lights.nPointLights * 3),
-                        color: new Float32Array(scene.shaderConfig.lights.nPointLights * 3),
-                        intensity: new Float32Array(scene.shaderConfig.lights.nPointLights),
-                        offset: 0
-                    },
-
-                    spot: {
-                        position: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
-                        direction: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
-                        color: new Float32Array(scene.shaderConfig.lights.nSpotLights * 3),
-                        intensity: new Float32Array(scene.shaderConfig.lights.nSpotLights),
-                        offset: 0
-                    },
-            }
-            :   null;
+            ?  getLightList(scene) 
+            :  undefined; 
 
 
     forEachNodes ((node:GltfNode) => {
@@ -100,22 +134,25 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             const position = 
                 light.kind === LightKind.Point || light.kind === LightKind.Spot
                     ?   mat4.getTranslation(_scratchVec3, node.transform.modelMatrix)
-                    :   null;
-            let direction = 
-                light.kind === LightKind.Directional || light.kind === LightKind.Spot
-                    ?   getLightDirection(node.transform.modelMatrix) 
-                    :   null;
+                    :   undefined;
+            //Is updated via node/transform updates
+            const direction = (light as any).direction; 
 
             for(let i = 0; i < 3; i++) {
                 const offset = (target.offset * 3) + i;
-                if(position !== null) {
+                if(position !== undefined) {
                     target.position[offset] = position[i];
                 }
 
-                if(direction !== null) {
+                if(direction !== undefined) {
                     target.direction[offset] = direction[i];
                 }
                 target.color[offset] = color[i];
+
+            }
+            if(light.kind === LightKind.Spot) {
+                target.angleScale[target.offset] = light.angleScale;
+                target.angleOffset[target.offset] = light.angleOffset;
             }
             target.intensity[target.offset] = intensity;
             target.offset++;

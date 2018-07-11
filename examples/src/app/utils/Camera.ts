@@ -1,6 +1,5 @@
 
 import {getCameraProjection,
-    updateCameraWithTransform,
     OrthographicCameraSettings,
     PerspectiveCameraSettings,
     GltfScene,
@@ -13,7 +12,11 @@ import {getCameraProjection,
     GltfBridge,
     GltfCameraNode,
     WebGlConstants,
-    WebGlRenderer} from "lib/Lib";
+    WebGlRenderer,
+    setCameraPositionFromTransform,
+    setCameraViewFromTransform,
+    setCameraProjectionFromSettings
+} from "lib/Lib";
 import {mat4, vec3} from "gl-matrix";
 import {PointerEventStatus, PointerScreenEventData} from "input-senders";
 import * as createControls from "orbit-controls";
@@ -22,17 +25,24 @@ import {Model} from "../scenes/gltf/Gltf-Models";
 const cameraUp = Float64Array.from([0,1,0]);
 
 
-export const updateCamera = ({isControlled, controls, cameraNode}:{controls: any, cameraNode: GltfCameraNode, isControlled: boolean}) => (camera:Camera):Camera => {
+export const updateCamera = (renderer:WebGlRenderer) => ({isControlled, controls, cameraNode}:{controls: any, cameraNode: GltfCameraNode, isControlled: boolean}) => (camera:Camera):Camera => {
 
     if(isControlled) {
         controls.update();
 
         const view = mat4.lookAt(createMat4(), controls.position, controls.direction, controls.up);
 
-
         return Object.assign({}, camera, {position: controls.position, view });
     } else {
-        return updateCameraWithTransform(cameraNode.transform) (camera);
+        return (
+            setCameraPositionFromTransform(cameraNode.transform) (
+                setCameraViewFromTransform (cameraNode.transform) (
+                    setCameraProjectionFromSettings (Object.assign({}, camera.settings, {canvas: renderer.canvas})) (
+                        camera
+                    )
+                )
+            )
+        );
     }
 }
 

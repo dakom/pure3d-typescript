@@ -310,13 +310,14 @@ Fragment getFragment() {
     return Fragment(normal, vectorToCamera, reflection, NdotV);
 }
 
+#ifdef USE_PUNCTUAL_LIGHTS
 //Directional light based on normal and dynamic light info
 Light getDirectionalLight(Fragment fragment, vec3 lightDirection, vec3 color, float intensity) {
     vec3 N = fragment.normal;
     vec3 V = fragment.vectorToCamera;
     float NdotV = fragment.NdotV;
 
-    vec3 L = lightDirection;   // Light Direction
+    vec3 L = -normalize(lightDirection);   // Light Direction
     vec3 H = normalize(L+V);                          // Half vector between both l and v
 
     float NdotL = clamp(dot(N, L), 0.001, 1.0);
@@ -361,6 +362,43 @@ Light getPointLight(Fragment fragment, vec3 lightPosition, vec3 color, float int
 
     return light;
 }
+
+
+//Spot light
+Light getSpotLight(Fragment fragment, vec3 lightPosition, vec3 lightDirection, float lightAngleScale, float lightAngleOffset, vec3 color, float intensity) {
+
+    vec3 N = fragment.normal;
+    vec3 V = fragment.vectorToCamera;
+    float NdotV = fragment.NdotV;
+
+    vec3 L = normalize(lightPosition - v_Position);   // Light Direction 
+    //vec3 L = -normalize(lightDirection);   // Light Direction
+    vec3 H = normalize(L+V);                          // Half vector between both l and v
+
+    float NdotL = clamp(dot(N, L), 0.001, 1.0);
+    float NdotH = clamp(dot(N, H), 0.0, 1.0);
+    float LdotH = clamp(dot(L, H), 0.0, 1.0);
+    float VdotH = clamp(dot(V, H), 0.0, 1.0);
+
+    float distance    = length(lightPosition - v_Position);
+    float attenuation = 1.0 / (distance * distance);
+
+    float cd = dot(lightDirection, V);
+    float coneAttentuation = clamp(cd * lightAngleScale + lightAngleOffset, 0.0, 1.0);
+    coneAttentuation *= coneAttentuation;   
+    attenuation = attenuation * coneAttentuation;
+
+    Light light = Light(
+        NdotL,
+        NdotH,
+        LdotH,
+        VdotH,
+        color * intensity * attenuation
+    );
+
+    return light;
+}
+#endif
 
 // Calculation of the lighting contribution from an optional Image Based Light source.
 // Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
@@ -417,7 +455,17 @@ void main()
     #ifdef USE_PUNCTUAL_LIGHTS
         //Actual implementation will dynamically write the code here
         %PUNCTUAL_LIGHTS_FUNCS%
-        
+
+    /*
+         light = getDirectionalLight(
+                    fragment,
+                    vec3(0,0,-1),
+                    vec3(1.0, 1.0, 1.0),
+                    100.0
+        );
+
+        color += getColor(pbr, fragment, light);
+      */  
         //Manual example
         /*
         light = getDirectionalLight(

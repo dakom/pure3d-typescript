@@ -35,7 +35,7 @@ import {
     GLTF_PARSE_Extension,
     GLTF_PARSE_Extension_Light,
     GLTF_PARSE_Extension_Lights_Config,
-
+    GltfLights_MAX
 } from "../../../../../Types"; 
 
 import { Future, parallel } from 'fluture';
@@ -73,14 +73,16 @@ const getLight = (originalLight:GLTF_PARSE_Extension_Light):Light => {
     } as Light;
 
     if(light.kind === LightKind.Spot) {
-        light.innerConeAngle = originalLight.spot && originalLight.spot.innerConeAngle !== undefined
+        const innerConeAngle = originalLight.spot && originalLight.spot.innerConeAngle !== undefined
             ?   originalLight.spot.innerConeAngle
             :   0;
 
-        light.outerConeAngle = originalLight.spot && originalLight.spot.outerConeAngle !== undefined
+        const outerConeAngle = originalLight.spot && originalLight.spot.outerConeAngle !== undefined
             ?   originalLight.spot.outerConeAngle
             :   Math.PI/4;
 
+        light.angleScale = 1.0 / Math.max(0.001, Math.cos(innerConeAngle) - Math.cos(outerConeAngle));
+        light.angleOffset = -Math.cos(outerConeAngle) * light.angleScale;
     }
 
     return light;
@@ -210,10 +212,24 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
     if(sLen) {
         LIGHTS_VARS += `uniform vec3 u_Light_Spot_Position[${sLen}];\n`;
         LIGHTS_VARS += `uniform vec3 u_Light_Spot_Direction[${sLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Spot_AngleScale[${sLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Spot_AngleOffset[${sLen}];\n`;
         LIGHTS_VARS += `uniform vec3 u_Light_Spot_Color[${sLen}];\n`;
         LIGHTS_VARS += `uniform float u_Light_Spot_Intensity[${sLen}];\n`;
-    
-        //TODO - Spot light
+
+
+        for(let i = 0; i < pLen; i++) {
+            LIGHTS_FUNCS += `light = getSpotLight(
+                fragment,
+                u_Light_Spot_Position[${i}], 
+                u_Light_Spot_Direction[${i}], 
+                u_Light_Spot_AngleScale[${i}], 
+                u_Light_Spot_AngleOffset[${i}], 
+                u_Light_Spot_Color[${i}], 
+                u_Light_Spot_Intensity[${i}]
+            );\n`
+            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
+        }
     }
 
     return fs.replace("%PUNCTUAL_LIGHTS_VARS%", LIGHTS_VARS).replace("%PUNCTUAL_LIGHTS_FUNCS%", LIGHTS_FUNCS); 
@@ -225,8 +241,8 @@ const shaderSource = (data:GltfData) => (scene:GltfScene) =>  (primitive: GltfPr
         const defines = [];
         
         const {nPointLights, nDirectionalLights, nSpotLights} = scene.shaderConfig.lights;
-        if(nPointLights > 10 || nDirectionalLights > 10 || nSpotLights > 10) {
-            console.warn("Only 10 lights of each kind are supported");
+        if(nPointLights > GltfLights_MAX || nDirectionalLights > GltfLights_MAX || nSpotLights > GltfLights_MAX) {
+            console.warn(`Only ${GltfLights_MAX} lights of each kind are supported`);
         }
 
         if(!nPointLights && !nDirectionalLights && !nSpotLights) {

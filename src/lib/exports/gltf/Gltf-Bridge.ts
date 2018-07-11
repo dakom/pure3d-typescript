@@ -16,7 +16,12 @@ import {createVec3} from "../common/array/Array";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig_Primitive, updateRuntimeShaderConfig_Scene} from "../../internal/gltf/gltf-parse/Gltf-Parse-Shader";
 import {forEachNodes, findNode, countNodes } from "../common/nodes/Nodes";
-import {updateCameraWithTransform } from "../common/camera/Camera";
+import {
+    setCameraPositionFromTransform,
+    setCameraViewFromTransform,
+    setCameraProjectionFromSettings
+} from "../common/camera/Camera";
+
 import {renderScene as _renderScene} from "../../internal/gltf/renderer/Gltf-Renderer";
 
 import {
@@ -149,13 +154,16 @@ function createGltfBridge(renderer:WebGlRenderer) {
             return undefined;
         }
 
-        const camera = Object.assign({}, node.camera);
-
-        if(camera.settings && camera.settings.kind === CameraKind.PERSPECTIVE && camera.settings.aspectRatio === undefined) {
-            camera.settings.aspectRatio = renderer.canvas.width / renderer.canvas.height;
-        }
-        
-        return Object.assign({}, node, {camera: updateCameraWithTransform(node.transform) ( camera)})
+        const camera = 
+            setCameraPositionFromTransform(node.transform) (
+                setCameraViewFromTransform (node.transform) (
+                    setCameraProjectionFromSettings (Object.assign({}, node.camera.settings, {canvas: renderer.canvas})) (
+                        Object.assign({}, node.camera)
+                    )
+                )
+            );
+                        
+        return Object.assign({}, node, {camera}) 
     }
 
     const bridge:GltfBridge = {

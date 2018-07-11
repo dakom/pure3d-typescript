@@ -62,23 +62,27 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
                 {
                     "color": [ 1.0, 1.0, 1.0 ],
                     "intensity": 100.0,
+                    //"intensity": 0.0,
                     "type": "point"
                 },
                 {
                     "color": [ 1.0, 0.0, 1.0 ],
-                    "intensity": 2.0,
+                    "intensity": 1.0,
+                    //"intensity": 0.0,
                     "type": "directional"
                 },
                 {
                     "spot": {
-                        "innerConeAngle": 0.785398163397448,
-                        "outerConeAngle": 1.57079632679,
+                        //"innerConeAngle": 0.785398163397448,
+                        //"outerConeAngle": 1.57079632679,
                     },
                     "color": [
                         1.0,
                         1.0,
                         1.0
                     ],
+                    //"intensity": 0.0,
+                    "intensity": 40.0,
                     "type": "spot"
                 },
             ]
@@ -86,7 +90,7 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
 
 
         gltf.nodes.push(
-        /*{
+        {
             "translation": [-3,3,3],
             "extensions" : {
                 [GltfLightsExtensionName]: {
@@ -94,12 +98,11 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
                 }
             }
         },
-        */
 
         {
             //"rotation": [0.707, 0, 0, 0.707], //90, 0, 0 - pointing up
-            //"rotation": [0, 0.707,  0, 0.707], //0, 90, 0 - pointing right
-            //"rotation": [0, 0, 0.707,  0.707], //0, 0, 90 
+            //"rotation": [0, 0.707,  0, 0.707], //0, 90, 0 - pointing left
+            //"rotation": [0, 0, 0.707,  0.707], //0, 0, 90 - no difference (straight)
             //"rotation": [.5, .5, .5, .5], //90, 90, 0
 
             "extensions" : {
@@ -108,15 +111,16 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
                 }
             }
         },
-            /*
         {
+
+            "translation": [0,0,-3],
+            "rotation": [1, 0, 0, 0], 
             "extensions" : {
                 [GltfLightsExtensionName]: {
                     "light" : 2
                 }
             }
         }
-        */
         )
 
         if(gltf.scenes) {

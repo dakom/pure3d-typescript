@@ -2,12 +2,12 @@ import {Transform, Camera, CameraKind, NumberArray, OrthographicCameraSettings, 
 import {createVec3, createMat4} from "../array/Array";
 import {mat4} from "gl-matrix";
 
-export const getOrthographicProjection = (cam:Partial<OrthographicCameraSettings>) => {
+export const getOrthographicProjection = (settings:Partial<OrthographicCameraSettings>) => {
     const values = createMat4(); 
-    const r = cam.xmag;
-    const t = cam.ymag;
-    const n = cam.znear;
-    const f = cam.zfar;
+    const r = settings.xmag;
+    const t = settings.ymag;
+    const n = settings.znear;
+    const f = settings.zfar;
 
     values[0] = 1/r;
     values[5] = 1/t;
@@ -18,12 +18,14 @@ export const getOrthographicProjection = (cam:Partial<OrthographicCameraSettings
     return values; 
 }
 
-export const getPerspectiveProjection = (cam:Partial<PerspectiveCameraSettings>) => {
+export const getPerspectiveProjection = (settings:Partial<PerspectiveCameraSettings>) => {
     const values = createMat4(); 
-    const a = cam.aspectRatio;
-    const y = cam.yfov;
-    const n = cam.znear;
-    const f = cam.zfar; //if this is undefined, use infinite projection
+    const a = settings.aspectRatio === undefined && settings.canvas !== undefined
+            ?   settings.canvas.clientWidth / settings.canvas.clientHeight
+            :   settings.aspectRatio;
+    const y = settings.yfov;
+    const n = settings.znear;
+    const f = settings.zfar; //if this is undefined, use infinite projection
 
     values[0] = 1/(a * Math.tan(.5 * y));
     values[5] = 1/(Math.tan(.5 * y));
@@ -35,27 +37,28 @@ export const getPerspectiveProjection = (cam:Partial<PerspectiveCameraSettings>)
     return values; 
 }
 
-export const getCameraProjection = (cam:CameraSettings) =>
-    cam.kind == CameraKind.ORTHOGRAPHIC
-    ?   getOrthographicProjection(cam)
-    :   getPerspectiveProjection(cam);
+export const getCameraProjection = (settings:CameraSettings) =>
+    settings.kind == CameraKind.ORTHOGRAPHIC
+    ?   getOrthographicProjection(settings)
+    :   getPerspectiveProjection(settings);
 
-const getCameraView = (modelMatrix:NumberArray) => 
+export const getCameraView = (modelMatrix:NumberArray) => 
     mat4.invert(createMat4(),modelMatrix);
 
-const getCameraPosition = (modelMatrix:NumberArray) =>
+export const getCameraPosition = (modelMatrix:NumberArray) =>
     mat4.getTranslation(createVec3(), modelMatrix) as NumberArray; 
 
-export const updateCameraWithTransform = (transform:Transform) => (camera:Camera):Camera => {
-    const update = Object.assign({}, camera, {
-            position: mat4.getTranslation(createVec3(), transform.modelMatrix),
-            view: getCameraView(transform.modelMatrix)
+export const setCameraViewFromTransform = (transform:Transform) => (camera:Camera):Camera =>
+    Object.assign({}, camera, {
+        view: getCameraView(transform.modelMatrix)
     });
 
-    if(camera.settings) {
-        update.projection = getCameraProjection(camera.settings);
-    };
+export const setCameraPositionFromTransform = (transform:Transform) => (camera:Camera):Camera =>
+    Object.assign({}, camera, {
+        position: getCameraPosition(transform.modelMatrix)
+    });
 
-    return update; 
-}
-
+export const setCameraProjectionFromSettings = (settings:CameraSettings) => (camera:Camera):Camera => 
+    Object.assign({}, camera, {
+        projection: getCameraProjection(settings)
+    })

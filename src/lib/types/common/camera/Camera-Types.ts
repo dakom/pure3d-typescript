@@ -29,5 +29,6 @@ export interface PerspectiveCameraSettings {
     yfov: number;
     znear: number;
     zfar: number;
+    canvas?:HTMLCanvasElement; // used to auto-derive aspectRatio if not set
 }
 

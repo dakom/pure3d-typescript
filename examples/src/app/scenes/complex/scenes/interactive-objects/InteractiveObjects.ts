@@ -106,7 +106,7 @@ export const startInteractiveObjects = (renderer:WebGlRenderer) => ({basicPath, 
                 return [
                     (frameTs:number) => {
 
-                        camera = updateCamera ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
+                        camera = updateCamera (renderer) ({ isControlled: true, controls, cameraNode: undefined }) (camera); 
 
                         renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
                         renderers.forEach(render => render (camera) (frameTs))

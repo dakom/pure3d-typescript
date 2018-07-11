@@ -74,19 +74,23 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
     */
 
     if(lightList) {
-        if(lightList.directional.offset) {
+        if(lightList.directional) {
+            //console.log(lightList.directional.direction);
+
             uniform3fv("u_Light_Directional_Direction") (lightList.directional.direction);
             uniform3fv("u_Light_Directional_Color") (lightList.directional.color);
             uniform1fv("u_Light_Directional_Intensity") (lightList.directional.intensity);
         }
-        if(lightList.point.offset) {
+        if(lightList.point) {
             uniform3fv("u_Light_Point_Position") (lightList.point.position);
             uniform3fv("u_Light_Point_Color") (lightList.point.color);
             uniform1fv("u_Light_Point_Intensity") (lightList.point.intensity);
         }
-        if(lightList.spot.offset) {
+        if(lightList.spot) {
             uniform3fv("u_Light_Spot_Position") (lightList.spot.position);
             uniform3fv("u_Light_Spot_Direction") (lightList.spot.direction);
+            uniform1fv("u_Light_Spot_AngleScale") (lightList.spot.angleScale);
+            uniform1fv("u_Light_Spot_AngleOffset") (lightList.spot.angleOffset);
             uniform3fv("u_Light_Spot_Color") (lightList.spot.color);
             uniform1fv("u_Light_Spot_Intensity") (lightList.spot.intensity);
         }

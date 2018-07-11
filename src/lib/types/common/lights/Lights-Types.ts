@@ -16,7 +16,8 @@ export interface BaseLight {
 }
 
 export interface DirectionalLight extends BaseLight {
-    kind: LightKind.Directional
+    kind: LightKind.Directional;
+    direction?: number;
 }
 
 export interface PointLight extends BaseLight {
@@ -25,8 +26,9 @@ export interface PointLight extends BaseLight {
 
 export interface SpotLight extends BaseLight {
     kind: LightKind.Spot;
-    innerConeAngle: number;
-    outerConeAngle: number;
+    direction?: number;
+    angleScale:number;
+    angleOffset:number;
 }
 
 

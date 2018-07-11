@@ -47,18 +47,9 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
-
-                    /*
-                     * TODO - MIXIN LIGHT
-                    scene.nodes.push({
-                        kind: NodeKind.LIGHT,
-                        transform: {
-                        }
-                    })
-                    */
+                    console.log(scene);
                 }
                 scene = bridge.updateShaderConfigs(scene);
-               
                
                 const nodes = animate (frameTs) (scene.nodes)
                  scene = Object.assign({}, scene, {

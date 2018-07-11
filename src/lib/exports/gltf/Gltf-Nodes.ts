@@ -9,7 +9,7 @@ import {
     DirectionalLight,
     PointLight,
     SpotLight,
-    TransformUpdateOptions,
+    NodeTransformUpdateOptions,
     GltfNode,
     GltfCameraNode,
     Transform,
@@ -20,7 +20,7 @@ import {mapNodes, forEachNodes, findNode, mapNode, updateNodeTransforms, updateN
 
 import {mat4} from "gl-matrix";
 
-export const gltf_updateNodeTransforms = (opts:TransformUpdateOptions ) => (nodes:Array<GltfNode>):Array<GltfNode> => {
+export const gltf_updateNodeTransforms = (opts:NodeTransformUpdateOptions ) => (nodes:Array<GltfNode>):Array<GltfNode> => {
 
     const updatedNodes = updateNodeListTransforms <GltfNode> (opts) (null) (nodes);
     

@@ -2,6 +2,8 @@ import {NumberArray} from "../../../common/array/Array-Types";
 
 export const GltfLightsExtensionName = "KHR_lights_punctual";
 
+export const GltfLights_MAX = 10;
+
 export interface GltfLightsShaderConfig {
     nPointLights: number;
     nDirectionalLights: number;
