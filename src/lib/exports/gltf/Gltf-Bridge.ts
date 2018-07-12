@@ -141,6 +141,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
                 (sceneNumber)
         );
 
+
         return scene;
     }
 

@@ -57,7 +57,7 @@ export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Primitive)
         .reduce((acc, val) => (acc = val (data) (scene) (primitive) (acc), acc), 
-            primitive.shaderConfig
+            Object.assign({}, primitive.shaderConfig)
         );
 
     return Object.assign({}, primitive, {shaderConfig});
@@ -69,7 +69,7 @@ export const updateRuntimeShaderConfig_Scene = (data:GltfData) => (scene:GltfSce
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Scene)
         .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
-            scene.shaderConfig
+            Object.assign({}, scene.shaderConfig)
         );
 
     return Object.assign({}, scene, {shaderConfig});
@@ -92,10 +92,11 @@ export const generateShader = ({renderer, data}:{renderer: WebGlRenderer, data: 
             });
 
             data.shaders.set(shaderHash, shader);
-            //console.log(`new shader compiled`);
+            console.log(`new shader compiled`, shaderHash);
         } else {
             //console.log(`nice! re-using existing shader`);
         }
+
 
         const shader = data.shaders.get(shaderHash);
 

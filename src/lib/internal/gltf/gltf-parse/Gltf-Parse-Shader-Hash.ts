@@ -45,6 +45,10 @@ const hashBooleans32 = (xs:Uint8Array) =>
 
 export const getShaderHash = (sceneConfig:GltfShaderConfig_Scene) => (primitiveConfig:GltfShaderConfig_Primitive):string => {
 
+    baseArray.fill(0);
+    morphsArray.fill(0);
+    skinArray.fill(0);
+    lightsArray.fill(0);
 
     if(primitiveConfig.hasNormalAttributes) {
         baseArray[0] = 1;

@@ -160,6 +160,13 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
     }) (scene.nodes);
 
 
+        /*console.log(
+            0, (scene.nodes[0] as GltfMeshNode).primitives[0].shaderConfig.hasColorAttributes,
+            1, (scene.nodes[1] as GltfMeshNode).primitives[0].shaderConfig.hasColorAttributes
+        );
+        */
+
+        
     meshList.forEach(node => {
         let skinMatrices:Float32Array;
         if(node.skin !== undefined && node.skin.skinMatrices) {
