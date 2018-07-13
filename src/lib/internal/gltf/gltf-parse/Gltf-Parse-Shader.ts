@@ -57,7 +57,7 @@ export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Primitive)
         .reduce((acc, val) => (acc = val (data) (scene) (primitive) (acc), acc), 
-            Object.assign({}, primitive.shaderConfig)
+            primitive.shaderConfig
         );
 
     return Object.assign({}, primitive, {shaderConfig});
@@ -69,7 +69,7 @@ export const updateRuntimeShaderConfig_Scene = (data:GltfData) => (scene:GltfSce
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Scene)
         .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
-            Object.assign({}, scene.shaderConfig)
+            scene.shaderConfig
         );
 
     return Object.assign({}, scene, {shaderConfig});
