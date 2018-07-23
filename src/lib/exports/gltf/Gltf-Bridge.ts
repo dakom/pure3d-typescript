@@ -10,7 +10,7 @@ import { GLTF_PARSE_getOriginalFromArrayBuffer } from "../../internal/gltf/gltf-
 import {GLTF_PARSE_createPrimitives} from "../../internal/gltf/gltf-parse/Gltf-Parse-Primitives";
 import {GLTF_PARSE_createScene} from "../../internal/gltf/gltf-parse/Gltf-Parse-Scene";
 import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nodes";
-import { prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
+import { getDefaultInitConfig, prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
 import {createVec3} from "../common/array/Array";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
@@ -89,13 +89,13 @@ function createGltfBridge(renderer:WebGlRenderer) {
     const loadAssets = ({gltf, basePath, glbBuffers}:{gltf:GLTF_ORIGINAL, basePath?: string, glbBuffers:Array<ArrayBuffer>}) => 
         GLTF_PARSE_LoadDataAssets({ basePath: basePath ? basePath : "", gltf, glbBuffers})
 
-    const start = ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets, config:GltfInitConfig}) => {
+    const start = ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets, config?:GltfInitConfig}) => {
 
         const data = GLTF_PARSE_CreateData({
             gltf, 
             renderer,
             assets,
-            config
+            config: config === undefined ? getDefaultInitConfig() : config
         });
 
         const primitives = GLTF_PARSE_createPrimitives({ renderer, data });
