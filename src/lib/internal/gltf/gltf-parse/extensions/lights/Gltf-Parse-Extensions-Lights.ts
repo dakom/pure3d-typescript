@@ -46,9 +46,7 @@ import {getBasePath} from "../../../../common/Basepath";
 import {forEachNodes} from "../../../../../exports/common/nodes/Nodes";
 
 const getConfig = (gltf:GLTF_ORIGINAL):Array<GLTF_PARSE_Extension_Light> => {
-
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfLightsExtensionName) !== -1) {
-
         return gltf.extensions[GltfLightsExtensionName].lights as Array<GLTF_PARSE_Extension_Light>
     }
     return null; 
@@ -106,6 +104,7 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
         ?   originalNode.extensions[GltfLightsExtensionName]
         :   undefined; 
 
+
     if(!config || !nodeConfig) {
         return node;
     }
@@ -140,6 +139,7 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
 
 
     forEachNodes ((node:GltfNode) => {
+
         if(node.kind === NodeKind.LIGHT) {
             switch(node.light.kind) {
                 case LightKind.Directional:
@@ -160,6 +160,7 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
         nDirectionalLights,
         nSpotLights,
     }
+
 
     return Object.assign({}, shaderConfig, { lights: config });
 }

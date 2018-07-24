@@ -110,7 +110,7 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: Gl
 
         return !node.children
             ? finalNode
-            : Object.assign(finalNode, {children: node.children.map(idx => getGltfNode(modelMatrix) (idx) (gltf.nodes[idx]))});
+            : Object.assign({}, finalNode, {children: node.children.map(idx => getGltfNode(modelMatrix) (idx) (gltf.nodes[idx]))});
     }
 
     return GLTF_PARSE_addAnimationIds({

@@ -47,7 +47,6 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
-                    console.log(scene);
                 }
                 scene = bridge.updateShaderConfigs(scene);
                
@@ -93,7 +92,8 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                 renderLines: createLinesRenderer(renderer)
             }))
             .chain(renderers => 
-                getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
+                //getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
+                getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/helmet/LightingPunctual-DamagedHelmet.gltf")
                     .map(renderScene => Object.assign({}, renderers, {renderScene}))
             )
             .map(({renderSkybox, renderLines, renderScene}) => {

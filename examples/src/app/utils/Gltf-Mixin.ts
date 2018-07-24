@@ -115,6 +115,8 @@ export const addGltfExtensions = (options: {ibl: boolean, lights: boolean}) => (
 
             "translation": [0,0,-3],
             "rotation": [1, 0, 0, 0], 
+            //"translation": [0,0,-3],
+            //"rotation": [1, 0, 0, 0], 
             "extensions" : {
                 [GltfLightsExtensionName]: {
                     "light" : 2
