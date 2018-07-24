@@ -44,7 +44,6 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: Gl
 
         const baseNode = {
             originalNodeId,
-            animationIds: [],
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length
                 ?   GltfNodeKind.MESH
                 :   node.camera !== undefined

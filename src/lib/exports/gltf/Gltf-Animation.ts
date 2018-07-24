@@ -71,7 +71,7 @@ export const gltf_createAnimator = (animations:Map<number, GltfAnimationData>) =
 
       if (nextTime >= animation.timeMin && nextTime <= animation.timeMax) {
           nodes = mapNodes((node:GltfNode) => 
-            node.animationIds.indexOf(key) !== -1
+            node.animationIds && node.animationIds.indexOf(key) !== -1
                 ?   gltf_setAnimationTime(animation)(nextTime)(node)
                 :   node
             ) (nodes);

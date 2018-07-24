@@ -49,8 +49,13 @@ export const GLTF_PARSE_addAnimationIds = ({gltf, nodes}:{gltf: GLTF_ORIGINAL, n
 
                     mapNodes
                         ((node:GltfNode) => {
-                            if(node.originalNodeId === channel.target.node && node.animationIds.indexOf(animationId) === -1) {
-                                node.animationIds.push(animationId);
+                            if(node.originalNodeId === channel.target.node) {
+                                if(!node.animationIds || node.animationIds.indexOf(animationId) === -1) {
+                                    if(!node.animationIds) {
+                                        node.animationIds = [];
+                                    }
+                                    node.animationIds.push(animationId);
+                                }
                             }
                             return node;
                         })

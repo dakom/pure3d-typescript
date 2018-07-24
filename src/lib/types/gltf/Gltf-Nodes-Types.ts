@@ -13,7 +13,7 @@ export type GltfNode = (GltfCameraNode | GltfLightNode | GltfMeshNode);
 
 export interface _GltfNode extends _Node {
     animationIds?: Array<number>;
-    originalNodeId?: number;
+    originalNodeId?: number; //This is required since joints and animations need to find their target by value
 };
 
 export interface GltfLightNode extends LightNode, _GltfNode {
