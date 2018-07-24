@@ -58,6 +58,7 @@ export const GLTF_PARSE_createScene = ({ renderer, data, allNodes}: { renderer: 
                             updateLocal: true,
                             updateModel: true,
                             updateView: true,
+                            updateLightDirection: true,
                             camera,
                         })
                         (null)

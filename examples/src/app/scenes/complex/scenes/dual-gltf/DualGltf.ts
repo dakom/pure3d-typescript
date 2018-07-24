@@ -59,29 +59,16 @@ const _getBridge = ({renderer, gltfPath, modelName, translate}:
 
         let scene:GltfScene;
 
-        const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
+        const updateScene = bridge.updateScene (
+            gltf_createAnimator(bridge.getData().animations) ({loop: true})
+        );
 
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
                     scene.nodes[0].transform.trs.translation = translate
                 }
-                scene = bridge.updateShaderConfigs(scene);
-                
-               
-                const nodes = animate (frameTs) (scene.nodes)
-                 scene = Object.assign({}, scene, {
-                    camera,
-                    nodes: 
-                        gltf_updateNodeTransforms ({
-                            updateLocal: true,
-                            updateModel: true,
-                            updateView: true,
-                            camera: camera
-                        })
-                        (nodes)
-                });
-
+                scene = updateScene(frameTs) (Object.assign({}, scene, {camera}));
                 bridge.renderScene(scene);
         }
 

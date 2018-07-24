@@ -15,14 +15,16 @@ import { getBasePath } from "../../internal/common/Basepath";
 import {createVec3} from "../common/array/Array";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {updateRuntimeShaderConfig_Primitive, updateRuntimeShaderConfig_Scene} from "../../internal/gltf/gltf-parse/Gltf-Parse-Shader";
-import {forEachNodes, findNode, countNodes } from "../common/nodes/Nodes";
+import {findNode, countNodes } from "../common/nodes/Nodes";
 import {
     setCameraPositionFromTransform,
     setCameraViewFromTransform,
     setCameraProjectionFromSettings
 } from "../common/camera/Camera";
+import {GltfAnimator} from "../../types/gltf/Gltf-Animation-Types";
 
 import {renderScene as _renderScene} from "../../internal/gltf/renderer/Gltf-Renderer";
+import {gltf_updateNodeTransforms} from "./Gltf-Nodes";
 
 import {
 WebGlRenderer,
@@ -128,6 +130,25 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     }
 
+    //Can be optimized by calling these various functions separately and with different options
+    const updateScene = (animate:GltfAnimator) => (frameTs:number) => (scene:GltfScene):GltfScene => {
+        const nodes = animate (frameTs) (scene.nodes)
+
+        scene = updateShaderConfigs(scene);
+
+        return Object.assign({}, scene, {
+            nodes: 
+                gltf_updateNodeTransforms ({
+                updateLocal: true,
+                updateModel: true,
+                updateView: true,
+                updateLightDirection: true,
+                camera: scene.camera
+            })
+            (nodes)
+        });
+    }
+
     const getOriginalScene = (camera:Camera) => (sceneNumber:number):GltfScene => {
         //First time is mandatory - after that it's up to the caller
         const scene = updateShaderConfigs(
@@ -177,6 +198,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         loadAssets,
         start,
         renderScene,
+        updateScene,
         updateShaderConfigs,
     };
 

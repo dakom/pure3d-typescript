@@ -68,6 +68,7 @@ const _getBridge = (renderer:WebGlRenderer) => (path:string) =>  {
                             updateLocal: true,
                             updateModel: true,
                             updateView: true,
+                            updateLightDirection: true,
                             camera: camera
                         })
                         (nodes)

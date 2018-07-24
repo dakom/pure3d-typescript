@@ -18,7 +18,9 @@ import {
     getOrthographicProjection,
     getPerspectiveProjection,
     CameraKind,
-    createMat4
+    createMat4,
+    createTransform,
+    GltfLightNode
 } from "lib/Lib";
 import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
@@ -42,27 +44,32 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
         let scene:GltfScene;
 
-        const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
+        const updateScene = bridge.updateScene(
+            gltf_createAnimator(bridge.getData().animations) ({loop: true})
+        );
 
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
-                }
-                scene = bridge.updateShaderConfigs(scene);
-               
-                const nodes = animate (frameTs) (scene.nodes)
-                 scene = Object.assign({}, scene, {
-                    camera,
-                    nodes: 
-                        gltf_updateNodeTransforms ({
-                            updateLocal: true,
-                            updateModel: true,
-                            updateView: true,
-                            camera: camera
-                        })
-                        (nodes)
-                });
 
+                    const light:GltfLightNode = {
+                        kind: NodeKind.LIGHT,
+                        light: {
+                            kind: LightKind.Point,
+                            color: [1,0,0],
+                            intensity: 100
+                        },
+                        transform: createTransform (null) ({
+                            translation: [3,3,3]
+                        }) 
+                    }
+
+                    scene.nodes.push(light);
+
+                    scene = bridge.updateShaderConfigs(scene)
+                }
+
+                scene = updateScene(frameTs) (Object.assign({}, scene, {camera}));
                 bridge.renderScene(scene);
         }
 

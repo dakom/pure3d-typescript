@@ -178,6 +178,7 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
     const pLen = scene.shaderConfig.lights.nPointLights;
     const sLen = scene.shaderConfig.lights.nSpotLights;
 
+
     if(dLen) {
         LIGHTS_VARS += `uniform vec3 u_Light_Directional_Direction[${dLen}];\n`;
         LIGHTS_VARS += `uniform vec3 u_Light_Directional_Color[${dLen}];\n`;
@@ -219,7 +220,7 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
         LIGHTS_VARS += `uniform float u_Light_Spot_Intensity[${sLen}];\n`;
 
 
-        for(let i = 0; i < pLen; i++) {
+        for(let i = 0; i < sLen; i++) {
             LIGHTS_FUNCS += `light = getSpotLight(
                 fragment,
                 u_Light_Spot_Position[${i}], 

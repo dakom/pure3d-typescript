@@ -12,8 +12,8 @@ export enum GltfNodeKind {
 export type GltfNode = (GltfCameraNode | GltfLightNode | GltfMeshNode); 
 
 export interface _GltfNode extends _Node {
-    originalNodeId: number;
-    animationIds: Array<number>;
+    animationIds?: Array<number>;
+    originalNodeId?: number;
 };
 
 export interface GltfLightNode extends LightNode, _GltfNode {

@@ -25,5 +25,5 @@ export interface LightNode extends _Node {
 }
 
 export interface NodeTransformUpdateOptions extends TransformUpdateOptions {
-    updateLightDirection?: boolean;
+    updateLightDirection: boolean;
 }

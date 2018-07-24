@@ -20,21 +20,36 @@ export const filterNodesDeep = <T extends _Node> (fn: (node:T) => boolean) => (n
         .filter(n => n);
 
 //Side effects
-//Note -forEach allows returning true to exit early
-export const forEachNode = <T extends _Node> (fn: (node:T) => void | boolean) => (node:T):void => {
-    if(fn (node) !== true && node.children) {
+export const forEachNodes = <T extends _Node> (fn: (node:T) => void) => (nodes:Array<T>):void => 
+    nodes.forEach(forEachNode(fn));
+
+export const forEachNode = <T extends _Node> (fn: (node:T) => void) => (node:T):void => {
+    fn(node);
+    if(node.children) {
         node.children.forEach(forEachNode(fn))
     } 
 }
 
-export const forEachNodes = <T extends _Node> (fn: (node:T) => void | boolean) => (nodes:Array<T>):void => 
-    nodes.forEach(forEachNode(fn));
+export const someNodes = <T extends _Node> (fn: (node:T) => boolean) => (nodes:Array<T>):boolean => 
+    nodes.some(someNode(fn));
+
+export const someNode = <T extends _Node> (fn: (node:T) => boolean) => (node:T):boolean => {
+    if(fn(node)) {
+        return true;
+    }
+
+    if(node.children) {
+        return node.children.some(someNode(fn));
+    } 
+
+    return false;
+}
 
 //Helpers
 export const countNodes = <T extends _Node>(nodes:Array<T>):number => {
     let count = 0;
 
-    forEachNodes(() => (count++, null)) (nodes);
+    forEachNodes(() => count++) (nodes);
     return count;
 }
 
@@ -49,9 +64,9 @@ export const findNode = <T extends _Node> (pred: (node:T) => boolean) => (nodesO
     }
 
     if(Array.isArray(nodesOrNode)) {
-        forEachNodes (fn) (nodesOrNode);
+        someNodes (fn) (nodesOrNode);
     } else {
-        forEachNode (fn) (nodesOrNode);
+        someNode (fn) (nodesOrNode);
     }
 
     return targetNode;
@@ -94,7 +109,8 @@ export const updateNodeTransforms = <T extends _Node>(opts:NodeTransformUpdateOp
         const afterModel = t.modelMatrix;
 
         const result = Object.assign({}, _node, {transform: t});
-      
+     
+
         //not ideal for typescript, but meh
         if(opts.updateLightDirection && (result as any).kind === NodeKind.LIGHT) {
             const lightKind:LightKind = (result as any).light.kind;

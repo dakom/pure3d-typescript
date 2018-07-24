@@ -1,6 +1,6 @@
 import { mat4, quat, vec3} from 'gl-matrix';
 
-import {createVec3, createVec4, createQuat, createMat4} from "../array/Array";
+import {createVec3, createVec4, createQuat, createMat4, createFill} from "../array/Array";
 import {
   Camera,
   Transform,
@@ -10,6 +10,31 @@ import {
   NumberArray
 } from '../../../Types';
 
+export const createIdentityTransform = (parentModelMatrix?:NumberArray):Transform => {
+    const translation = createVec3();
+    const rotation = createQuat();
+    const scale = createFill (3) (1); 
+
+    const trs = { translation, rotation, scale };
+    const localMatrix = getMatrixFromTrs(trs);
+    const modelMatrix = getModelMatrix(parentModelMatrix) (localMatrix);
+
+    return {trs, localMatrix, modelMatrix}
+}
+
+export const createTransform = (parentModelMatrix?:NumberArray) => (overrideTrs: Partial<Transform_TRS>):Transform => {
+
+    const trs = {} as Transform_TRS; 
+
+    trs.translation = overrideTrs.translation ? overrideTrs.translation : createVec3();
+    trs.rotation = overrideTrs.rotation ? overrideTrs.rotation : createQuat();
+    trs.scale = overrideTrs.scale ? overrideTrs.scale : createFill (3) (1);
+    
+    const localMatrix = getMatrixFromTrs(trs);
+    const modelMatrix = getModelMatrix(parentModelMatrix) (localMatrix);
+
+    return {trs, localMatrix, modelMatrix}
+}
 
 export const getTrsFromMatrix = (matrix:NumberArray):Transform_TRS => {
     const scale = mat4.getScaling(createVec3(), matrix);

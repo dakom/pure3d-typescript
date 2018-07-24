@@ -1,7 +1,7 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
 import {createRendererThunk} from "./Gltf-Renderer-Thunk";
-import {generateShader} from "../gltf-parse/Gltf-Parse-Shader";
+import {getOrGenerateShader} from "../gltf-parse/Gltf-Parse-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
 import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
 import {createVec3, createMat4} from "../../../exports/common/array/Array";
@@ -138,6 +138,7 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             //Is updated via node/transform updates
             const direction = (light as any).direction; 
 
+
             for(let i = 0; i < 3; i++) {
                 const offset = (target.offset * 3) + i;
                 if(position !== undefined) {
@@ -174,7 +175,7 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
         }
 
         node.primitives.forEach(primitive => {
-            const shader = generateShader({renderer, data}) (scene) (primitive);
+            const shader = getOrGenerateShader({renderer, data}) (scene) (primitive);
 
             if (!renderThunksByShader.has(shader.shaderId)) {
                 renderThunksByShader.set(shader.shaderId, []);

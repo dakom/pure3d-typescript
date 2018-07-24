@@ -38,7 +38,7 @@ import vertexShaderSource from "../shaders/Gltf-Shader-Vertex.glsl";
 import fragmentShaderSource from "../shaders/Gltf-Pbr-Shader-Fragment.glsl";
 //import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
-//These need to be called via bridge/setup somehow
+//These need to be called via bridge/setup
 export const GLTF_PARSE_getInitialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => 
     GltfExtensions
         .map(ext => ext.initialShaderConfig_Primitive)
@@ -52,6 +52,8 @@ export const GLTF_PARSE_getInitialShaderConfig_Scene = (data:GltfData) => (scene
         .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
             getCoreInitialShaderConfig_Scene(data) (scene)
         );
+
+//These are called every tick
 export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData, scene:GltfScene}) => (primitive:GltfPrimitive):GltfPrimitive=> {
   
     const shaderConfig = GltfExtensions
@@ -75,12 +77,12 @@ export const updateRuntimeShaderConfig_Scene = (data:GltfData) => (scene:GltfSce
     return Object.assign({}, scene, {shaderConfig});
 }
 
-export const generateShader = ({renderer, data}:{renderer: WebGlRenderer, data: GltfData}) => (scene:GltfScene) => {
-    const getConfigForScene = getShaderHash (scene.shaderConfig);
+export const getOrGenerateShader = ({renderer, data}:{renderer: WebGlRenderer, data: GltfData}) => (scene:GltfScene) => {
+    const getHashForScene = getShaderHash (scene.shaderConfig);
 
     return (primitive:GltfPrimitive) => {
 
-        const shaderHash = getConfigForScene (primitive.shaderConfig);
+        const shaderHash = getHashForScene (primitive.shaderConfig);
 
         if (!data.shaders.has(shaderHash)) {
             const source = getShaderSource(data) (scene) (primitive);

@@ -372,7 +372,6 @@ Light getSpotLight(Fragment fragment, vec3 lightPosition, vec3 lightDirection, f
     float NdotV = fragment.NdotV;
 
     vec3 L = normalize(lightPosition - v_Position);   // Light Direction 
-    //vec3 L = -normalize(lightDirection);   // Light Direction
     vec3 H = normalize(L+V);                          // Half vector between both l and v
 
     float NdotL = clamp(dot(N, L), 0.001, 1.0);

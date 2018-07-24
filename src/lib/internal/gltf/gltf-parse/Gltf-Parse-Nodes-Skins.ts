@@ -10,7 +10,7 @@ import { GLTF_PARSE_ACCESSOR_TYPE_SIZE } from './Gltf-Parse-Data-Constants';
 import {GLTF_PARSE_getAccessorTypedData} from "./Gltf-Parse-Data-Typed";
 import {GLTF_PARSE_getAccessorDataInfo} from "./Gltf-Parse-Data-Info";
 import {mapNodes} from "../../../exports/common/nodes/Nodes";
-import {createIdentityMat4} from "../../../exports/common/array/Array";
+import {createMat4} from "../../../exports/common/array/Array";
 
 export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer>}) => {
     const skins = new Map<number, {
@@ -43,7 +43,7 @@ export const GLTF_PARSE_createSkins = ({ gltf, buffers }: { gltf: GLTF_ORIGINAL,
                         info: GLTF_PARSE_getAccessorDataInfo({gltf, accessorId: originalSkin.inverseBindMatrices})
                     }))
 
-                :  originalSkin.joints.map(createIdentityMat4())
+                :  originalSkin.joints.map(createMat4)
 
         if(inverseBindMatrices.length !== originalSkin.joints.length) {
             throw new Error("inverse bind matrices mismatch!");

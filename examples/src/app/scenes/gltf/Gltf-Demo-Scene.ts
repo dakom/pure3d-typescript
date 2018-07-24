@@ -56,7 +56,9 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
             return () => {};
         }
 
-        const animate = gltf_createAnimator(bridge.getData().animations) ({loop: true});
+        const updateScene = bridge.updateScene(
+            gltf_createAnimator(bridge.getData().animations) ({loop: true})
+        );
 
 
         const {camera, cameraNodeId, controls, isControlled} = 
@@ -72,32 +74,24 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
         return [
             (frameTs:number) => {
 
-                scene = bridge.updateShaderConfigs(scene);
-                const nodes = animate (frameTs) (scene.nodes)
 
                 const cameraNode = 
                     ((!isControlled)
-                        ?   gltf_findNodeById (cameraNodeId) (nodes)
+                        ?   gltf_findNodeById (cameraNodeId) (scene.nodes)
                         :   undefined) as any;
                 
-                scene = Object.assign({}, scene, {
-                    camera:  updateCamera 
+                scene = updateScene (frameTs) (
+                    Object.assign({}, scene, {
+                        camera:  updateCamera 
                                 (bridge.renderer)
                                 ({
                                     isControlled,
                                     controls,
                                     cameraNode
                                 })
-                                (scene.camera), 
-                    nodes: gltf_updateNodeTransforms ({
-                        updateLocal: true,
-                        updateModel: true,
-                        updateView: true,
-                        updateLightDirection: true,
-                        camera: scene.camera
+                                (scene.camera)
                     })
-                    (nodes)
-                });
+                );
 
                 bridge.renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT); 
                 bridge.renderScene(scene);

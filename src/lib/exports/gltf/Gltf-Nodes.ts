@@ -16,7 +16,7 @@ import {
     TypedNumberArray,
     GltfLightNode,
 } from "../../Types";
-import {mapNodes, forEachNodes, findNode, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
+import {mapNodes, someNodes, findNode, mapNode, updateNodeTransforms, updateNodeListTransforms} from "../common/nodes/Nodes";
 
 import {mat4} from "gl-matrix";
 
@@ -101,7 +101,7 @@ const getJointList = (fullTree:Array<GltfNode>) => (meshNode:GltfMeshNode) => {
     });
     
      
-    forEachNodes
+    someNodes
         ((node:GltfNode) => {
             if(jointIds.has(node.originalNodeId)) {
                 const index = jointIds.get(node.originalNodeId);
@@ -112,6 +112,7 @@ const getJointList = (fullTree:Array<GltfNode>) => (meshNode:GltfMeshNode) => {
                     return true;
                 }
             }
+            return false;
         })
         (fullTree)
 
