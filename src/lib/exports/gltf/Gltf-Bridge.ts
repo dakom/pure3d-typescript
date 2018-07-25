@@ -127,7 +127,6 @@ function createGltfBridge(renderer:WebGlRenderer) {
 
     const renderScene = (scene:GltfScene) => {
         _renderScene (renderer) (_data) (scene);
-
     }
 
     //Can be optimized by calling these various functions separately and with different options
