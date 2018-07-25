@@ -6,7 +6,6 @@ import {
     gltf_updateNodeTransforms,
     Camera,
     GltfNode,
-    gltf_findNodeById,
     gltf_createAnimator,
     GltfNodeKind,
     GltfBridge,

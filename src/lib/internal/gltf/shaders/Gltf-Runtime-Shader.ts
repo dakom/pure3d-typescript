@@ -99,8 +99,6 @@ const getShaderSource = (data:GltfData) => (sceneShaderConfig:GltfShaderConfig_S
 
 const getCoreShaderSource = (data:GltfData) => (sceneShaderConfig:GltfShaderConfig_Scene) => (primitiveShaderConfig:GltfShaderConfig_Primitive):WebGlShaderSource => {
     const gltf = data.original;
-    //const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
-
 
     const defines = [];
 

@@ -26,9 +26,6 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
 
                 
                 const primitive = {
-                    originalNodeId: nodeId,
-                    originalMeshId: node.mesh,
-                    originalPrimitiveId: primitiveIdx,
                     vaoId: GLTF_PARSE_createPrimitiveAttributes({renderer, originalPrimitive, data}),
                     ...GLTF_PARSE_getPrimitiveDrawing({originalPrimitive, data}),
                 } as GltfPrimitive;
@@ -37,7 +34,11 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
                     primitive.material = GLTF_PARSE_createMaterialForPrimitive({gltf, materialId: originalPrimitive.material, data});
                 }
                
-                primitive.shaderConfig = GLTF_PARSE_getInitialShaderConfig_Primitive(data) (primitive);
+                primitive.shaderConfig = 
+                    GLTF_PARSE_getInitialShaderConfig_Primitive
+                        (data) 
+                        ({nodeId: nodeId, meshId: node.mesh, primitiveId: primitiveIdx}) 
+                        (primitive);
 
                 return primitive;
             }))

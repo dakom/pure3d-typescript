@@ -27,7 +27,7 @@ export const gltf_updateNodeTransforms = (opts:NodeTransformUpdateOptions ) => (
     return mapNodes <GltfNode>(gltf_setJointTransforms (updatedNodes)) (updatedNodes);
 }
 
-export const gltf_findNodeById = (id:number) => (nodeOrNodes: Array<GltfNode> | GltfNode):GltfNode => 
+export const gltf_findNodeByOriginalId = (id:number) => (nodeOrNodes: Array<GltfNode> | GltfNode):GltfNode => 
     findNode ((node:GltfNode) => node.originalNodeId === id)  (nodeOrNodes)
 
 export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfNode):GltfNode => {
@@ -40,7 +40,7 @@ export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfN
                 return joint.transform;
             }
 
-            return gltf_findNodeById(id) (fullTree).transform;
+            return gltf_findNodeByOriginalId(id) (fullTree).transform;
         }
         let pos = 0;
 
@@ -71,6 +71,7 @@ export const gltf_setJointTransforms = (fullTree:Array<GltfNode>) => (node:GltfN
 
             return acc;
         }, new Float32Array(node.skin.joints.length * 16));
+
         return Object.assign({}, node, 
             {
                 skin: Object.assign({}, node.skin,

@@ -31,11 +31,11 @@ import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-P
 import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 
 //These need to be called via bridge/setup
-export const GLTF_PARSE_getInitialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => 
+export const GLTF_PARSE_getInitialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => 
     GltfExtensions
         .map(ext => ext.initialShaderConfig_Primitive)
-        .reduce((acc, val) => (acc = val (data) (primitive) (acc), acc), 
-            getCoreInitialShaderConfig_Primitive(data) (primitive)
+        .reduce((acc, val) => (acc = val (data) (originalIds) (primitive) (acc), acc), 
+            getCoreInitialShaderConfig_Primitive(data) (originalIds) (primitive)
         );
 
 export const GLTF_PARSE_getInitialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene):GltfShaderConfig_Scene =>  
@@ -46,12 +46,12 @@ export const GLTF_PARSE_getInitialShaderConfig_Scene = (data:GltfData) => (scene
         );
 
 
-const getCoreInitialShaderConfig_Primitive = (data:GltfData) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => {
+const getCoreInitialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive):GltfShaderConfig_Primitive => {
     const gltf = data.original;
 
-    const originalNode = data.original.nodes[primitive.originalNodeId];
+    const originalNode = data.original.nodes[originalIds.nodeId];
 
-    const originalPrimitive = data.original.meshes[primitive.originalMeshId].primitives[primitive.originalPrimitiveId];
+    const originalPrimitive = data.original.meshes[originalIds.meshId].primitives[originalIds.primitiveId];
 
     const hasAttribute = (originalPrimitive: GLTF_ORIGINAL_MeshPrimitive) => (attr: string): boolean => 
         Object.keys(originalPrimitive.attributes).indexOf(attr) !== -1;

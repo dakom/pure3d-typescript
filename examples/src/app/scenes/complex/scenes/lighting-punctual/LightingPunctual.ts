@@ -7,7 +7,6 @@ import {
     Camera,
     GltfNode,
     NodeKind, LightKind,
-    gltf_findNodeById,
     gltf_createAnimator,
     GltfNodeKind,
     GltfBridge,

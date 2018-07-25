@@ -6,7 +6,7 @@ import {
     gltf_updateNodeTransforms,
     Camera,
     GltfNode,
-    gltf_findNodeById,
+    gltf_findNodeByOriginalId,
     gltf_createAnimator,
     GltfNodeKind,
     GltfBridge,
@@ -77,7 +77,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
 
                 const cameraNode = 
                     ((!isControlled)
-                        ?   gltf_findNodeById (cameraNodeId) (scene.nodes)
+                        ?   gltf_findNodeByOriginalId (cameraNodeId) (scene.nodes)
                         :   undefined) as any;
                 
                 scene = updateScene (frameTs) (
