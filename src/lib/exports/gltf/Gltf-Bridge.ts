@@ -14,7 +14,7 @@ import { getDefaultInitConfig, prepWebGlRenderer } from '../../internal/gltf/ini
 import { getBasePath } from "../../internal/common/Basepath";
 import {createVec3} from "../common/array/Array";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
-import {updateRuntimeShaderConfig_Primitive, updateRuntimeShaderConfig_Scene} from "../../internal/gltf/gltf-parse/Gltf-Parse-Shader";
+import {updateRuntimeShaderConfig_Primitive, updateRuntimeShaderConfig_Scene} from "../../internal/gltf/shaders/Gltf-Runtime-Shader";
 import {findNode, countNodes } from "../common/nodes/Nodes";
 import {
     setCameraPositionFromTransform,

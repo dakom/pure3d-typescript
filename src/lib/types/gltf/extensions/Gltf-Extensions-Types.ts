@@ -25,5 +25,5 @@ export interface GLTF_PARSE_Extension {
     runtimeShaderConfig_Primitive: (data:GltfData) => (scene: GltfScene) => (primitive: GltfPrimitive ) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
     initialShaderConfig_Scene: (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
     runtimeShaderConfig_Scene: (data:GltfData) => (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
-    shaderSource: (data:GltfData) => (scene:GltfScene) => (primitive: GltfPrimitive) => (source:WebGlShaderSource) => WebGlShaderSource; 
+    getShaderSource: (data:GltfData) => (sceneShaderconfig:GltfShaderConfig_Scene) => (primitiveShaderConfig: GltfShaderConfig_Primitive) => (source:WebGlShaderSource) => WebGlShaderSource; 
 }

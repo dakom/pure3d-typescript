@@ -206,8 +206,7 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
     shaderConfig;
 
 
-const shaderSource = (data:GltfData) => (scene:GltfScene) =>  (primitive: GltfPrimitive) => (source:WebGlShaderSource):WebGlShaderSource => {
-
+const getShaderSource = (data:GltfData) => (sceneShaderconfig:GltfShaderConfig_Scene) => (primitiveShaderConfig: GltfShaderConfig_Primitive) => (source:WebGlShaderSource):WebGlShaderSource => { 
     if(data.extensions.ibl) {
         const defines = [];
 
@@ -237,5 +236,5 @@ export const GLTF_PARSE_Extension_Ibl:GLTF_PARSE_Extension = {
     runtimeShaderConfig_Primitive,
     initialShaderConfig_Scene,
     runtimeShaderConfig_Scene,
-    shaderSource
+    getShaderSource
 }

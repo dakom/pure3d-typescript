@@ -1,7 +1,7 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
 import {createRendererThunk} from "./Gltf-Renderer-Thunk";
-import {getOrGenerateShader} from "../gltf-parse/Gltf-Parse-Shader";
+import {getOrGenerateShader} from "../shaders/Gltf-Runtime-Shader";
 import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes/Nodes";
 import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
 import {createVec3, createMat4} from "../../../exports/common/array/Array";

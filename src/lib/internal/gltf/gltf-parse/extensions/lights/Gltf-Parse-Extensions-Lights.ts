@@ -165,18 +165,14 @@ const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shad
     return Object.assign({}, shaderConfig, { lights: config });
 }
 
-const getDynamicVertexShader = (primitive:GltfPrimitive) => (vs:string):string => 
-    vs;
-
-
-const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primitive:GltfPrimitive) => (fs:string):string => {
+const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShaderConfig_Scene) => (primitiveShaderConfig:GltfShaderConfig_Primitive) => (fs:string):string => {
 
     let LIGHTS_VARS = '';
     let LIGHTS_FUNCS = '';
 
-    const dLen = scene.shaderConfig.lights.nDirectionalLights;
-    const pLen = scene.shaderConfig.lights.nPointLights;
-    const sLen = scene.shaderConfig.lights.nSpotLights;
+    const dLen = sceneShaderConfig.lights.nDirectionalLights;
+    const pLen = sceneShaderConfig.lights.nPointLights;
+    const sLen = sceneShaderConfig.lights.nSpotLights;
 
 
     if(dLen) {
@@ -238,11 +234,11 @@ const getDynamicFragmentShader = (data:GltfData) => (scene:GltfScene) => (primit
 
 }
 
-const shaderSource = (data:GltfData) => (scene:GltfScene) =>  (primitive: GltfPrimitive) => (source:WebGlShaderSource):WebGlShaderSource => {
-    if(scene.shaderConfig.lights) {
+const getShaderSource = (data:GltfData) => (sceneShaderConfig:GltfShaderConfig_Scene) => (primitiveShaderConfig: GltfShaderConfig_Primitive) => (source:WebGlShaderSource):WebGlShaderSource => {
+    if(sceneShaderConfig.lights) {
         const defines = [];
         
-        const {nPointLights, nDirectionalLights, nSpotLights} = scene.shaderConfig.lights;
+        const {nPointLights, nDirectionalLights, nSpotLights} = sceneShaderConfig.lights;
         if(nPointLights > GltfLights_MAX || nDirectionalLights > GltfLights_MAX || nSpotLights > GltfLights_MAX) {
             console.warn(`Only ${GltfLights_MAX} lights of each kind are supported`);
         }
@@ -255,8 +251,8 @@ const shaderSource = (data:GltfData) => (scene:GltfScene) =>  (primitive: GltfPr
 
         const defineString = defines.map(value => `#define ${value} 1\n`).join('');
         return Object.assign({}, source, {
-            vertex: getDynamicVertexShader(primitive) (defineString + source.vertex),
-            fragment: getDynamicFragmentShader (data) (scene) (primitive) (defineString + source.fragment)
+            vertex: defineString + source.vertex,
+            fragment: getDynamicFragmentShader (data) (sceneShaderConfig) (primitiveShaderConfig) (defineString + source.fragment)
         })
     } else {
         return source;
@@ -272,5 +268,5 @@ export const GLTF_PARSE_Extension_Lights:GLTF_PARSE_Extension = {
     runtimeShaderConfig_Primitive,
     initialShaderConfig_Scene,
     runtimeShaderConfig_Scene,
-    shaderSource
+    getShaderSource
 };
