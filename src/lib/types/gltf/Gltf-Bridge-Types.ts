@@ -25,6 +25,4 @@ export interface GltfBridge {
     start: ({gltf, assets, config}:{gltf: GLTF_ORIGINAL, assets: GltfDataAssets,  config:GltfInitConfig})
             => void;
     renderScene: (scene:GltfScene) => void;
-    updateScene: (animate:GltfAnimator) => (frameTs:number) => (scene:GltfScene) => GltfScene;
-    updateShaderConfigs:  (scene:GltfScene) => GltfScene;
 }

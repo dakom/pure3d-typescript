@@ -22,8 +22,8 @@ export interface GLTF_PARSE_Extension {
     createScene : (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene) => GltfScene;
     createNode : (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode) => GltfNode; 
     initialShaderConfig_Primitive: (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
-    runtimeShaderConfig_Primitive: (data:GltfData) => (scene: GltfScene) => (primitive: GltfPrimitive ) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
+    runtimeShaderConfig_Primitive: (scene: GltfScene) => (primitive: GltfPrimitive ) => (shaderConfig:GltfShaderConfig_Primitive) => GltfShaderConfig_Primitive;
     initialShaderConfig_Scene: (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
-    runtimeShaderConfig_Scene: (data:GltfData) => (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
+    runtimeShaderConfig_Scene: (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene) => GltfShaderConfig_Scene;
     getShaderSource: (data:GltfData) => (sceneShaderconfig:GltfShaderConfig_Scene) => (primitiveShaderConfig: GltfShaderConfig_Primitive) => (source:WebGlShaderSource) => WebGlShaderSource; 
 }

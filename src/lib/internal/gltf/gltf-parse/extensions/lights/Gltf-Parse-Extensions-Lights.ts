@@ -128,10 +128,10 @@ const initialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: n
 const initialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => 
     shaderConfig;
 
-const runtimeShaderConfig_Primitive = (data:GltfData) => (scene: GltfScene) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
+const runtimeShaderConfig_Primitive = (scene: GltfScene) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
     shaderConfig;
 
-const runtimeShaderConfig_Scene = (data:GltfData) => (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => {
+const runtimeShaderConfig_Scene = (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => {
 
     let nPointLights = 0;
     let nDirectionalLights = 0;

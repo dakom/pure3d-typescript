@@ -12,7 +12,9 @@ import {
     gltf_load, 
     WebGlConstants,
     NumberArray,
-    WebGlRenderer} from "lib/Lib";
+    WebGlRenderer,
+    gltf_updateScene
+} from "lib/Lib";
 import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
 import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
@@ -58,7 +60,7 @@ const _getBridge = ({renderer, gltfPath, modelName, translate}:
 
         let scene:GltfScene;
 
-        const updateScene = bridge.updateScene (
+        const updateScene = gltf_updateScene (
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 

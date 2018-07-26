@@ -19,7 +19,8 @@ import {
     CameraKind,
     createMat4,
     createTransform,
-    GltfLightNode
+    GltfLightNode,
+    gltf_updateScene
 } from "lib/Lib";
 import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
@@ -43,7 +44,7 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
         let scene:GltfScene;
 
-        const updateScene = bridge.updateScene(
+        const updateScene = gltf_updateScene(
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 
@@ -65,7 +66,6 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
 
                     scene.nodes.push(light);
 
-                    scene = bridge.updateShaderConfigs(scene)
                 }
 
                 scene = updateScene(frameTs) (Object.assign({}, scene, {camera}));

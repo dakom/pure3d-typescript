@@ -37,11 +37,11 @@ import vertexShaderSource from "./glsl/Gltf-Shader-Vertex.glsl";
 import fragmentShaderSource from "./glsl/Gltf-Pbr-Shader-Fragment.glsl";
 //import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
 
-export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData, scene:GltfScene}) => (primitive:GltfPrimitive):GltfPrimitive=> {
+export const updateRuntimeShaderConfig_Primitive = (scene:GltfScene) => (primitive:GltfPrimitive):GltfPrimitive=> {
   
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Primitive)
-        .reduce((acc, val) => (acc = val (data) (scene) (primitive) (acc), acc), 
+        .reduce((acc, val) => (acc = val (scene) (primitive) (acc), acc), 
             primitive.shaderConfig
         );
 
@@ -49,11 +49,11 @@ export const updateRuntimeShaderConfig_Primitive = ({data, scene}:{data:GltfData
 }
 
 
-export const updateRuntimeShaderConfig_Scene = (data:GltfData) => (scene:GltfScene):GltfScene => {
+export const updateRuntimeShaderConfig_Scene = (scene:GltfScene):GltfScene => {
   
     const shaderConfig = GltfExtensions
         .map(ext => ext.runtimeShaderConfig_Scene)
-        .reduce((acc, val) => (acc = val (data) (scene) (acc), acc), 
+        .reduce((acc, val) => (acc = val (scene) (acc), acc), 
             scene.shaderConfig
         );
 
