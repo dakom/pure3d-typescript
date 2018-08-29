@@ -42,10 +42,6 @@ See [Wiki](https://github.com/dakom/pure3d/wiki) for more details
 It's a rite of passage to make your own WebGL renderer while learning it. This is my attempt :D
 I also wanted something that can work more organically with declarative languages and immutable data
 
-## Peer-Dependencies
-
-* Uses Fluture for initial loading (therefore Sanctuary and Fluture are peer dependencies)
-
 ## Acknowledgements
 
 * Khronos, Slack ppls, and all the other hackers out there who have made this stuff possible!

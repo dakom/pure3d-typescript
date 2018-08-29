@@ -38,7 +38,6 @@ import {
     GltfLights_MAX
 } from "../../../../../Types"; 
 
-import { Future, parallel } from 'fluture';
 import { fetchImage, fetchJsonUrl } from 'fluture-loaders';
 import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../../../exports/webgl/WebGl-Textures";
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
@@ -86,8 +85,8 @@ const getLight = (originalLight:GLTF_PARSE_Extension_Light):Light => {
     return light;
 }
 
-const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => 
-        Future.of(coreData);
+const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Promise<GltfDataAssets> => 
+        Promise.resolve(coreData);
 
 const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => 
        data

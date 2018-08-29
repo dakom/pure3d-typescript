@@ -45,7 +45,6 @@
     "@types/node": "10.5.2",
     "chokidar": "2.0.4",
     "cross-env": "5.2.0",
-    "fluture": "8.0.2",
     "glob": "7.1.2",
     "jest": "23.4.1",
     "minify": "3.0.5",
@@ -59,7 +58,6 @@
     "rollup-plugin-string": "^2.0.2",
     "rollup-plugin-typescript2": "0.16.1",
     "rollup-plugin-uglify": "4.0.0",
-    "sanctuary": "0.15.0",
     "shelljs": "0.8.2",
     "ts-jest": "23.0.1",
     "ts-node": "7.0.0",
@@ -67,13 +65,8 @@
     "typescript": "2.9.2",
     "uglify-es": "3.3.10"
   },
-  "peerDependencies": {
-    "fluture": ">=6.0.0"
-  },
+  "peerDependencies": {},
   "dependencies": {
-    "binary-search-curryed": "1.0.1",
-    "fluture-loaders": "^2.1.7",
-    "gl-matrix": "^2.7.1",
-    "orbit-camera": "^1.0.0"
+    "gl-matrix": "2.7.1"
   }
 }

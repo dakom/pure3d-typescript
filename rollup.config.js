@@ -7,7 +7,7 @@ import string from 'rollup-plugin-string';
 export default [
 	{
         input: './src/lib/Lib.ts',
-        external: ['gl-matrix',  'fluture-loaders','fluture',  'sanctuary', 'webgl-simple', 'immutable', 'text-encoding-shim'],
+        external: ['gl-matrix'],
         output: [
             { file: pkg.module, format: 'es', sourcemap: true },
             { file: pkg.main, format: 'cjs', sourcemap: true }
