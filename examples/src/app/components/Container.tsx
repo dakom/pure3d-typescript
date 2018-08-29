@@ -8,7 +8,6 @@ import {startVideo} from "../scenes/basic/video/Video-Demo";
 import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
 import {startDualGltf} from "../scenes/complex/scenes/dual-gltf/DualGltf";
 import {startLightingPunctual} from "../scenes/complex/scenes/lighting-punctual/LightingPunctual";
-import {Future} from "fluture";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";
 import {WebGlRenderer} from "lib/Lib";
@@ -17,7 +16,7 @@ import {getModel} from "../scenes/gltf/Gltf-Models";
 
 const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
     :{renderer:WebGlRenderer, scene:string, section:string, menuOptions: any, onMenuChange: any})
-    :Future<any,Maybe<[(frameTs:number) => void, () => void]>> => {
+    :Promise<Maybe<[(frameTs:number) => void, () => void]>> => {
    
     const mapReturn = xf => 
         Array.isArray(xf) ? S.Just(xf) : S.Just([xf, () => {}]);
@@ -27,12 +26,12 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
 
     if(section === "basic") {
         switch(scene) {
-            case "BOX_BASIC": return startBox(renderer) ("basic").map(mapReturn);
-            case "BOX_VAO": return startBox (renderer) ("vao").map(mapReturn);
-            case "QUAD":    return startQuad (renderer) (basicPath).map(mapReturn); 
-            case "TEXTURES_COMBINED": return startCombinedTextures (renderer).map(mapReturn);
-            case "SPRITESHEET": return startSpriteSheet (renderer) (basicPath).map(mapReturn);
-            case "VIDEO_QUAD": return startVideo (renderer) (basicPath).map(mapReturn); 
+            case "BOX_BASIC": return startBox(renderer) ("basic").then(mapReturn);
+            case "BOX_VAO": return startBox (renderer) ("vao").then(mapReturn);
+            case "QUAD":    return startQuad (renderer) (basicPath).then(mapReturn); 
+            case "TEXTURES_COMBINED": return startCombinedTextures (renderer).then(mapReturn);
+            case "SPRITESHEET": return startSpriteSheet (renderer) (basicPath).then(mapReturn);
+            case "VIDEO_QUAD": return startVideo (renderer) (basicPath).then(mapReturn); 
         }
     } else if(section === "gltf") {
         const modelInfo = getModel(scene);
@@ -42,19 +41,19 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                 modelInfo,
                 menuOptions: menuOptions.gltf,
                 onMenuChange
-            }).map(mapReturn);
+            }).then(mapReturn);
         }
     } else if(section === "complex") {
         switch(scene) {
             case "DUAL_GLTF":
-                return startDualGltf (renderer) ({basicPath, gltfPath}).map(mapReturn);
+                return startDualGltf (renderer) ({basicPath, gltfPath}).then(mapReturn);
             case "LIGHTING_PUNCTUAL":
-                return startLightingPunctual (renderer) ({basicPath, gltfPath}).map(mapReturn);
+                return startLightingPunctual (renderer) ({basicPath, gltfPath}).then(mapReturn);
         }
 
     }
 
-    return Future.of(S.Nothing);
+    return Promise.resolve(S.Nothing);
 }
 
 export class Container extends React.Component<{section: string, scene:string, menuOptions:any, onMenuChange: any}, {isLoading: boolean}> {
@@ -138,7 +137,7 @@ export class Container extends React.Component<{section: string, scene:string, m
             scene,
             menuOptions,
             onMenuChange
-        }).fork(console.error, (mFuncs) => {
+        }).then(mFuncs => {
             this.setState({isLoading: false});
             this.mThunk = S.map(funcs => funcs[0]) (mFuncs);
             this.mCleanup = S.map(funcs => funcs[1]) (mFuncs); 

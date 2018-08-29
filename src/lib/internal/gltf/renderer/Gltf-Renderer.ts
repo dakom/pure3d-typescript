@@ -6,7 +6,6 @@ import {forEachNodes, findNode, countNodes } from "../../../exports/common/nodes
 import {pushNumbersToArray, setNumbersOnArrayFrom} from "../../common/ArrayUtils";
 import {createVec3, createMat4} from "../../../exports/common/array/Array";
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
-import { Future } from "fluture";
 
 import {
     WebGlVertexArrayData,

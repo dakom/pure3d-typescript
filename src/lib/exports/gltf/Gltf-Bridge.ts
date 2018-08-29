@@ -1,5 +1,3 @@
-import { Future, parallel } from 'fluture';
-import { fetchJsonUrl, fetchArrayBuffer, fetchImage, fetchArrayBufferUrl } from 'fluture-loaders';
 import {mat4} from "gl-matrix";
 
 import {
@@ -13,6 +11,7 @@ import {GLTF_PARSE_getNodes} from "../../internal/gltf/gltf-parse/Gltf-Parse-Nod
 import { getDefaultInitConfig, prepWebGlRenderer } from '../../internal/gltf/init/Gltf-Init';
 import { getBasePath } from "../../internal/common/Basepath";
 import {createVec3} from "../common/array/Array";
+import {fetchArrayBuffer} from "../../internal/common/FetchUtils";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {findNode, countNodes } from "../common/nodes/Nodes";
 import {
@@ -69,14 +68,14 @@ export const gltf_load = ({ renderer, path, config, mapper }: GltfLoaderOptions)
 
     return bridge
         .loadFile(path)
-        .chain(({gltf, glbBuffers}) => {
+        .then(({gltf, glbBuffers}) => {
             gltf = mapper ? mapper(gltf) : gltf;
             return bridge.loadAssets({gltf, glbBuffers, basePath: getBasePath(path)})
-                .map(assets => ({gltf, config, assets}));
+                .then(assets => ({gltf, config, assets}));
             
         })
-        .map(bridge.start)
-        .map(() => bridge);
+        .then(bridge.start)
+        .then(() => bridge);
 }
 
 function createGltfBridge(renderer:WebGlRenderer) {
@@ -86,7 +85,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
     let _data: GltfData;
 
     const loadFile = (path:string) => 
-        fetchArrayBufferUrl(path).map(GLTF_PARSE_getOriginalFromArrayBuffer)
+        fetchArrayBuffer(path).then(GLTF_PARSE_getOriginalFromArrayBuffer)
 
     const loadAssets = ({gltf, basePath, glbBuffers}:{gltf:GLTF_ORIGINAL, basePath?: string, glbBuffers:Array<ArrayBuffer>}) => 
         GLTF_PARSE_LoadDataAssets({ basePath: basePath ? basePath : "", gltf, glbBuffers})

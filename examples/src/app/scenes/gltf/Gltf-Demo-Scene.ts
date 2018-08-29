@@ -46,7 +46,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
         mapper: addGltfExtensions (menuOptions) (modelInfo.model) 
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
-    .map(bridge => {
+    .then(bridge => {
 
         const cameras = getCameraList(bridge.getData().original);
         if(cameras.sort().toString() !== menuOptions.cameras.sort().toString()) {

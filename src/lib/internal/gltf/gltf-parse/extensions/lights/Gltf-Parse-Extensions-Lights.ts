@@ -38,7 +38,6 @@ import {
     GltfLights_MAX
 } from "../../../../../Types"; 
 
-import { fetchImage, fetchJsonUrl } from 'fluture-loaders';
 import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../../../exports/webgl/WebGl-Textures";
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";

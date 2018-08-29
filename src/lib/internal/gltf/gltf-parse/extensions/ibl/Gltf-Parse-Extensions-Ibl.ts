@@ -32,12 +32,10 @@ import {
     GltfIblConfig
 } from "../../../../../Types"; 
 
-import { Future, parallel } from 'fluture';
-import { fetchImage, fetchJsonUrl } from 'fluture-loaders';
 import { createCubeTextureFromTarget, createTextureFromTarget} from "../../../../../exports/webgl/WebGl-Textures";
 import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
-
+import {fetchJson, fetchImage} from "../../../../common/FetchUtils";
 
 const getIblConfig = (gltf:GLTF_ORIGINAL):GltfIblConfig => {
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfIblExtensionName) !== -1) {
@@ -47,18 +45,18 @@ const getIblConfig = (gltf:GLTF_ORIGINAL):GltfIblConfig => {
 }
 
 
-const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future<any, GltfDataAssets> => {
+const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Promise<GltfDataAssets> => {
     const config = getIblConfig(gltf);
     const path = config ? config.path : "";
 
     if(path === "") {
-        return Future.of(coreData);
+        return Promise.resolve(coreData);
     }
 
     
     
-    return (fetchJsonUrl(path) as Future<any, GltfIblJson>)
-        .chain(jsonData => {
+    return fetchJson(path)
+        .then(jsonData => {
                 const basePath = getBasePath(path);
 
                 const imageUrls  = Array<string>();
@@ -77,10 +75,10 @@ const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future
                     })
                 })
 
-                const imageFutures = imageUrls.map(url => fetchImage(basePath + url).map(img => ({url, img})));
+                const imagePromises = imageUrls.map(url => fetchImage(basePath + url).then(img => ({url, img})));
 
-                return parallel(Infinity, imageFutures)
-                    .map(ldrs => {
+                return Promise.all(imagePromises) 
+                    .then(ldrs => {
                         const m = new Map<string, HTMLImageElement>();
 
                         ldrs.forEach(ldr => {
@@ -89,9 +87,9 @@ const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Future
 
                         return m;
                     })
-                    .map(imageMap => ({jsonData, imageMap}))
+                    .then(imageMap => ({jsonData, imageMap}))
         })
-        .map(ibl => Object.assign({}, coreData, {extensions:
+        .then(ibl => Object.assign({}, coreData, {extensions:
                 Object.assign({}, coreData.extensions, {ibl})
         }));
 }

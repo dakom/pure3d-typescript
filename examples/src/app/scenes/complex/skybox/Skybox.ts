@@ -7,12 +7,10 @@ import {
     WebGlConstants
 } from "lib/Lib"
 import {mat4} from "gl-matrix";
-import {parallel, Future} from "fluture";
-import {fetchImage} from "fluture-loaders";
 import {ELEMENTS_BUFFER_ID, uploadData, GEOMETRY_BUFFER_ID} from "./Skybox-Data";
 import vertexShader from "./Skybox-Shader-Vertex.glsl";
 import fragmentShader from "./Skybox-Shader-Fragment.glsl";
-
+import {fetchImage} from "lib/internal/common/FetchUtils";
 
 const urls = [
     "static/world/environment/environment_right_0.jpg",
@@ -24,8 +22,8 @@ const urls = [
 ];
 
 const loadSkybox = (renderer:WebGlRenderer) => 
-    parallel(Infinity, urls.map(fetchImage))
-        .map(imgElements => 
+    Promise.all(urls.map(fetchImage))
+        .then(imgElements => 
             createCubeTextureFromTarget({
                 gl: renderer.gl,
                 format: WebGlConstants.RGB, 
@@ -49,7 +47,7 @@ const loadSkybox = (renderer:WebGlRenderer) =>
 
 export const createSkybox = (renderer:WebGlRenderer) =>
     loadSkybox(renderer)
-        .map(texture => { 
+        .then(texture => { 
 
             const shaderId = Symbol();
             const vaoId = Symbol();

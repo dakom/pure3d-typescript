@@ -15,7 +15,6 @@ import {
     WebGlRenderer,
     gltf_updateScene
 } from "lib/Lib";
-import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
 import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
 import {PointerEventStatus} from "input-senders";
@@ -56,7 +55,7 @@ const _getBridge = ({renderer, gltfPath, modelName, translate}:
             (modelInfo.model)
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
-    .map(bridge => {
+    .then(bridge => {
 
         let scene:GltfScene;
 
@@ -87,27 +86,27 @@ export const startDualGltf = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:
             target: cameraLook 
         });
 
-        return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
-            .map(renderSkybox => ({renderSkybox}))
-            .chain(obj =>
+        return createSkybox(renderer) 
+            .then(renderSkybox => ({renderSkybox}))
+            .then(obj =>
                 _getBridge({
                     translate: [0,0,0],
                     renderer,
                     gltfPath,
                     modelName: "DAMAGED_HELMET_BINARY",
                 })
-                .map(render => Object.assign(obj, {renderGltfs: [render]}))
+                .then(render => Object.assign(obj, {renderGltfs: [render]}))
             )
-            .chain(obj => 
+            .then(obj => 
                 _getBridge({
                     translate: [0,0,1],
                     renderer,
                     gltfPath,
                     modelName: "CESIUM_MAN_BINARY",
                 })
-                .map(render => (obj.renderGltfs.push(render), obj)) 
+                .then(render => (obj.renderGltfs.push(render), obj)) 
             )
-            .map(({renderSkybox, renderGltfs}) => {
+            .then(({renderSkybox, renderGltfs}) => {
                 controls.enable();
 
                 return [

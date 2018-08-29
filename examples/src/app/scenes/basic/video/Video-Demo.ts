@@ -1,8 +1,8 @@
 import { createWebGlRenderer, WebGlConstants, WebGlRenderer,  createSimpleTextureFromTarget, } from "lib/Lib";
 import { createVideoRenderer, SHADER_ID as videoShaderId } from "./video-renderer/Video-Renderer";
 import { mat4 } from "gl-matrix";
-import {playVideo} from "fluture-loaders";
-import {Future} from "fluture";
+import {sameOrigin} from "lib/internal/common/FetchUtils";
+
 
 export const startVideo = (renderer:WebGlRenderer) => (assetPath:string) => {
 
@@ -13,8 +13,8 @@ export const startVideo = (renderer:WebGlRenderer) => (assetPath:string) => {
 
   //Load texture
   return playVideo(assetPath + "video/Firefox.mp4")
-    .map(video => [video, createSimpleTextureFromTarget({gl: renderer.gl, alpha: false, flipY: true}) (video)])
-    .map(([video, texture]:[HTMLVideoElement, WebGLTexture]) => {
+    .then(video => [video, createSimpleTextureFromTarget({gl: renderer.gl, alpha: false, flipY: true}) (video)])
+    .then(([video, texture]:[HTMLVideoElement, WebGLTexture]) => {
       const {videoWidth, videoHeight} = video;      
       const {gl} = renderer;
 
@@ -35,3 +35,40 @@ export const startVideo = (renderer:WebGlRenderer) => (assetPath:string) => {
       }
     });
 }
+
+
+const playVideo = (url:string):Promise<HTMLVideoElement> => new Promise((resolve, reject) => {
+
+    let playing = false;
+    let timeupdate = false;
+  
+    const video = document.createElement('video');
+  
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = true;
+
+    if(!sameOrigin(url)) {
+        video.crossOrigin = "anonymous";
+    }
+    
+    const checkReady = () => {
+      if (playing && timeupdate) {
+        resolve(video);
+      }
+    }
+  
+    video.addEventListener('playing', () => {
+       playing = true;
+       checkReady();
+    }, true);
+  
+    video.addEventListener('timeupdate', () => {
+       timeupdate = true;
+       checkReady();
+    }, true);
+  
+    
+    video.src = url;
+    video.play();
+})

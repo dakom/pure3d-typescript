@@ -1,8 +1,7 @@
 import { createWebGlRenderer, WebGlConstants, WebGlRenderer, createSimpleTextureFromTarget  } from "lib/Lib";
 import { createQuadRenderer, SHADER_ID as quadShaderId } from "./quad-renderer/Quad-Renderer";
-import {fetchImage} from "fluture-loaders";
+import {fetchImage} from "lib/internal/common/FetchUtils";
 import { mat4 } from "gl-matrix";
-import {Future} from "fluture";
 
 export const startQuad =  (renderer:WebGlRenderer) => (assetPath:string) => { 
 
@@ -14,8 +13,8 @@ export const startQuad =  (renderer:WebGlRenderer) => (assetPath:string) => {
 
   //Load texture
   return fetchImage(assetPath + "sprites/fireball/fireball.png")
-    .map(img => [img, createSimpleTextureFromTarget({gl: renderer.gl, alpha: true, flipY: true}) (img)])
-    .map(([img, texture]:[HTMLImageElement, WebGLTexture]) => {
+    .then(img => [img, createSimpleTextureFromTarget({gl: renderer.gl, alpha: true, flipY: true}) (img)])
+    .then(([img, texture]:[HTMLImageElement, WebGLTexture]) => {
       //Setup element
       const quadElement = {
         img,

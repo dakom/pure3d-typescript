@@ -2,7 +2,6 @@ import { createWebGlRenderer, WebGlConstants, WebGlRenderer } from "lib/Lib";
 import { createBoxBasicRenderer} from "./box-basic-renderer/Box-Basic-Renderer";
 import {createBoxVaoRenderer} from "./box-vao-renderer/Box-Vao-Renderer";
 import { mat4 } from "gl-matrix";
-import {Future} from "fluture";
 import {BoxElement} from "./Box-Element";
 import {uploadData} from "./Box-Data";
 
@@ -32,7 +31,7 @@ export const startBox = (renderer:WebGlRenderer) => (style:"basic" | "vao") => {
     clipSpace: mat4.multiply(mat4.create(), cameraMatrix, mat4.fromTranslation(mat4.create(), [0, 0, 400]))
   }
 
-  return Future.of(() => {
+  return Promise.resolve(() => {
     renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT);
     renderBox(boxElement);
   });

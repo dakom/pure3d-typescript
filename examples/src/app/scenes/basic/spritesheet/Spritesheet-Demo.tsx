@@ -1,8 +1,7 @@
 import { createWebGlRenderer, WebGlConstants, WebGlRenderer, createSimpleTextureFromTarget } from "lib/Lib";
 import { createSpriteSheetRenderer, SHADER_ID as spriteSheetShaderId, SpriteSheetElement } from "./spritesheet-renderer/Spritesheet-Renderer";
 import { mat4 } from "gl-matrix";
-import {fetchImage} from "fluture-loaders";
-import {Future} from "fluture";
+import {fetchImage} from "lib/internal/common/FetchUtils";
 
 const getRandomSequence = ():number => {
   const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -21,8 +20,8 @@ export const startSpriteSheet = (renderer:WebGlRenderer) => (assetPath:string) =
 
   //Load texture
   return fetchImage(assetPath + "sprites/fireball/fireball.png")
-    .map(img => [img, createSimpleTextureFromTarget({ gl: renderer.gl, alpha: true, flipY: true})(img)])
-    .map(([img, texture]: [HTMLImageElement, WebGLTexture]) => {
+    .then(img => [img, createSimpleTextureFromTarget({ gl: renderer.gl, alpha: true, flipY: true})(img)])
+    .then(([img, texture]: [HTMLImageElement, WebGLTexture]) => {
       
 
       const cellSize = [64, 64];

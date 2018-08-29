@@ -3,7 +3,6 @@ import { createCombinedTexturesRenderer, SHADER_ID as combinedTexturesShaderId, 
 import { mat4 } from "gl-matrix";
 import { createPerlinTexture } from "./PerlinTexture";
 import {createSolidTexture} from "./SolidTexture";
-import {Future} from "fluture";
 
 const perlinGreyscale = ({ x, y, noise }: { x: number, y: number, noise: number }): Array<number> => {
   const color = Math.round(255 * noise);
@@ -49,7 +48,7 @@ export const startCombinedTextures = (renderer:WebGlRenderer) => {
   }
 
   //render!
-  return Future.of(() => {
+  return Promise.resolve(() => {
     renderer.gl.clear(WebGlConstants.COLOR_BUFFER_BIT | WebGlConstants.DEPTH_BUFFER_BIT);
     renderTextures(element);
   })

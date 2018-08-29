@@ -2,7 +2,6 @@ import { mat4, vec3, quat } from 'gl-matrix';
 
 import { GltfBridge, WebGlConstants, WebGlRenderer,  WebGlShader } from '../../../Types';
 import {createShader, activateShader} from "../../../exports/webgl/WebGl-Shaders";
-import { Future } from "fluture";
 import {
     GltfRendererThunk,
     Light,

@@ -8,8 +8,6 @@ import {
     NumberArray
 } from "lib/Lib"
 import {mat4} from "gl-matrix";
-import {parallel, Future} from "fluture";
-import {fetchImage} from "fluture-loaders";
 import vertexShader from "./Lines-Shader-Vertex.glsl";
 import fragmentShader from "./Lines-Shader-Fragment.glsl";
 

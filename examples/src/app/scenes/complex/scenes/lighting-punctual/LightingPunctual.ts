@@ -22,7 +22,6 @@ import {
     GltfLightNode,
     gltf_updateScene
 } from "lib/Lib";
-import {Future} from "fluture";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
 import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
 import {PointerEventStatus} from "input-senders";
@@ -40,7 +39,7 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
         config: { },
     })
     //.chain(bridge => bridge.loadEnvironment("static/world/world/json"))
-    .map(bridge => {
+    .then(bridge => {
 
         let scene:GltfScene;
 
@@ -92,17 +91,17 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
         mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
 
         const camera = {projection, view}
-        return (createSkybox(renderer) as Future<any, (camera:Camera) => (frameTs:number) => void>)
-            .map(renderSkybox => ({
+        return createSkybox(renderer)
+            .then(renderSkybox => ({
                 renderSkybox,
                 renderLines: createLinesRenderer(renderer)
             }))
-            .chain(renderers => 
+            .then(renderers => 
                 //getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
                 getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/helmet/LightingPunctual-DamagedHelmet.gltf")
-                    .map(renderScene => Object.assign({}, renderers, {renderScene}))
+                    .then(renderScene => Object.assign({}, renderers, {renderScene}))
             )
-            .map(({renderSkybox, renderLines, renderScene}) => {
+            .then(({renderSkybox, renderLines, renderScene}) => {
                 return [
                     (frameTs:number) => {
 

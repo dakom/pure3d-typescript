@@ -1,5 +1,3 @@
-import { Future, parallel } from 'fluture';
-import { fetchArrayBufferUrl, fetchImage, loadImageFromArrayBuffer } from 'fluture-loaders';
 import { GltfInitConfig, WebGlRenderer, WebGlShader, WebGlBufferData, WebGlBufferInfo} from '../../../Types';
 
 import { WebGlVertexArrayData, WebGlAttributeActivateOptions,GLTF_ORIGINAL, GltfData, GltfDataAssets } from '../../../Types';
@@ -8,19 +6,20 @@ import { GLTF_PARSE_createAttributes} from './Gltf-Parse-Data-Attributes';
 import { GLTF_PARSE_createAnimations } from './Gltf-Parse-Data-Animation';
 import { GLTF_PARSE_createTextures } from './Gltf-Parse-Data-Textures';
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
+import {fetchArrayBuffer, loadImageFromArrayBuffer, fetchImage} from "../../common/FetchUtils";
 
 //Pure data loaders
 
-const loadBuffers = ({ basePath, gltf, glbBuffers }: { basePath: string, gltf: GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer> }): Future<any, Array<ArrayBuffer>> => 
-    parallel(Infinity, gltf.buffers.map((buffer, bufferIndex) =>
-        glbBuffers !== undefined && bufferIndex < glbBuffers.length
-        ? Future.of(glbBuffers[bufferIndex].slice(0, buffer.byteLength))
-        : buffer.uri.indexOf("data:") === 0
-        ? fetchArrayBufferUrl(buffer.uri)
-        : fetchArrayBufferUrl(basePath + buffer.uri)
+const loadBuffers = ({ basePath, gltf, glbBuffers }: { basePath: string, gltf: GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer> }): Promise<Array<ArrayBuffer>> => 
+    Promise.all(gltf.buffers.map((buffer, bufferIndex) =>
+        glbBuffers !== undefined && bufferIndex < glbBuffers.length 
+            ? Promise.resolve(glbBuffers[bufferIndex].slice(0, buffer.byteLength))
+        : buffer.uri.indexOf("data:") === 0 
+            ? fetchArrayBuffer(buffer.uri)
+        : fetchArrayBuffer(basePath + buffer.uri)
     ));
 
-const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer> }): Future<any, Array<HTMLImageElement>> => {
+const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_ORIGINAL, buffers: Array<ArrayBuffer> }): Promise<Array<HTMLImageElement>> => {
     const getImageBufferData = (bufferViewId: number): ArrayBuffer => {
 
         const bufferView = gltf.bufferViews[bufferViewId];
@@ -32,7 +31,7 @@ const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_
 
 
     //load texture data
-    return parallel(Infinity, !gltf.images || !gltf.images.length
+    return Promise.all(!gltf.images || !gltf.images.length
         ? []
         : gltf.images.map(image => 
             image.bufferView !== undefined
@@ -47,14 +46,14 @@ const loadImages = ({ basePath, gltf, buffers }: { basePath: string, gltf: GLTF_
 
 //Tools for processing and loading data
 
-export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath:string, gltf:GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer>}):Future<any, GltfDataAssets> => 
+export const GLTF_PARSE_LoadDataAssets = ({basePath, gltf, glbBuffers}:{basePath:string, gltf:GLTF_ORIGINAL, glbBuffers?:Array<ArrayBuffer>}):Promise<GltfDataAssets> => 
     GltfExtensions
         .map(ext => ext.loadAssets)
-        .reduce((acc, fn) => (acc = acc.chain(coreData => fn({gltf, coreData})), acc),
+        .reduce((acc, fn) => (acc = acc.then(coreData => fn({gltf, coreData})), acc),
             loadBuffers({basePath, gltf, glbBuffers})
-                .chain((buffers: Array<ArrayBuffer>) => 
+                .then((buffers: Array<ArrayBuffer>) => 
                     loadImages({basePath, gltf, buffers})
-                        .map(imageElements => ({
+                        .then(imageElements => ({
                             buffers, imageElements, extensions: {}
                         }))
                 )
