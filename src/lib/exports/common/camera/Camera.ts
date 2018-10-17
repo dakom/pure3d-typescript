@@ -1,6 +1,7 @@
 import {Transform, Camera, CameraKind, NumberArray, OrthographicCameraSettings, PerspectiveCameraSettings, CameraSettings } from "../../../Types";
 import {createVec3, createMat4} from "../array/Array";
 import {mat4} from "gl-matrix";
+import { CameraNode } from "../../../types/common/nodes/Nodes-Types";
 
 export const getOrthographicProjection = (settings:Partial<OrthographicCameraSettings>) => {
     const values = createMat4(); 
@@ -62,3 +63,19 @@ export const setCameraProjectionFromSettings = (settings:CameraSettings) => (cam
     Object.assign({}, camera, {
         projection: getCameraProjection(settings)
     })
+
+export const getCameraFromNode = (cameraNode:CameraNode):Camera => 
+    setCameraPositionFromTransform(cameraNode.transform) (
+                setCameraViewFromTransform (cameraNode.transform) (
+                    setCameraProjectionFromSettings (cameraNode.camera.settings) (cameraNode.camera)
+                )
+    )
+
+
+export const getCameraFromNodeAndCanvas = (cameraNode:CameraNode) => (canvas:HTMLCanvasElement):Camera => {
+    const settings = Object.assign({}, cameraNode.camera.settings, {canvas});
+    const camera = Object.assign({}, cameraNode.camera, ({settings}));
+    const node = Object.assign({}, cameraNode, {camera});
+
+    return getCameraFromNode (node);
+}

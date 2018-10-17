@@ -7,7 +7,7 @@ import {startSpriteSheet} from "../scenes/basic/spritesheet/Spritesheet-Demo";
 import {startVideo} from "../scenes/basic/video/Video-Demo";
 import {startGltf} from "../scenes/gltf/Gltf-Demo-Scene";
 import {startDualGltf} from "../scenes/complex/scenes/dual-gltf/DualGltf";
-import {startLightingPunctual} from "../scenes/complex/scenes/lighting-punctual/LightingPunctual";
+import {startLightingTest} from "../scenes/complex/scenes/lighting-test/LightingTest";
 import {WEBGL_DEV_ASSET_PATH, WEBGL_PRODUCTION_ASSET_PATH, GLTF_DEV_ASSET_PATH, GLTF_PRODUCTION_ASSET_PATH} from "utils/Path";
 import {isProduction} from "../App-Main";
 import {WebGlRenderer} from "lib/Lib";
@@ -48,7 +48,35 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
             case "DUAL_GLTF":
                 return startDualGltf (renderer) ({basicPath, gltfPath}).then(mapReturn);
             case "LIGHTING_PUNCTUAL":
-                return startLightingPunctual (renderer) ({basicPath, gltfPath}).then(mapReturn);
+                return startLightingTest 
+                        (renderer) 
+                        ({basicPath, gltfPath})
+                        ("perspective")
+                        (true)
+                        (basicPath + "gltf-scenes/lighting-punctual/helmet/LightingPunctual-DamagedHelmet.gltf").then(mapReturn);
+            case "LIGHTING_TEST_POINT":
+                return startLightingTest 
+                        (renderer) 
+                        ({basicPath, gltfPath})
+                        ("ortho")
+                        (false)
+                        (basicPath + "gltf-scenes/lighting-test/PointLightTest.gltf").then(mapReturn);
+
+            case "LIGHTING_TEST_SPOT":
+                return startLightingTest 
+                        (renderer) 
+                        ({basicPath, gltfPath})
+                        ("ortho")
+                        (false)
+                        (basicPath + "gltf-scenes/lighting-test/SpotLightTest.gltf").then(mapReturn);
+
+            case "LIGHTING_TEST_SCALE":
+                return startLightingTest 
+                        (renderer) 
+                        ({basicPath, gltfPath})
+                        ("ortho")
+                        (false)
+                        (basicPath + "gltf-scenes/lighting-test/LightScale.gltf").then(mapReturn);
         }
 
     }

@@ -20,7 +20,8 @@ import {
     createMat4,
     createTransform,
     GltfLightNode,
-    gltf_updateScene
+    gltf_updateScene,
+    getCameraFromNodeAndCanvas
 } from "lib/Lib";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
 import {updateCamera, getInitialBasicCamera} from "../../../../utils/Camera";
@@ -30,8 +31,13 @@ import {addGltfExtensions} from "../../../../utils/Gltf-Mixin";
 import {createSkybox} from "../../skybox/Skybox";
 import {createLinesRenderer, getAxes} from "../../lines/Lines";
 import {mat4} from "gl-matrix";
+import { getOrGenerateShader } from "../../../../../../../src/lib/internal/gltf/shaders/Gltf-Runtime-Shader";
 
-const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
+const getSceneRenderer = 
+    (useBuiltinCamera:boolean) => 
+    (addLight:boolean) =>
+    (renderer:WebGlRenderer) => 
+    (path:string) =>  {
 
     return gltf_load({
         renderer, 
@@ -47,24 +53,31 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 
-        const render = (camera:Camera) => (frameTs:number) => {
+        const cameraNode = bridge.getCameraNode(0);
+
+        const render = (_camera:Camera) => (frameTs:number) => {
+                const camera = cameraNode && useBuiltinCamera
+                    ? getCameraFromNodeAndCanvas(cameraNode) (renderer.canvas)
+                    : _camera;
+
                 if(!scene) {
                     scene = bridge.getOriginalScene(camera) (0);
 
-                    const light:GltfLightNode = {
-                        kind: NodeKind.LIGHT,
-                        light: {
-                            kind: LightKind.Point,
-                            color: [1,0,0],
-                            intensity: 100
-                        },
-                        transform: createTransform (null) ({
-                            translation: [3,3,3]
-                        }) 
+                    if (addLight) {
+                        const light: GltfLightNode = {
+                            kind: NodeKind.LIGHT,
+                            light: {
+                                kind: LightKind.Point,
+                                color: [1, 0, 0],
+                                intensity: 100
+                            },
+                            transform: createTransform(null)({
+                                translation: [3, 3, 3]
+                            })
+                        }
+
+                        scene.nodes.push(light);
                     }
-
-                    scene.nodes.push(light);
-
                 }
 
                 scene = updateScene(frameTs) (Object.assign({}, scene, {camera}));
@@ -75,20 +88,38 @@ const getSceneRenderer = (renderer:WebGlRenderer) => (path:string) =>  {
     });
 }
 
-export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => {
+export const startLightingTest = 
+        (renderer:WebGlRenderer) => 
+        ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => 
+        (cameraType: "builtin" | "ortho" | "perspective") => 
+        (addLight:boolean) => 
+        (filePath:string) => {
         const axes = getAxes (5);
 
         
-        const projection = getPerspectiveProjection({
-            yfov: 45.0 * Math.PI / 180,
-            aspectRatio: renderer.canvas.clientWidth / renderer.canvas.clientHeight,
-            znear: .01,
-            zfar: 1000
-        })  
+        const projection = 
+            cameraType === "perspective"
+                ?   getPerspectiveProjection({
+                        yfov: 45.0 * Math.PI / 180,
+                        aspectRatio: renderer.canvas.clientWidth / renderer.canvas.clientHeight,
+                        znear: .01,
+                        zfar: 1000
+                    })
+                :   getOrthographicProjection({
+                        xmag: 15,
+                        ymag: 15,
+                        znear: 0.01,
+                        zfar: 100
+                    });
 
         const view = createMat4();
-        
-        mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
+       
+        if(cameraType === "perspective") {
+            mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
+        } else {
+
+            mat4.lookAt(view, [0,7,7], [0,0,0], [0,1,0]);
+        }
 
         const camera = {projection, view}
         return createSkybox(renderer)
@@ -97,11 +128,11 @@ export const startLightingPunctual = (renderer:WebGlRenderer) => ({basicPath, gl
                 renderLines: createLinesRenderer(renderer)
             }))
             .then(renderers => 
-                //getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/lighting-punctual.gltf")
-                getSceneRenderer (renderer) (basicPath + "gltf-scenes/lighting-punctual/helmet/LightingPunctual-DamagedHelmet.gltf")
+                getSceneRenderer (cameraType === "builtin") (addLight) (renderer) (filePath)
                     .then(renderScene => Object.assign({}, renderers, {renderScene}))
             )
             .then(({renderSkybox, renderLines, renderScene}) => {
+
                 return [
                     (frameTs:number) => {
 

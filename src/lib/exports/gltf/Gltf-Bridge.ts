@@ -14,6 +14,7 @@ import {createVec3} from "../common/array/Array";
 import {fetchArrayBuffer} from "../../internal/common/FetchUtils";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
 import {findNode, countNodes } from "../common/nodes/Nodes";
+import {getCameraFromNodeAndCanvas} from "../common/camera/Camera";
 import {
     setCameraPositionFromTransform,
     setCameraViewFromTransform,
@@ -138,14 +139,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
             return undefined;
         }
 
-        const camera = 
-            setCameraPositionFromTransform(node.transform) (
-                setCameraViewFromTransform (node.transform) (
-                    setCameraProjectionFromSettings (Object.assign({}, node.camera.settings, {canvas: renderer.canvas})) (
-                        Object.assign({}, node.camera)
-                    )
-                )
-            );
+        const camera = getCameraFromNodeAndCanvas(node) (renderer.canvas);
                         
         return Object.assign({}, node, {camera}) 
     }

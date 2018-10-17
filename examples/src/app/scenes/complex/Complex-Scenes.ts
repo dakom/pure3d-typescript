@@ -14,7 +14,10 @@ export const COMPLEX_MENUS = convertMenu([
     {
         label: "LIGHTING",
         items: [
-            "LIGHTING_PUNCTUAL"
+            "LIGHTING_PUNCTUAL",
+            "LIGHTING_TEST_POINT",
+            "LIGHTING_TEST_SPOT",
+            "LIGHTING_TEST_SCALE"
         ]
     },
     /*

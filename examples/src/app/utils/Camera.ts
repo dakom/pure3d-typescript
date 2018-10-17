@@ -15,7 +15,8 @@ import {getCameraProjection,
     WebGlRenderer,
     setCameraPositionFromTransform,
     setCameraViewFromTransform,
-    setCameraProjectionFromSettings
+    setCameraProjectionFromSettings,
+    getCameraFromNodeAndCanvas
 } from "lib/Lib";
 import {mat4, vec3} from "gl-matrix";
 import {PointerEventStatus, PointerScreenEventData} from "input-senders";
@@ -34,15 +35,7 @@ export const updateCamera = (renderer:WebGlRenderer) => ({isControlled, controls
 
         return Object.assign({}, camera, {position: controls.position, view });
     } else {
-        return (
-            setCameraPositionFromTransform(cameraNode.transform) (
-                setCameraViewFromTransform (cameraNode.transform) (
-                    setCameraProjectionFromSettings (Object.assign({}, camera.settings, {canvas: renderer.canvas})) (
-                        camera
-                    )
-                )
-            )
-        );
+        return getCameraFromNodeAndCanvas(cameraNode) (renderer.canvas);
     }
 }
 
