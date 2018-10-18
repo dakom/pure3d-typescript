@@ -72,7 +72,6 @@ export const findNode = <T extends _Node> (pred: (node:T) => boolean) => (nodesO
     return targetNode;
 }
 
-
 //Note - the immutability guarantee is the responsibility of the function - after it returns, the children are _replaced_
 export const mapNode = <T extends _Node> (fn: (node:T) => T) => (node:T):T => {
     const n = fn (node)

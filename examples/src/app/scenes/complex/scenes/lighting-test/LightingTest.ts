@@ -48,20 +48,23 @@ const getSceneRenderer =
     .then(bridge => {
 
         let scene:GltfScene;
+        let camera;
 
         const updateScene = gltf_updateScene(
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 
-        const cameraNode = bridge.getCameraNode(0);
-
         const render = (_camera:Camera) => (frameTs:number) => {
-                const camera = cameraNode && useBuiltinCamera
-                    ? getCameraFromNodeAndCanvas(cameraNode) (renderer.canvas)
-                    : _camera;
 
                 if(!scene) {
-                    scene = bridge.getOriginalScene(camera) (0);
+                    scene = bridge.getOriginalScene(_camera) (0);
+
+                    camera = 
+                        useBuiltinCamera
+                            ? getCameraFromNodeAndCanvas(scene.nodes[0].children[0]) (renderer.canvas)
+                            : _camera;
+
+                    console.log(camera);
 
                     if (addLight) {
                         const light: GltfLightNode = {

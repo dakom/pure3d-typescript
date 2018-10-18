@@ -59,7 +59,7 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                 return startLightingTest 
                         (renderer) 
                         ({basicPath, gltfPath})
-                        ("ortho")
+                        ("builtin")
                         (false)
                         (false)
                         (basicPath + "gltf-scenes/lighting-test/PointLightTest.gltf").then(mapReturn);

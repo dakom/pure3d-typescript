@@ -13,7 +13,7 @@ import { getBasePath } from "../../internal/common/Basepath";
 import {createVec3} from "../common/array/Array";
 import {fetchArrayBuffer} from "../../internal/common/FetchUtils";
 import {mapNodes, updateNodeListTransforms} from "../common/nodes/Nodes";
-import {findNode, countNodes } from "../common/nodes/Nodes";
+import {findNode, countNodes} from "../common/nodes/Nodes";
 import {getCameraFromNodeAndCanvas} from "../common/camera/Camera";
 import {
     setCameraPositionFromTransform,
