@@ -53,12 +53,14 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                         ({basicPath, gltfPath})
                         ("perspective")
                         (true)
+                        (true)
                         (basicPath + "gltf-scenes/lighting-punctual/helmet/LightingPunctual-DamagedHelmet.gltf").then(mapReturn);
             case "LIGHTING_TEST_POINT":
                 return startLightingTest 
                         (renderer) 
                         ({basicPath, gltfPath})
                         ("ortho")
+                        (false)
                         (false)
                         (basicPath + "gltf-scenes/lighting-test/PointLightTest.gltf").then(mapReturn);
 
@@ -68,6 +70,7 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                         ({basicPath, gltfPath})
                         ("ortho")
                         (false)
+                        (false)
                         (basicPath + "gltf-scenes/lighting-test/SpotLightTest.gltf").then(mapReturn);
 
             case "LIGHTING_TEST_SCALE":
@@ -75,6 +78,7 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                         (renderer) 
                         ({basicPath, gltfPath})
                         ("ortho")
+                        (false)
                         (false)
                         (basicPath + "gltf-scenes/lighting-test/LightScale.gltf").then(mapReturn);
         }

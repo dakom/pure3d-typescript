@@ -92,11 +92,27 @@ export const startLightingTest =
         (renderer:WebGlRenderer) => 
         ({basicPath, gltfPath}:{basicPath: string, gltfPath: string}) => 
         (cameraType: "builtin" | "ortho" | "perspective") => 
-        (addLight:boolean) => 
+        (addLight:boolean) =>
+        (addAxis:boolean) =>  
         (filePath:string) => {
         const axes = getAxes (5);
 
-        
+        const screenSize = {
+            width: renderer.canvas.clientWidth,
+            height: renderer.canvas.clientHeight
+        }
+
+        const targetSize = {
+            width: 1024,
+            height: 1024
+        }
+
+        const ratioW = screenSize.width / targetSize.width;
+        const ratioH = screenSize.height / targetSize.height;
+        const ratio = Math.min(ratioW, ratioH);
+        const targetWidth= targetSize.width* ratio;
+        const targetHeight = targetSize.height * ratio;
+
         const projection = 
             cameraType === "perspective"
                 ?   getPerspectiveProjection({
@@ -105,20 +121,33 @@ export const startLightingTest =
                         znear: .01,
                         zfar: 1000
                     })
-                :   getOrthographicProjection({
-                        xmag: 15,
-                        ymag: 15,
-                        znear: 0.01,
-                        zfar: 100
+                :  getOrthographicProjection({
+                        xmag: 20 * ratioW, 
+                        ymag: 20 * ratioH,
+                        znear: 0.001,
+                        zfar: 100000
                     });
-
+                
+                   /* 
+                    mat4.ortho(
+                        new Float64Array(16) as any, 
+                        0, 
+                        targetWidth, 
+                        0, 
+                        targetHeight, 
+                        0.01, 
+                        100
+                    );
+                    */
+                
         const view = createMat4();
        
         if(cameraType === "perspective") {
             mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
         } else {
-
-            mat4.lookAt(view, [0,7,7], [0,0,0], [0,1,0]);
+            //mat4.identity(view);
+            //mat4.lookAt(view, [3,2,7], [0,0,0], [0,1,0]);
+            mat4.lookAt(view, [0,10, 10], [0,0,0], [0,1,0]);
         }
 
         const camera = {projection, view}
@@ -143,7 +172,9 @@ export const startLightingTest =
                         //
             
                         //renderSkybox (camera);
-                        renderLines (camera) (axes);
+                        if(addAxis) {
+                            renderLines (camera) (axes);
+                        }
                         renderScene (camera) (frameTs);
 
                     },
