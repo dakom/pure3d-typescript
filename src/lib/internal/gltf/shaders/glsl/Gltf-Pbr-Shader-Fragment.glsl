@@ -193,6 +193,17 @@ float microfacetDistribution(Pbr pbr, Fragment fragment, Light light)
 // Data functions
 ///////////////////////////////
 
+vec4 getBaseColor() {
+    // The albedo may be defined from a base texture or a flat color
+    #ifdef HAS_BASECOLORMAP
+        vec4 textureColor = texture2D(u_BaseColorSampler, v_UV);
+        vec4 baseColor = SRGBtoLINEAR(textureColor) * u_BaseColorFactor;
+    #else
+        vec4 baseColor = u_BaseColorFactor;
+    #endif
+
+    return baseColor;
+}
 
 // Get the PBR info from uniforms and attributes
 Pbr getPbr() {
@@ -214,13 +225,7 @@ Pbr getPbr() {
     // convert to material roughness by squaring the perceptual roughness [2].
     float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
-    // The albedo may be defined from a base texture or a flat color
-    #ifdef HAS_BASECOLORMAP
-    vec4 textureColor = texture2D(u_BaseColorSampler, v_UV);
-    vec4 baseColor = SRGBtoLINEAR(textureColor) * u_BaseColorFactor;
-    #else
-    vec4 baseColor = u_BaseColorFactor;
-    #endif
+    vec4 baseColor = getBaseColor();
 
     #ifdef HAS_ALPHA_CUTOFF
     if(baseColor.a < u_AlphaCutoff) {
@@ -446,6 +451,12 @@ vec3 getColor(Pbr pbr, Fragment fragment, Light light) {
 
 void main()
 {
+    #ifdef UNLIT
+
+        gl_FragColor = getBaseColor();
+        return;
+    #endif
+
     Pbr pbr = getPbr();
     Fragment fragment = getFragment();
 

@@ -27,7 +27,7 @@ import {
 //TODO - speed has been optimized but need to test thoroughly for correctness (was roughly tested)
 //https://stackoverflow.com/questions/17398578/hash-algorithm-for-variable-size-boolean-array?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 
-    const baseArray = new Uint8Array(18);
+    const baseArray = new Uint8Array(19);
     const morphsArray = new Uint8Array(30);
     const skinArray = new Uint8Array(30);
     const lightsArray = new Uint8Array(30);
@@ -84,25 +84,30 @@ export const getShaderHash = (sceneConfig:GltfShaderConfig_Scene) => (primitiveC
         baseArray[10] = 1;
     }
 
-    baseArray[11] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
-    baseArray[12] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
-    baseArray[13] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
+    if(primitiveConfig.unlit) {
+        baseArray[11] = 1;
+    }
+
+    baseArray[12] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.BLEND ? 0 : 1;
+    baseArray[13] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.MASK ? 0 : 1;
+    baseArray[14] = primitiveConfig.alphaMode === GltfMaterialAlphaMode.OPAQUE ? 0 : 1;
    
 
+
     if(sceneConfig.ibl) {
-        baseArray[14] = 1;
+        baseArray[15] = 1;
         if(sceneConfig.ibl.useLod) {
-            baseArray[15] = 1;
+            baseArray[16] = 1;
         }
     }
     if(sceneConfig.unlit) {
-        baseArray[16] = 1;
+        baseArray[17] = 1;
     }
 
 
 
     if(sceneConfig.lights) {
-        baseArray[17] = 1;
+        baseArray[18] = 1;
 
         //Light instances get their own array - 10 * 3 = 30 possibilities
             for(let i = 0; i < sceneConfig.lights.nDirectionalLights; i++) {

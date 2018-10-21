@@ -37,6 +37,15 @@ import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
 import {fetchJson, fetchImage} from "../../../../common/FetchUtils";
 
+
+import {
+    createScene,
+    createNode,
+    initialShaderConfig_Primitive,
+    runtimeShaderConfig_Primitive,
+    runtimeShaderConfig_Scene,
+} from "../Gltf-Parse-Extensions-Defaults";
+
 const getIblConfig = (gltf:GLTF_ORIGINAL):GltfIblConfig => {
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfIblExtensionName) !== -1) {
         return gltf.extensions[GltfIblExtensionName]
@@ -176,16 +185,6 @@ const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF
 }
 
 
-const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  
-    scene;
-
-const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
-    return node;
-}
-
-const initialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
-    shaderConfig;
-
 const initialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => 
     data.extensions.ibl 
         ?   Object.assign({}, shaderConfig, { 
@@ -197,11 +196,6 @@ const initialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene) => (shade
 
         :   shaderConfig;
 
-const runtimeShaderConfig_Primitive = (scene: GltfScene) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
-    shaderConfig;
-
-const runtimeShaderConfig_Scene = (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => 
-    shaderConfig;
 
 
 const getShaderSource = (data:GltfData) => (sceneShaderconfig:GltfShaderConfig_Scene) => (primitiveShaderConfig: GltfShaderConfig_Primitive) => (source:WebGlShaderSource):WebGlShaderSource => { 

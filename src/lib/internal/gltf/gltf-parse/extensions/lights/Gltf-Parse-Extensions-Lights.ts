@@ -43,6 +43,15 @@ import { prepWebGlRenderer } from '../../../init/Gltf-Init';
 import {getBasePath} from "../../../../common/Basepath";
 import {forEachNodes} from "../../../../../exports/common/nodes/Nodes";
 
+import {
+    loadAssets,
+    createData,
+    createScene,
+    initialShaderConfig_Primitive,
+    runtimeShaderConfig_Primitive,
+    initialShaderConfig_Scene,
+} from "../Gltf-Parse-Extensions-Defaults";
+
 const getConfig = (gltf:GLTF_ORIGINAL):Array<GLTF_PARSE_Extension_Light> => {
     if(gltf.extensionsUsed && gltf.extensionsUsed.indexOf(GltfLightsExtensionName) !== -1) {
         return gltf.extensions[GltfLightsExtensionName].lights as Array<GLTF_PARSE_Extension_Light>
@@ -84,14 +93,6 @@ const getLight = (originalLight:GLTF_PARSE_Extension_Light):Light => {
     return light;
 }
 
-const loadAssets = ({gltf, coreData}:{gltf:GLTF_ORIGINAL, coreData: any}):Promise<GltfDataAssets> => 
-        Promise.resolve(coreData);
-
-const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF_ORIGINAL, assets: GltfDataAssets}) => (data:GltfData): GltfData => 
-       data
-
-
-const createScene = (gltf:GLTF_ORIGINAL) => (originalScene:GLTF_ORIGINAL_Scene) => (scene:GltfScene):GltfScene =>  scene;
 
 
 const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => (node:GltfNode):GltfNode => {
@@ -120,14 +121,7 @@ const createNode = (gltf:GLTF_ORIGINAL) => (originalNode:GLTF_ORIGINAL_Node) => 
 
 }
 
-const initialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
-    shaderConfig;
 
-const initialShaderConfig_Scene = (data:GltfData) => (scene:GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => 
-    shaderConfig;
-
-const runtimeShaderConfig_Primitive = (scene: GltfScene) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => 
-    shaderConfig;
 
 const runtimeShaderConfig_Scene = (scene: GltfScene) => (shaderConfig:GltfShaderConfig_Scene):GltfShaderConfig_Scene => {
 

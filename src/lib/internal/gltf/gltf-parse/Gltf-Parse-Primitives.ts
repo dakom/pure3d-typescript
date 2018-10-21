@@ -1,4 +1,4 @@
-import {WebGlVertexArrayData,WebGlAttributeActivateOptions, WebGlBufferData, WebGlBufferInfo, WebGlRenderer, WebGlShader, GLTF_ORIGINAL_Node} from '../../../Types';
+import {WebGlVertexArrayData,WebGlAttributeActivateOptions, WebGlBufferData, WebGlBufferInfo, WebGlRenderer, WebGlShader, GLTF_ORIGINAL_Node, GLTF_ORIGINAL_MeshPrimitive} from '../../../Types';
 
 import { GltfData, GltfPrimitive, GltfInitConfig } from '../../../Types';
 import { GLTF_PARSE_createPrimitiveAttributes } from './Gltf-Parse-Primitive-Attributes';
@@ -44,4 +44,10 @@ export const GLTF_PARSE_createPrimitives = ({ renderer, data}: { renderer: WebGl
             }))
         );
     return meshPrimitives;
+}
+
+export const GLTF_PARSE_getOriginalPrimitive = (data:GltfData) => (meshId:number) => (primitiveId:number):GLTF_ORIGINAL_MeshPrimitive => {
+    const mesh = data.original.meshes[meshId];
+    
+    return mesh ? mesh.primitives[primitiveId] : undefined;
 }

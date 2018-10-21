@@ -18,6 +18,7 @@ export interface GltfShaderConfig_Primitive {
     manualSRGB: boolean;
     fastSRGB: boolean;
     alphaMode: GltfMaterialAlphaMode;
+    unlit: boolean;
 }
 
 export interface GltfShaderConfig_Scene {

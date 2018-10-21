@@ -26,7 +26,6 @@ import {
     GltfLightsShaderConfig,
 } from '../../../Types';
 import { GLTF_PARSE_getPrimitiveAttributeKeys, GLTF_PARSE_sortPrimitiveAttributeKeys } from '../gltf-parse/Gltf-Parse-Primitive-Attributes';
-import {GLTF_PARSE_primitiveIsUnlit} from "../gltf-parse/extensions/unlit/Gltf-Parse-Extensions-Unlit";
 
 import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 
