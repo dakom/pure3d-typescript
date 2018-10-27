@@ -179,7 +179,7 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
                 u_Light_Directional_Color[${i}],
                 u_Light_Directional_Intensity[${i}]
             );\n`
-            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
+            LIGHTS_FUNCS += `color += getLightColor(pbr, fragment, light);\n`;
         }
     }
 
@@ -195,7 +195,7 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
                 u_Light_Point_Color[${i}], 
                 u_Light_Point_Intensity[${i}]
             );\n`
-            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
+            LIGHTS_FUNCS += `color += getLightColor(pbr, fragment, light);\n`;
         }
     }
 
@@ -218,7 +218,7 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
                 u_Light_Spot_Color[${i}], 
                 u_Light_Spot_Intensity[${i}]
             );\n`
-            LIGHTS_FUNCS += `color += getColor(pbr, fragment, light);\n`;
+            LIGHTS_FUNCS += `color += getLightColor(pbr, fragment, light);\n`;
         }
     }
 

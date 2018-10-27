@@ -1,3 +1,6 @@
+
+
+
 //
 // This fragment shader defines a reference implementation for Physically Based Shading of
 // a microfacet surface material defined by a glTF model.
@@ -12,19 +15,8 @@
 // [4] "An Inexpensive BRDF Model for Physically based Rendering" by Christophe Schlick
 //     https://www.cs.virginia.edu/~jdl/bib/appearance/analytic%20models/schlick94b.pdf
 
-///////////////////////////////
-// Quality settings 
-///////////////////////////////
 
-precision highp float;
-precision highp int;
 
-///////////////////////////////
-// Extensions 
-///////////////////////////////
-
-#extension GL_EXT_shader_texture_lod: enable
-#extension GL_OES_standard_derivatives : enable
 
 ///////////////////////////////
 // Structs 
@@ -63,7 +55,6 @@ struct Light
 // Constants 
 ///////////////////////////////
 
-const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
 
 
@@ -148,20 +139,26 @@ vec4 SRGBtoLINEAR(vec4 srgbIn)
     #endif //MANUAL_SRGB
 }
 
+vec3 disneyDiffuse(Pbr pbr, Fragment fragment, Light light) {
+    float f90 = 2.0 * light.LdotH * light.LdotH * pbr.alphaRoughness - 0.5;
+
+    return (pbr.diffuseColor / PI) * (1.0 + f90 * pow((1.0 - light.NdotL), 5.0)) * (1.0 + f90 * pow((1.0 - fragment.NdotV), 5.0));
+}
 
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
 // See also [1], Equation 1
 vec3 diffuse(Pbr pbr, Fragment fragment, Light light)
 {
-    return pbr.diffuseColor / M_PI;
+    return pbr.diffuseColor / PI;
 }
 
 // The following equation models the Fresnel reflectance term of the spec equation (aka F())
 // Implementation of fresnel from [4], Equation 15
 vec3 specularReflection(Pbr pbr, Fragment fragment, Light light)
 {
-    return pbr.reflectance0 + (pbr.reflectance90 - pbr.reflectance0) * pow(clamp(1.0 - light.VdotH, 0.0, 1.0), 5.0);
+    float fresnel = exp2( ( -5.55473 * light.LdotH - 6.98316 ) * light.LdotH );
+    return ( 1.0 - pbr.specularColor ) * fresnel + pbr.specularColor;
 }
 
 // This calculates the specular geometric attenuation (aka G()),
@@ -170,13 +167,11 @@ vec3 specularReflection(Pbr pbr, Fragment fragment, Light light)
 // alphaRoughness as input as originally proposed in [2].
 float geometricOcclusion(Pbr pbr, Fragment fragment, Light light)
 {
-    float NdotL = light.NdotL;
-    float NdotV = fragment.NdotV;
-    float r = pbr.alphaRoughness;
-
-    float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
-    float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
-    return attenuationL * attenuationV;
+    float a2 = pow2( pbr.alphaRoughness );
+    // dotNL and dotNV are explicitly swapped. This is not a mistake.
+    float gv = light.NdotL * sqrt( a2 + ( 1.0 - a2 ) * pow2( fragment.NdotV ) );
+    float gl = fragment.NdotV * sqrt( a2 + ( 1.0 - a2 ) * pow2( light.NdotL ) );
+    return 0.5 / max( gv + gl, EPSILON );
 }
 
 // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
@@ -184,11 +179,30 @@ float geometricOcclusion(Pbr pbr, Fragment fragment, Light light)
 // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
 float microfacetDistribution(Pbr pbr, Fragment fragment, Light light)
 {
+
     float roughnessSq = pbr.alphaRoughness * pbr.alphaRoughness;
     float f = (light.NdotH * roughnessSq - light.NdotH) * light.NdotH + 1.0;
-    return roughnessSq / (M_PI * f * f);
+    return roughnessSq / (PI * f * f);
 }
 
+//Get the light color using the above and inputs
+vec3 getLightColor(Pbr pbr, Fragment fragment, Light light) {
+
+    // Calculate the shading terms for the microfacet specular shading model
+    vec3 F = specularReflection(pbr, fragment, light);
+    float G = geometricOcclusion(pbr, fragment, light);
+    float D = microfacetDistribution(pbr, fragment, light);
+
+    // Calculation of analytical lighting contribution
+    vec3 diffuseContrib = (1.0 - F) * disneyDiffuse(pbr, fragment, light);
+    vec3 specContrib = F * (G * D) / (4.0 * light.NdotL * fragment.NdotV);
+    // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
+    vec3 color = light.NdotL * light.color * (diffuseContrib + specContrib);
+    //vec3 color = light.NdotL * light.color * PI * (F * (G * D));
+    
+
+    return color;
+}
 ///////////////////////////////
 // Data functions
 ///////////////////////////////
@@ -349,20 +363,25 @@ Light getPointLight(Fragment fragment, vec3 lightPosition, vec3 color, float int
     vec3 L = normalize(lightPosition - v_Position);   // Light Direction 
     vec3 H = normalize(L+V);                          // Half vector between both l and v
 
-    float NdotL = clamp(dot(N, L), 0.001, 1.0);
-    float NdotH = clamp(dot(N, H), 0.0, 1.0);
-    float LdotH = clamp(dot(L, H), 0.0, 1.0);
-    float VdotH = clamp(dot(V, H), 0.0, 1.0);
+    float NdotL = saturate(dot(N, L));
+    float NdotH = saturate(dot(N, H));
+    float LdotH = saturate(dot(L, H));
+    float VdotH = saturate(dot(V, H));
 
     float distance    = length(lightPosition - v_Position);
     float attenuation = 1.0 / (distance * distance);
+    //float distanceFalloff = 1.0 / max( pow( distance, 1.0/intensity), 0.01 );
+    float distanceFalloff = 1.0 / max( pow( distance, distance), 0.01 );
 
+    vec3 finalColor = color * distanceFalloff; 
+    
+    
     Light light = Light(
         NdotL,
         NdotH,
         LdotH,
         VdotH,
-        color * intensity * attenuation
+        finalColor
     );
 
     return light;
@@ -432,22 +451,6 @@ vec3 getIBLContribution(Pbr pbr, Fragment fragment)
 #endif
 
 
-vec3 getColor(Pbr pbr, Fragment fragment, Light light) {
-
-    // Calculate the shading terms for the microfacet specular shading model
-    vec3 F = specularReflection(pbr, fragment, light);
-    float G = geometricOcclusion(pbr, fragment, light);
-    float D = microfacetDistribution(pbr, fragment, light);
-
-    // Calculation of analytical lighting contribution
-    vec3 diffuseContrib = (1.0 - F) * diffuse(pbr, fragment, light);
-    vec3 specContrib = F * G * D / (4.0 * light.NdotL * fragment.NdotV);
-    // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 color = light.NdotL * light.color * (diffuseContrib + specContrib);
-    
-
-    return color;
-}
 
 void main()
 {
@@ -461,40 +464,10 @@ void main()
     Fragment fragment = getFragment();
 
     vec3 color = vec3(0.0, 0.0, 0.0);
-    Light light;
     #ifdef USE_PUNCTUAL_LIGHTS
+        Light light;
         //Actual implementation will dynamically write the code here
         %PUNCTUAL_LIGHTS_FUNCS%
-
-    /*
-         light = getDirectionalLight(
-                    fragment,
-                    vec3(0,0,-1),
-                    vec3(1.0, 1.0, 1.0),
-                    100.0
-        );
-
-        color += getColor(pbr, fragment, light);
-      */  
-        //Manual example
-        /*
-        light = getDirectionalLight(
-                    fragment,
-                    vec3(-1,-1,-1),
-                    vec3(1.0, 0, 1.0),
-                    3.0
-        );
-
-        color += getColor(pbr, fragment, light);
-        light = getPointLight(
-                    fragment,
-                    vec3(-3,3,3),
-                    vec3(1.0, 1.0, 1.0),
-                    100.0
-        );
-
-        color += getColor(pbr, fragment, light);
-        */
     #endif
 
     #ifdef USE_IBL
@@ -513,7 +486,5 @@ void main()
     color += emissive;
     #endif
 
-
-    
     gl_FragColor = vec4(pow(color,vec3(1.0/2.2)), pbr.baseColor.a);
 }

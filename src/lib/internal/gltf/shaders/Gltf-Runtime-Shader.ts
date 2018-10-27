@@ -33,8 +33,8 @@ import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 import {getShaderHash } from "./Gltf-Runtime-Shader-Hash";
 
 import vertexShaderSource from "./glsl/Gltf-Shader-Vertex.glsl";
-import fragmentShaderSource from "./glsl/Gltf-Pbr-Shader-Fragment.glsl";
-//import unlitFragmentShader from "./Gltf-Unlit-Shader-Fragment.glsl";
+import fragmentShaderSource from "./glsl/Gltf-Shader-Fragment.glsl";
+import commonShader from "./glsl/Gltf-Shader-Common.glsl";
 
 export const updateRuntimeShaderConfig_Primitive = (scene:GltfScene) => (primitive:GltfPrimitive):GltfPrimitive=> {
   
@@ -156,9 +156,9 @@ const getCoreShaderSource = (data:GltfData) => (sceneShaderConfig:GltfShaderConf
 
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');
 
-    const vertex = getCoreVertexShader (data) (sceneShaderConfig) (primitiveShaderConfig) (defineString + vertexShaderSource);
+    const vertex = commonShader + getCoreVertexShader (data) (sceneShaderConfig) (primitiveShaderConfig) (defineString + vertexShaderSource);
 
-    const fragment = defineString + fragmentShaderSource;
+    const fragment = commonShader + defineString + fragmentShaderSource;
 
     return {vertex, fragment}
 }
