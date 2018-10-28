@@ -194,14 +194,14 @@ vec3 getLightColor(Pbr pbr, Fragment fragment, Light light) {
     float D = microfacetDistribution(pbr, fragment, light);
 
     // Calculation of analytical lighting contribution]
-    vec3 diffuseAmt = disneyDiffuse(pbr, fragment, light);
+    vec3 diffuseAmt = diffuse(pbr, fragment, light);
     vec3 specAmt = F * (G * D);
     vec3 diffuseContrib = (1.0 - F) * diffuseAmt;
     vec3 specContrib = specAmt/ (4.0 * light.NdotL * fragment.NdotV);
     // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
     //vec3 color = light.NdotL * light.color * (diffuseContrib + specContrib);
     //vec3 color = light.NdotL * light.color * (diffuseContrib);//(diffuseContrib + specContrib);
-    vec3 color = light.NdotL * light.color * (specAmt);
+    vec3 color = light.color; // * (specContrib);
     //vec3 color = light.NdotL * light.color * PI * (F * (G * D));
     
 
@@ -373,10 +373,22 @@ Light getPointLight(Fragment fragment, vec3 lightPosition, vec3 color, float int
     float VdotH = saturate(dot(V, H));
 
     float distance    = length(lightPosition - v_Position);
-    float attenuation = 1.0 / (distance * distance);
-    float distanceFalloff = 1.0 / max( pow( distance, intensity), 0.01 );
+    //float attenuation = 1.0 / (distance * distance);
+    //float distanceFalloff = 1.0 / max( pow( distance, intensity), 0.01 );
 
-    vec3 finalColor = color * distanceFalloff; 
+    // From Babylon - Prevents infinity issues at 0.
+    float inverseSquaredRange = 0.0;
+    float lightDistanceSquared = distance * distance;
+    const float minDistanceSquared = 0.01*0.01;
+    float lightDistanceFalloff = 1.0 / (max(lightDistanceSquared, minDistanceSquared));
+
+    float factor = lightDistanceSquared * inverseSquaredRange;
+    float attenuation = clamp(1.0 - factor * factor, 0., 1.);
+    attenuation *= attenuation;
+
+    // Smooth attenuation of the falloff defined by the range.
+    lightDistanceFalloff *= attenuation;
+    vec3 finalColor = color * lightDistanceFalloff;
     
     Light light = Light(
         NdotL,
