@@ -1,20 +1,3 @@
-///////////////////////////////
-// Quality settings 
-///////////////////////////////
-precision highp float;
-precision highp int;
-
-///////////////////////////////
-// Extensions 
-///////////////////////////////
-
-#extension GL_EXT_shader_texture_lod: enable
-#extension GL_OES_standard_derivatives : enable
-
-
-///////////////////////////////
-// Defines 
-///////////////////////////////
 #define PI 3.1415926535897932384626433832795
 #define PI2 6.28318530718
 #define PI_HALF 1.5707963267949

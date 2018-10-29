@@ -32,9 +32,15 @@ import {GltfExtensions} from "../gltf-parse/extensions/Gltf-Parse-Extensions";
 import {createShader} from "../../../exports/webgl/WebGl-Shaders";
 import {getShaderHash } from "./Gltf-Runtime-Shader-Hash";
 
-import vertexShaderSource from "./glsl/Gltf-Shader-Vertex.glsl";
-import fragmentShaderSource from "./glsl/Gltf-Shader-Fragment.glsl";
-import commonShader from "./glsl/Gltf-Shader-Common.glsl";
+import commonShader from "./glsl/Common-Shader.glsl";
+import vertexMain from "./glsl/vertex/Main-Vertex.glsl";
+import vertexSetup from "./glsl/vertex/Setup-Vertex.glsl";
+import fragmentSetup from "./glsl/fragment/Setup-Fragment.glsl";
+import fragmentColorspace from "./glsl/fragment/Colorspace-Fragment.glsl";
+import fragmentMaterial from "./glsl/fragment/Material-Fragment.glsl";
+import fragmentLights from "./glsl/fragment/Lights-Fragment.glsl";
+import fragmentIbl from "./glsl/fragment/Ibl-Fragment.glsl";
+import fragmentMain from "./glsl/fragment/Main-Fragment.glsl";
 
 export const updateRuntimeShaderConfig_Primitive = (scene:GltfScene) => (primitive:GltfPrimitive):GltfPrimitive=> {
   
@@ -155,10 +161,26 @@ const getCoreShaderSource = (data:GltfData) => (sceneShaderConfig:GltfShaderConf
     }
 
     const defineString = defines.map(value => `#define ${value} 1\n`).join('');
+    
+    const vertexString = defineString + [
+        vertexSetup,
+        commonShader,
+        vertexMain
+    ].join('\n');
 
-    const vertex = commonShader + getCoreVertexShader (data) (sceneShaderConfig) (primitiveShaderConfig) (defineString + vertexShaderSource);
+    const fragmentString = defineString + [
+        fragmentSetup,
+        commonShader,
+        fragmentColorspace,
+        fragmentMaterial,
+        fragmentLights,
+        fragmentIbl,
+        fragmentMain,
+    ].join('\n');
 
-    const fragment = commonShader + defineString + fragmentShaderSource;
+    const vertex = getCoreVertexShader (data) (sceneShaderConfig) (primitiveShaderConfig) (vertexString);
+
+    const fragment = fragmentString; 
 
     return {vertex, fragment}
 }

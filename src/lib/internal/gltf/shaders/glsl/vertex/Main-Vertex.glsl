@@ -1,6 +1,3 @@
-precision highp float;
-precision highp int;
-
 %MORPH_VARS%
 
 #ifdef HAS_SKIN
