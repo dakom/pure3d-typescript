@@ -25,6 +25,7 @@ export interface GltfRendererLight {
     angleOffset?:Float32Array;
     color: Float32Array;
     intensity: Float32Array;
+    range?: Float32Array;
     offset?: number;
 }
 

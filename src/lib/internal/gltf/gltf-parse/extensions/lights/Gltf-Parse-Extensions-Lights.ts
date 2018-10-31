@@ -90,6 +90,11 @@ const getLight = (originalLight:GLTF_PARSE_Extension_Light):Light => {
         light.angleOffset = -Math.cos(outerConeAngle) * light.angleScale;
     }
 
+    if(light.kind === LightKind.Point || light.kind === LightKind.Spot) {
+        light.range = originalLight.range ? originalLight.range : 0;
+    }
+
+
     return light;
 }
 
@@ -187,13 +192,15 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
         LIGHTS_VARS += `uniform vec3 u_Light_Point_Position[${pLen}];\n`;
         LIGHTS_VARS += `uniform vec3 u_Light_Point_Color[${pLen}];\n`;
         LIGHTS_VARS += `uniform float u_Light_Point_Intensity[${pLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Point_Range[${pLen}];\n`;
     
         for(let i = 0; i < pLen; i++) {
             LIGHTS_FUNCS += `light = getPointLight(
                 fragment,
                 u_Light_Point_Position[${i}], 
                 u_Light_Point_Color[${i}], 
-                u_Light_Point_Intensity[${i}]
+                u_Light_Point_Intensity[${i}],
+                u_Light_Point_Range[${i}]
             );\n`
             LIGHTS_FUNCS += `color += getLightColor(pbr, fragment, light);\n`;
         }
@@ -206,6 +213,7 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
         LIGHTS_VARS += `uniform float u_Light_Spot_AngleOffset[${sLen}];\n`;
         LIGHTS_VARS += `uniform vec3 u_Light_Spot_Color[${sLen}];\n`;
         LIGHTS_VARS += `uniform float u_Light_Spot_Intensity[${sLen}];\n`;
+        LIGHTS_VARS += `uniform float u_Light_Spot_Range[${sLen}];\n`;
 
 
         for(let i = 0; i < sLen; i++) {
@@ -216,7 +224,8 @@ const getDynamicFragmentShader = (data:GltfData) => (sceneShaderConfig:GltfShade
                 u_Light_Spot_AngleScale[${i}], 
                 u_Light_Spot_AngleOffset[${i}], 
                 u_Light_Spot_Color[${i}], 
-                u_Light_Spot_Intensity[${i}]
+                u_Light_Spot_Intensity[${i}],
+                u_Light_Spot_Range[${i}]
             );\n`
             LIGHTS_FUNCS += `color += getLightColor(pbr, fragment, light);\n`;
         }

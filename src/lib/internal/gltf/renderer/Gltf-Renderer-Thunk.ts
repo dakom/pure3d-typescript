@@ -84,6 +84,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
             uniform3fv("u_Light_Point_Position") (lightList.point.position);
             uniform3fv("u_Light_Point_Color") (lightList.point.color);
             uniform1fv("u_Light_Point_Intensity") (lightList.point.intensity);
+            uniform1fv("u_Light_Point_Range") (lightList.point.range);
         }
         if(lightList.spot) {
             uniform3fv("u_Light_Spot_Position") (lightList.spot.position);
@@ -92,6 +93,7 @@ export const createRendererThunk = (thunk:GltfRendererThunk) => () => {
             uniform1fv("u_Light_Spot_AngleOffset") (lightList.spot.angleOffset);
             uniform3fv("u_Light_Spot_Color") (lightList.spot.color);
             uniform1fv("u_Light_Spot_Intensity") (lightList.spot.intensity);
+            uniform1fv("u_Light_Spot_Range") (lightList.spot.range);
         }
     }
 

@@ -65,6 +65,7 @@ for(let i = 1; i < GltfLights_MAX; i++) {
         position: new Float32Array(i * 3),
         color: new Float32Array(i * 3),
         intensity: new Float32Array(i),
+        range: new Float32Array(i),
     });
 
 
@@ -75,6 +76,7 @@ for(let i = 1; i < GltfLights_MAX; i++) {
         intensity: new Float32Array(i),
         angleScale: new Float32Array(i),
         angleOffset: new Float32Array(i),
+        range: new Float32Array(i),
     })
 }
 
@@ -137,7 +139,6 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
             //Is updated via node/transform updates
             const direction = (light as any).direction; 
 
-
             for(let i = 0; i < 3; i++) {
                 const offset = (target.offset * 3) + i;
                 if(position !== undefined) {
@@ -154,6 +155,12 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
                 target.angleScale[target.offset] = light.angleScale;
                 target.angleOffset[target.offset] = light.angleOffset;
             }
+
+
+            if(light.kind === LightKind.Point || light.kind === LightKind.Spot) {
+                target.range[target.offset] = light.range;
+            }
+
             target.intensity[target.offset] = intensity;
             target.offset++;
         } 

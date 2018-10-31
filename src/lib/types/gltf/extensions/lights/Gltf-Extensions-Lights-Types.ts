@@ -22,5 +22,6 @@ export interface GLTF_PARSE_Extension_Light {
         innerConeAngle?: number;
         outerConeAngle?: number;
     };
-    type: "directional" | "point" | "spot" 
+    type: "directional" | "point" | "spot";
+    range?: number;
 }
