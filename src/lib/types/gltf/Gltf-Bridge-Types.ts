@@ -16,7 +16,7 @@ export interface GltfBridge {
     getAllNodes: () => Array<GltfNode>;
     getData: () => GltfData;
     getOriginalScene: (camera:Camera) => (sceneNumber:number) => GltfScene; 
-    getCameraNode: (index:number) => GltfCameraNode;
+    getCameraNode: (nodes:Array<GltfNode>) => (index:number) => GltfCameraNode;
     loadFile: (path:string) => Promise<{gltf: GLTF_ORIGINAL, glbBuffers: Array<ArrayBuffer>}>;  
     loadAssets: 
         ({gltf, basePath, glbBuffers}:{gltf:GLTF_ORIGINAL, basePath?: string, glbBuffers:Array<ArrayBuffer>})

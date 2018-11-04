@@ -19,7 +19,8 @@ import {GLTF_PARSE_getInitialShaderConfig_Scene} from "./Gltf-Parse-Shader";
 import {forEachNodes, updateNodeListTransforms} from "../../../exports/common/nodes/Nodes";
 import {GltfExtensions} from "./extensions/Gltf-Parse-Extensions";
 
-export const GLTF_PARSE_createScene = ({ renderer, data, allNodes}: { renderer: WebGlRenderer, data: GltfData, allNodes: Array<GltfNode>}) => (camera:Camera) => (sceneNumber:number):GltfScene => {
+export const GLTF_PARSE_createScene = ({ renderer, data, allNodes}: { renderer: WebGlRenderer, data: GltfData, allNodes: Array<GltfNode>}) => 
+                                        (sceneNumber:number):Partial<GltfScene> => {
 
         let nodes = [] 
 
@@ -47,25 +48,24 @@ export const GLTF_PARSE_createScene = ({ renderer, data, allNodes}: { renderer: 
 
     
 
+        nodes = updateNodeListTransforms <GltfNode>({
+                            updateLocal: true,
+                            updateModel: true,
+                            updateView: false,
+                            updateLightDirection: true,
+                        })
+                        (null)
+                        (nodes)
+
         const scene = 
             GltfExtensions
                 .map(ext => ext.createScene)
                 .reduce((acc, val) => 
                     acc = val (data.original) (originalScene) (acc),
                     {
-                        camera,
-                        nodes: updateNodeListTransforms <GltfNode>({
-                            updateLocal: true,
-                            updateModel: true,
-                            updateView: true,
-                            updateLightDirection: true,
-                            camera,
-                        })
-                        (null)
-                        (nodes)
+                        nodes
                     } as GltfScene
                 );
-
 
         //workaround read-only here
         (scene as any).shaderConfig =  GLTF_PARSE_getInitialShaderConfig_Scene (data) (scene);

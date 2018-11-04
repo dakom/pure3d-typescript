@@ -65,7 +65,7 @@ const _getBridge = ({renderer, gltfPath, modelName, translate}:
 
         const render = (camera:Camera) => (frameTs:number) => {
                 if(!scene) {
-                    scene = bridge.getOriginalScene(camera) (0);
+                    scene = bridge.getOriginalScene (camera) (0);
                     scene.nodes[0].transform.trs.translation = translate
                 }
                 scene = updateScene(frameTs) (Object.assign({}, scene, {camera}));

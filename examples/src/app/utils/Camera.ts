@@ -64,7 +64,7 @@ export const getInitialBasicCamera = ({position, cameraLook}:{position: NumberAr
 
 export const getInitialGltfCamera = (bridge:GltfBridge) => (model:Model) => (cameraIndex:number) => {
 
-    const cameraNode = bridge.getCameraNode(cameraIndex);
+    const cameraNode = bridge.getCameraNode (bridge.getAllNodes()) (cameraIndex);
 
     if(cameraNode) {
         return {

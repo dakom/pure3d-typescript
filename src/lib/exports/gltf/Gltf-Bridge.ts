@@ -112,28 +112,11 @@ function createGltfBridge(renderer:WebGlRenderer) {
         _renderScene (renderer) (_data) (scene);
     }
 
-    const getOriginalScene = (camera:Camera) => (sceneNumber:number):GltfScene => {
-        //First time is mandatory - after that it's up to the caller
-        const scene = gltf_updateShaderConfigs(
-            GLTF_PARSE_createScene 
-                ({
-                    renderer,
-                    data: _data,
-                    allNodes: _allNodes
-                })
-                (camera)
-                (sceneNumber)
-        );
-
-
-        return scene;
-    }
-
-    const getCameraNode = (index:number):GltfCameraNode => {
+    const getCameraNode = (nodes:Array<GltfNode>) => (index:number) :GltfCameraNode => {
         const node = 
             findNode<GltfNode>
                 (node => node.kind === NodeKind.CAMERA && node.cameraIndex === index)
-                (_allNodes) as GltfCameraNode;
+                (nodes) as GltfCameraNode;
 
         if(!node) {
             return undefined;
@@ -144,6 +127,23 @@ function createGltfBridge(renderer:WebGlRenderer) {
         return Object.assign({}, node, {camera}) 
     }
 
+    const getOriginalScene = (camera:Camera) => (sceneNumber:number):GltfScene => {
+
+        const partialScene = GLTF_PARSE_createScene 
+                ({
+                    renderer,
+                    data: _data,
+                    allNodes: _allNodes
+                })
+                (sceneNumber)
+
+        if(camera == null) {
+            const cameraNode = getCameraNode(partialScene.nodes) (0);
+            camera = cameraNode.camera;
+        }
+
+        return Object.assign({}, partialScene, {camera}) as GltfScene;
+    }
     const bridge:GltfBridge = {
         renderer,
         getAllNodes: () => _allNodes,

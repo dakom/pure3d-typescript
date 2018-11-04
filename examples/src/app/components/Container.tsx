@@ -13,6 +13,7 @@ import {isProduction} from "../App-Main";
 import {WebGlRenderer} from "lib/Lib";
 import {disposeRenderer, createRenderer} from "utils/renderer/ExampleRenderer";
 import {getModel} from "../scenes/gltf/Gltf-Models";
+import { startAudioSync } from "../scenes/complex/scenes/audio-sync/Audio-Sync";
 
 const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
     :{renderer:WebGlRenderer, scene:string, section:string, menuOptions: any, onMenuChange: any})
@@ -81,6 +82,8 @@ const _loadScene = ({renderer, section, scene, menuOptions, onMenuChange}
                         (false)
                         (false)
                         (basicPath + "gltf-scenes/lighting-test/LightScale.gltf").then(mapReturn);
+            case "AUDIO_SYNC":
+                return startAudioSync (renderer) (basicPath).then(mapReturn);
         }
 
     }

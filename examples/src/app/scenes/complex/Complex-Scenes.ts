@@ -20,6 +20,12 @@ export const COMPLEX_MENUS = convertMenu([
             "LIGHTING_TEST_SCALE"
         ]
     },
+    {
+        label: "ANIMATION",
+        items: [
+            "AUDIO_SYNC"
+        ]
+    }
     /*
      * {
         label: "INTERACTIVE",
