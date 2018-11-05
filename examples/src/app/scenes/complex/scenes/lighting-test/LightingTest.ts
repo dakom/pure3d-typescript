@@ -4,6 +4,7 @@ import {
     GltfLightsExtensionName,
     GltfIblExtensionName,
     gltf_updateNodeTransforms,
+    CameraNode,
     Camera,
     GltfNode,
     NodeKind, LightKind,
@@ -61,7 +62,7 @@ const getSceneRenderer =
 
                     camera = 
                         useBuiltinCamera
-                            ? getCameraFromNodeAndCanvas(scene.nodes[0].children[0]) (renderer.canvas)
+                            ? getCameraFromNodeAndCanvas(scene.nodes[0].children[0] as CameraNode) (renderer.canvas)
                             : _camera;
 
                     console.log(camera);

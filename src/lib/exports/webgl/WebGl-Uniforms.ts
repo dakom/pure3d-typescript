@@ -115,29 +115,29 @@ export const createUniforms = ({renderer, activateShader}:{renderer:WebGlRendere
   }
 
   const setters = {
-    uniform1f: _setSingleValue(loc => v => gl.uniform1f(loc, v)),
-    uniform1fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform1fv(loc, v)),
-    uniform1i: _setSingleValue(loc => v => gl.uniform1i(loc, v)),
-    uniform1iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform1iv(loc, v)),
+    uniform1f: _setSingleValue(loc => (v:GLfloat) => gl.uniform1f(loc, v)),
+    uniform1fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform1fv(loc, v)),
+    uniform1i: _setSingleValue(loc => (v:GLint) => gl.uniform1i(loc, v)),
+    uniform1iv: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform1iv(loc, v)),
 
-    uniform2f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform2f(loc, v[0], v[1])),
-    uniform2fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform2fv(loc, v)),
-    uniform2i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform2i(loc, v[0], v[1])),
-    uniform2iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform2iv(loc, v)),
+    uniform2f: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform2f(loc, v[0], v[1])),
+    uniform2fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform2fv(loc, v)),
+    uniform2i: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform2i(loc, v[0], v[1])),
+    uniform2iv: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform2iv(loc, v)),
 
-    uniform3f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform3f(loc, v[0], v[1], v[2])),
-    uniform3fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform3fv(loc, v)),
-    uniform3i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform3i(loc, v[0], v[1], v[2])),
-    uniform3iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform3iv(loc, v)),
+    uniform3f: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform3f(loc, v[0], v[1], v[2])),
+    uniform3fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform3fv(loc, v)),
+    uniform3i: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform3i(loc, v[0], v[1], v[2])),
+    uniform3iv: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform3iv(loc, v)),
 
-    uniform4f: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform4f(loc, v[0], v[1], v[2], v[3])),
-    uniform4fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => v => gl.uniform4fv(loc, v)),
-    uniform4i: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform4i(loc, v[0], v[1], v[2], v[3])),
-    uniform4iv: _setValues (UNIFORM_TYPE.INT) (loc => v => gl.uniform4iv(loc, v)),
+    uniform4f: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform4f(loc, v[0], v[1], v[2], v[3])),
+    uniform4fv: _setValues (UNIFORM_TYPE.FLOAT) (loc => (v:Float32List) => gl.uniform4fv(loc, v)),
+    uniform4i: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform4i(loc, v[0], v[1], v[2], v[3])),
+    uniform4iv: _setValues (UNIFORM_TYPE.INT) (loc => (v:Int32List) => gl.uniform4iv(loc, v)),
 
-    uniformMatrix2fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix2fv(loc, t, v)),
-    uniformMatrix3fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix3fv(loc, t, v)),
-    uniformMatrix4fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => v => gl.uniformMatrix4fv(loc, t, v)),
+    uniformMatrix2fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => (v:Float32List) => gl.uniformMatrix2fv(loc, t, v)),
+    uniformMatrix3fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => (v:Float32List) => gl.uniformMatrix3fv(loc, t, v)),
+    uniformMatrix4fv: _setMatrixValues (UNIFORM_TYPE.FLOAT) (loc => t => (v:Float32List) => gl.uniformMatrix4fv(loc, t, v)),
   }
 
   return {

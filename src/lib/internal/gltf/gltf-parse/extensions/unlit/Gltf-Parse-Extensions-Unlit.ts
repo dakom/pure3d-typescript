@@ -40,10 +40,7 @@ import {
     runtimeShaderConfig_Scene,
 } from "../Gltf-Parse-Extensions-Defaults";
 
-import {GLTF_PARSE_getOriginalPrimitive} from "../../Gltf-Parse-Primitives";
-
-
-
+import {GLTF_PARSE_getOriginalPrimitive} from "../../Gltf-Parse-Primitive-Helpers";
 
 const initialShaderConfig_Primitive = (data:GltfData) => (originalIds:{nodeId: number, meshId: number, primitiveId: number}) => (primitive:GltfPrimitive) => (shaderConfig:GltfShaderConfig_Primitive):GltfShaderConfig_Primitive => {
     const primitive = GLTF_PARSE_getOriginalPrimitive (data) (originalIds.meshId) (originalIds.primitiveId);
