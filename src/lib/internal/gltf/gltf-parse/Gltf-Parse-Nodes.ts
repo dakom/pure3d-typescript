@@ -27,21 +27,22 @@ import {GLTF_PARSE_addAnimationIds} from "./Gltf-Parse-Data-Animation";
 import {GLTF_PARSE_createSkins} from "./Gltf-Parse-Nodes-Skins";
 
 /*
- * All of the nodes are parsed in place as though they could be any root
- * Technically this is extra needless computation, but it makes the code clearer
- * Also, doing it this way allows for dynamic scene mixtures :D
+ * Every node in the list gets an initial transform and its properties set 
+ * This happens multiple times depdending on the hierarchy
+ * Yeah it is unnecessary since a scene will cull nodes 
  *
- * Since it's only on init, the cpu processing shouldn't matter much
+ * However, since it's only on init, the cpu processing shouldn't matter much
+ * And doing it here helps with debugging 
+ * Also allows creating dynamic scenes (take any node and make it a root)
+ * 
  * Nodes are by definition lightweight, it's no biggie in terms of memory either
- * However, they _should_ be culled via GltfBridge.getOriginalScene(), otherwise dups will show
+ * GltfBridge.getOriginalScene() automatically culls the duplicates and is the usual case
  */
 export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: GltfDataAssets, gltf:GLTF_ORIGINAL, data: GltfData, primitives: Map<number, Array<GltfPrimitive>>}):Array<GltfNode> => {
 
     const skinLookup = GLTF_PARSE_createSkins({gltf, buffers: assets.buffers});
 
     const getGltfNode = (parentModelMatrix: NumberArray) => (originalNodeId: number) => (node:GLTF_ORIGINAL_Node):GltfNode => {
-
-
         const baseNode = {
             originalNodeId,
             kind: node.mesh !== undefined && primitives.has(node.mesh) && primitives.get(node.mesh).length

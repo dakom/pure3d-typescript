@@ -46,17 +46,6 @@ export const GLTF_PARSE_createScene = ({ renderer, data, allNodes}: { renderer: 
             
         //const nodes =_allNodes.filter((node, idx) => originalScene.nodes.indexOf(idx) !== -1);
 
-    
-
-        nodes = updateNodeListTransforms <GltfNode>({
-                            updateLocal: true,
-                            updateModel: true,
-                            updateView: false,
-                            updateLightDirection: true,
-                        })
-                        (null)
-                        (nodes)
-
         const scene = 
             GltfExtensions
                 .map(ext => ext.createScene)

@@ -72,6 +72,7 @@ export const getViewMatrices = (camera:Camera) => (modelMatrix:NumberArray):{mod
 
 export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatrix:NumberArray) => (transform:Transform):Transform => {
 
+
     const localMatrix = opts.updateLocal ? getMatrixFromTrs(transform.trs) : transform.localMatrix;
 
     const modelMatrix = opts.updateModel ? getModelMatrix(parentModelMatrix) (localMatrix) : transform.modelMatrix;

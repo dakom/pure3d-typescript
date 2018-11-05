@@ -127,7 +127,7 @@ function createGltfBridge(renderer:WebGlRenderer) {
         return Object.assign({}, node, {camera}) 
     }
 
-    const getOriginalScene = (camera:Camera) => (sceneNumber:number):GltfScene => {
+    const getOriginalScene = (camera?:Camera) => (sceneNumber:number):GltfScene => {
 
         const partialScene = GLTF_PARSE_createScene 
                 ({
@@ -137,12 +137,31 @@ function createGltfBridge(renderer:WebGlRenderer) {
                 })
                 (sceneNumber)
 
+        //this might not be necessary since nodes are given transforms when created
+        //but better safe than sorry!
+        let nodes = updateNodeListTransforms <GltfNode>({
+                            updateLocal: true,
+                            updateModel: true,
+                            updateView: false,
+                            updateLightDirection: true,
+                        })
+                        (null)
+                        (partialScene.nodes);
+
         if(camera == null) {
-            const cameraNode = getCameraNode(partialScene.nodes) (0);
+            const cameraNode = getCameraNode(nodes) (0);
             camera = cameraNode.camera;
         }
 
-        return Object.assign({}, partialScene, {camera}) as GltfScene;
+        nodes = gltf_updateNodeTransforms ({
+            updateLocal: false,
+            updateModel: false,
+            updateView: true,
+            updateLightDirection: false,
+            camera
+        }) (partialScene.nodes);
+
+        return Object.assign({}, partialScene, {nodes, camera}) as GltfScene;
     }
     const bridge:GltfBridge = {
         renderer,

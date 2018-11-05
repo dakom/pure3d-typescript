@@ -20,7 +20,8 @@
             "es5",
             "dom"
         ],
-        "types": []
+        "types": [],
+        "keyofStringsOnly": true,
     },
     "include": [
         "src/**/*.ts",
