@@ -62,6 +62,7 @@ export const GLTF_PARSE_getNodes = ({gltf, primitives, data, assets}:{assets: Gl
             ?   false
             :   gltf.meshes[node.mesh].primitives.some(p => GLTF_PARSE_primitiveHasAttribute("NORMAL")(p));
 
+
         if(hasNormals) {
             baseNode.transform.normalMatrix = getNormalMatrix (modelMatrix);
         }

@@ -549,6 +549,14 @@ export const MODEL_LIST_FEATURETEST:Array<Model> = [
         },
         cameraPosition: Float64Array.from([0,0,5]),
     },
+    {
+        primary: "EXPORTER", 
+        label: "EXPORTER",
+        urls: {
+            "EXPORTER":   "Exporter/menorah/menorah.gltf",
+        },
+        cameraPosition: Float64Array.from([0,0,5]),
+    },
 ];
 
 /// END CONFIG

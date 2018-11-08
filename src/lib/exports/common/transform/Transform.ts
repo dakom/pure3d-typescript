@@ -78,7 +78,7 @@ export const updateTransform = (opts:TransformUpdateOptions) => (parentModelMatr
     const modelMatrix = opts.updateModel ? getModelMatrix(parentModelMatrix) (localMatrix) : transform.modelMatrix;
     const normalMatrix = opts.updateModel && transform.normalMatrix
         ?   getNormalMatrix(modelMatrix)
-        :   undefined;
+        :   transform.normalMatrix;
 
     const {modelViewMatrix, modelViewProjectionMatrix} = opts.updateView ? getViewMatrices (opts.camera) (modelMatrix) : transform;
 
