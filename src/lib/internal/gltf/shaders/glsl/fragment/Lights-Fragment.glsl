@@ -167,11 +167,13 @@ vec3 getLightColor(Pbr pbr, Fragment fragment, Light light) {
     vec3 diffuseAmt = diffuse(pbr, fragment, light);
     vec3 specAmt = F * (G * D);
 
-    //vec3 diffuseContrib = (1.0 - F) * diffuseAmt; 
-    //vec3 specContrib = specAmt / (4.0 * light.NdotL * fragment.NdotV);
+    vec3 diffuseContrib = (1.0 - F) * diffuseAmt; 
+    vec3 specContrib = specAmt / (4.0 * light.NdotL * fragment.NdotV);
 
     // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 color = light.NdotL * light.color * light.falloff * light.intensity * (diffuseAmt + specAmt);
+    //vec3 color = light.NdotL * light.color * light.falloff * light.intensity * (diffuseContrib + specContrib);
+    vec3 color = light.NdotL * light.color * light.falloff * light.intensity * (diffuseContrib + specContrib);
+    //color = color + (light.color * light.falloff * light.intensity * specContrib);
 
 
     return color;
