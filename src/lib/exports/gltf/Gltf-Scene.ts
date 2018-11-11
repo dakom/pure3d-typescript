@@ -1,5 +1,4 @@
 import {GltfAnimator, GltfScene} from "../../Types";
-import {gltf_createAnimator} from "./Gltf-Animation";
 import {gltf_updateNodeTransforms} from "./Gltf-Nodes";
 import {gltf_updateShaderConfigs} from "./Gltf-Shaders";
 
