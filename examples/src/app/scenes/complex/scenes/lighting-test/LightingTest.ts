@@ -21,7 +21,7 @@ import {
     createMat4,
     createTransform,
     GltfLightNode,
-    gltf_updateScene,
+    gltf_updateAnimatedScene,
     getCameraFromNodeAndCanvas
 } from "lib/Lib";
 import {ModelInfo, Model, getModel} from "../../../gltf/Gltf-Models";
@@ -51,7 +51,7 @@ const getSceneRenderer =
         let scene:GltfScene;
         let camera;
 
-        const updateScene = gltf_updateScene(
+        const updateScene = gltf_updateAnimatedScene(
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 

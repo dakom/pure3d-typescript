@@ -5,7 +5,7 @@ import {
     gltf_createAnimator,
     gltf_load, 
     WebGlRenderer,
-    gltf_updateScene
+    gltf_updateAnimatedScene
 } from "lib/Lib";
 
 export const startAudioSync = (renderer:WebGlRenderer) => (basicPath:string) => {
@@ -17,7 +17,7 @@ export const startAudioSync = (renderer:WebGlRenderer) => (basicPath:string) => 
 
         let scene:GltfScene;
 
-        const updateScene = gltf_updateScene (
+        const updateScene = gltf_updateAnimatedScene (
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 

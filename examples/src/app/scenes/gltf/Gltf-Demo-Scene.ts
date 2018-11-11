@@ -13,7 +13,7 @@ import {
     gltf_load, 
     WebGlConstants,
     WebGlRenderer,
-    gltf_updateScene
+    gltf_updateAnimatedScene
 } from "lib/Lib";
 import {ModelInfo, Model} from "./Gltf-Models";
 import {updateCamera, getInitialGltfCamera} from "../../utils/Camera";
@@ -58,7 +58,7 @@ export const startGltf = (renderer:WebGlRenderer) => ({onMenuChange, modelPath, 
             return () => {};
         }
 
-        const updateScene = gltf_updateScene(
+        const updateScene = gltf_updateAnimatedScene(
             gltf_createAnimator(bridge.getData().animations) ({loop: true})
         );
 

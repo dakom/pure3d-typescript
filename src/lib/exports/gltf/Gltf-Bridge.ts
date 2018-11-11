@@ -161,8 +161,9 @@ function createGltfBridge(renderer:WebGlRenderer) {
             camera
         }) (partialScene.nodes);
 
-        return Object.assign({}, partialScene, {nodes, camera}) as GltfScene;
+        return gltf_updateShaderConfigs (Object.assign({}, partialScene, {nodes, camera}) as GltfScene);
     }
+
     const bridge:GltfBridge = {
         renderer,
         getAllNodes: () => _allNodes,
