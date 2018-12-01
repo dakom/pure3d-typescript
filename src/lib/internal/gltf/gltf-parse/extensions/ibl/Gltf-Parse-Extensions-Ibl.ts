@@ -121,7 +121,7 @@ const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF
         format: jsonData.brdf.colorSpace,
 
         setParameters: () => {
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false as any); // https://github.com/Microsoft/TypeScript/issues/27542
             gl.texParameteri(WebGlConstants.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(WebGlConstants.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(WebGlConstants.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -149,7 +149,7 @@ const createData = ({gltf, assets, renderer}:{renderer:WebGlRenderer, gltf: GLTF
             gl,
             format: colorSpace, 
             setParameters: opts => {
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false as any); // https://github.com/Microsoft/TypeScript/issues/27542
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 if (urls.length > 1) {

@@ -98,10 +98,11 @@ export const textureSetterSimple = (opts:WebGlSimpleTextureOptions) => (_opts:Pa
 
     const isPowerOf2 = (value:number):boolean => (value & (value - 1)) == 0;
 
+    //Typescript fix due to: https://github.com/Microsoft/TypeScript/issues/27542
     if (opts.flipY) {
-        gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, true);
+        gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, true as any);
     } else {
-        gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, false as any);
     }
 
     if (isPowerOf2(width) && isPowerOf2(height) && opts.useMips === true) {

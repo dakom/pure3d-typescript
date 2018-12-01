@@ -92,7 +92,7 @@ export const GLTF_PARSE_createTextures = ({ renderer, gltf, imageElements }: { r
                 gl,
                 format: colorSpace,
                 setParameters: () => {
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false as any); // https://github.com/Microsoft/TypeScript/issues/27542
                     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
                     gl.texParameteri(WebGlConstants.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
                     gl.texParameteri(WebGlConstants.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
