@@ -12,15 +12,20 @@ const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: Web
     const {gl} = renderer;
     const program = gl.createProgram();
 
-    const dispose = () => {
+    const cleanupShaders = () => {
         if (vShader !== undefined && (vShader instanceof WebGLShader)) {
+            gl.detachShader(program, vShader);
             gl.deleteShader(vShader);
         }
 
         if (fShader !== undefined && (fShader instanceof WebGLShader)) {
+            gl.detachShader(program, fShader);
             gl.deleteShader(fShader);
         }
+    }
 
+    const cleanupAll = () => {
+        cleanupShaders();
         gl.deleteProgram(program);
     }
 
@@ -42,13 +47,13 @@ const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: Web
 
     vShader = loadShader(gl.VERTEX_SHADER)(source.vertex);
     if (vShader instanceof Error) {
-        dispose();
+        cleanupAll();
         return vShader;
     }
 
     fShader = loadShader(gl.FRAGMENT_SHADER)(source.fragment);
     if (fShader instanceof Error) {
-        dispose();
+        cleanupAll();
         return fShader;
     }
 
@@ -60,9 +65,12 @@ const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: Web
 
     gl.linkProgram(program)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        dispose();
+        cleanupAll();
         return new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
     }
+
+    gl.useProgram(program);
+    cleanupShaders();
 
     return program;
 }
