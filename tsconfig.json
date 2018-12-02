@@ -9,7 +9,7 @@
         "diagnostics": true,
         "outDir": "dist",
         "lib": [ "es6", "es5", "dom" ],
-        "types": []
+        "types": ["jest"]
     },
     "files": [
         "./src/lib/Lib.ts"

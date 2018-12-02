@@ -27,7 +27,7 @@
   },
   "jest": {
     "transform": {
-      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
@@ -46,7 +46,8 @@
     "chokidar": "2.0.4",
     "cross-env": "5.2.0",
     "glob": "7.1.3",
-    "jest": "23.6.0",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
     "minify": "4.1.0",
     "npm-run-all": "4.1.5",
     "rimraf": "2.6.2",
@@ -59,7 +60,7 @@
     "rollup-plugin-typescript2": "0.18.0",
     "rollup-plugin-uglify": "6.0.0",
     "shelljs": "0.8.3",
-    "ts-jest": "23.10.5",
+    "ts-jest": "^23.10.5",
     "ts-node": "7.0.1",
     "tslib": "1.9.3",
     "typescript": "3.2.1",
