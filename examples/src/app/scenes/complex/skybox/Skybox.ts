@@ -28,7 +28,7 @@ const loadSkybox = (renderer:WebGlRenderer) =>
                 gl: renderer.gl,
                 format: WebGlConstants.RGB, 
                 setParameters: opts => {
-                    renderer.gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, false);
+                    renderer.gl.pixelStorei(WebGlConstants.UNPACK_FLIP_Y_WEBGL, false as any); // typescript
                     renderer.gl.texParameteri(WebGlConstants.TEXTURE_CUBE_MAP, WebGlConstants.TEXTURE_WRAP_S, WebGlConstants.CLAMP_TO_EDGE);
                     renderer.gl.texParameteri(WebGlConstants.TEXTURE_CUBE_MAP, WebGlConstants.TEXTURE_WRAP_T, WebGlConstants.CLAMP_TO_EDGE);
                     renderer.gl.texParameteri(WebGlConstants.TEXTURE_CUBE_MAP, WebGlConstants.TEXTURE_MIN_FILTER, WebGlConstants.LINEAR);

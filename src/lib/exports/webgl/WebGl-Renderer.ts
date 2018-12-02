@@ -104,12 +104,42 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
         }
     }
 
-    let _sFactor, _dFactor;
-    const glBlendFunc = (sFactor:number) => (dFactor:number) => {
-        if(sFactor !== _sFactor || dFactor !== _dFactor) {
-            gl.blendFunc(sFactor, dFactor);
-            _sFactor = sFactor;
-            _dFactor = dFactor;
+    let _blendRgbSource, _blendRgbDest, _blendAlphaSource, _blendAlphaDest;
+    const glBlendFunc = ([srcFactor, destFactor]:[number, number]) => { 
+        if(srcFactor !== _blendRgbSource || destFactor !== _blendRgbDest
+          || srcFactor !== _blendAlphaSource || destFactor !== _blendAlphaDest) {
+            gl.blendFunc(srcFactor, destFactor);
+            _blendRgbSource = srcFactor;
+            _blendAlphaSource = srcFactor;
+            _blendRgbDest = destFactor;
+            _blendAlphaDest = destFactor;
+        }
+    }
+
+    const glBlendFuncSeparate = ([srcRgbFactor, destRgbFactor]:[number, number]) => ([srcAlphaFactor, destAlphaFactor]:[number, number]) => { 
+        if(srcRgbFactor !== _blendRgbSource || destRgbFactor !== _blendRgbDest
+          || srcAlphaFactor !== _blendAlphaSource || destAlphaFactor !== _blendAlphaDest) {
+            gl.blendFuncSeparate(srcRgbFactor, destRgbFactor, srcAlphaFactor, destAlphaFactor);
+            _blendRgbSource = srcRgbFactor;
+            _blendAlphaSource = srcAlphaFactor;
+            _blendRgbDest = destRgbFactor;
+            _blendAlphaDest = destAlphaFactor;
+        }
+    }
+
+    let _blendRgbEquation, _blendAlphaEquation;
+    const glBlendEquation = (equation:number) => {
+        if(_blendRgbEquation !== equation || _blendAlphaEquation !== equation) {
+            gl.blendEquation(equation);
+            _blendRgbEquation = equation;
+            _blendAlphaEquation = equation;
+        }
+    }
+    const glBlendEquationSeparate = ([rgbEquation, alphaEquation]:[number, number]) => {
+        if(_blendRgbEquation !== rgbEquation || _blendAlphaEquation !== alphaEquation) {
+            gl.blendEquationSeparate(rgbEquation, alphaEquation);
+            _blendRgbEquation = rgbEquation;
+            _blendAlphaEquation = alphaEquation;
         }
     }
 
@@ -139,6 +169,9 @@ export const createWebGlRenderer = (opts: WebGlRendererOptions) => {
         glToggle,
         glDepthFunc,
         glBlendFunc,
+        glBlendFuncSeparate,
+        glBlendEquation,
+        glBlendEquationSeparate,
         getExtension,
         version,
         extras: {}

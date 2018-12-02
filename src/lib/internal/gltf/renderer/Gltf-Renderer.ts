@@ -209,12 +209,13 @@ export const renderScene = (renderer:WebGlRenderer) => (data:GltfData) => (scene
     });
 
     //These are for _all_ gltf renders, but there might be another gl renderer between them so the flags need to be set
-    renderer.glToggle(WebGlConstants.BLEND) (false);
+    //these are just random guesses looking at some common practices out in the wild - and also looking at local tests
+    renderer.glToggle(WebGlConstants.BLEND) (true);
+    renderer.glToggle(WebGlConstants.CULL_FACE) (false);
     renderer.glToggle(WebGlConstants.DEPTH_TEST) (true);
-
-    //these are just random guesses looking at some common practices out in the wild
     renderer.glDepthFunc(renderer.gl.LEQUAL);
-    renderer.glBlendFunc(renderer.gl.SRC_ALPHA) (renderer.gl.ONE_MINUS_SRC_ALPHA);
+    renderer.glBlendEquation(WebGlConstants.FUNC_ADD);
+    renderer.glBlendFuncSeparate([WebGlConstants.SRC_ALPHA, WebGlConstants.ONE_MINUS_SRC_ALPHA])([WebGlConstants.ONE, WebGlConstants.ONE_MINUS_SRC_ALPHA]);
 
     const render = _render (renderer) (shaderGroupByAlpha);
 
