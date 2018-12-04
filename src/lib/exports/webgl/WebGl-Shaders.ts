@@ -69,7 +69,6 @@ const _compileShader = ({renderer, source}:{renderer: WebGlRenderer, source: Web
         return new Error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
     }
 
-    gl.useProgram(program);
     cleanupShaders();
 
     return program;
@@ -102,5 +101,8 @@ export const createShader = ({renderer, shaderId, source}: {renderer:WebGlRender
     };
 
     shaders.set(shaderId, shader);
+
+    activateShader(shaderId);
+
     return shader;
 }
