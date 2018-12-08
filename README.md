@@ -1,14 +1,14 @@
-[![Build Status](https://travis-ci.org/dakom/pure3d.svg?branch=master)](https://travis-ci.org/dakom/pure3d)
+[![Build Status](https://travis-ci.org/dakom/pure3d-typescript.svg?branch=master)](https://travis-ci.org/dakom/pure3d)
 
 ## Pure3D
 
 ## **WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
 
-## [DEMO](https://dakom.github.io/pure3d)
+## [DEMO](https://dakom.github.io/pure3d-typescript)
 
 ## Remaining Features
 
-See [Issue Tracker](https://github.com/dakom/pure3d/issues)
+See [Issue Tracker](https://github.com/dakom/pure3d-typescript/issues)
 
 ## What it is: 
 
@@ -17,7 +17,7 @@ See [Issue Tracker](https://github.com/dakom/pure3d/issues)
 
 ## How it works
 
-See [Wiki](https://github.com/dakom/pure3d/wiki) for more details
+See [Wiki](https://github.com/dakom/pure3d-typescript/wiki) for more details
 
 * Generic layer automatically optimizes and skip unnecessary low-level webgl calls.
 * Gltf layer has strong separation of concerns and to make interop with functional frameworks, workers, and wasm a bit more organic.
