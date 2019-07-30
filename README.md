@@ -2,9 +2,9 @@
 
 ## Pure3D
 
-## **WORK-IN-PROGRESS: There will be breaking changes and what's there is sometimes purposefully broken too ;)**
+## DEPRECATED: moving to Rust**
 
-## [DEMO](https://dakom.github.io/pure3d-typescript)
+## [DEMO (no longer working)](https://dakom.github.com/pure3d-typescript)
 
 ## Remaining Features
 
