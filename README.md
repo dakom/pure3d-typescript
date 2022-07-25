@@ -4,7 +4,8 @@
 
 ## DEPRECATED: moving to Rust**
 
-## [DEMO (no longer working)](https://dakom.github.com/pure3d-typescript)
+## [DEMO](https://dakom.github.io/pure3d-typescript/)
+
 
 ## Remaining Features
 
